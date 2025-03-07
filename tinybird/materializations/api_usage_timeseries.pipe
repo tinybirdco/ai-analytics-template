@@ -1,0 +1,33 @@
+
+DESCRIPTION >
+    Get usage metrics over time with various dimensions and filters
+
+NODE usage_timeseries
+SQL >
+    %
+    SELECT
+        toStartOfHour(timestamp) as timestamp,
+        countState() as requests,
+        sumState(toUInt32(prompt_tokens)) as prompt_tokens,
+        sumState(toUInt32(completion_tokens)) as completion_tokens,
+        sumState(toUInt32(total_tokens)) as total_tokens,
+        sumState(toFloat32(cost)) as total_cost,
+        avgState(toFloat32(duration)) as avg_duration,
+        model,
+        provider,
+        organization,
+        project,
+        environment,
+        user
+    FROM llm_events
+    GROUP BY
+        timestamp,
+        model,
+        organization,
+        project,
+        environment,
+        provider,
+        user
+
+TYPE materialized
+DATASOURCE usage_metrics_materialized

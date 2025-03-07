@@ -1,0 +1,57 @@
+
+DESCRIPTION >
+    Get detailed LLM messages with filters
+
+NODE llm_messages_node
+SQL >
+    %
+    SELECT
+        timestamp,
+        organization,
+        project,
+        environment,
+        user,
+        chat_id,
+        model,
+        provider,
+        prompt_tokens,
+        completion_tokens,
+        total_tokens,
+        duration,
+        cost,
+        response_status,
+        exception
+    FROM llm_events
+    WHERE 1
+        {% if defined(organization) %}
+        AND organization = {{String(organization, '')}}
+        {% end %}
+        {% if defined(project) %}
+        AND project = {{String(project, '')}}
+        {% end %}
+        {% if defined(environment) %}
+        AND environment = {{String(environment, '')}}
+        {% end %}
+        {% if defined(user) %}
+        AND user = {{String(user, '')}}
+        {% end %}
+        {% if defined(model) %}
+        AND model = {{String(model, '')}}
+        {% end %}
+        {% if defined(chat_id) %}
+        AND chat_id = {{String(chat_id, '')}}
+        {% end %}
+        {% if defined(start_date) %}
+        AND timestamp >= {{DateTime(start_date)}}
+        {% else %}
+        AND timestamp >= now() - interval 7 day
+        {% end %}
+        {% if defined(end_date) %}
+        AND timestamp < {{DateTime(end_date)}}
+        {% else %}
+        AND timestamp < now()
+        {% end %}
+    ORDER BY timestamp DESC
+    LIMIT {{Int32(limit, 100)}}
+
+TYPE endpoint

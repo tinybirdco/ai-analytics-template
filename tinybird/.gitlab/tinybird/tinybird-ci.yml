@@ -1,0 +1,22 @@
+
+tinybird_ci_workflow:
+  image: ubuntu:latest
+  stage: tests
+  interruptible: true
+  needs: []
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        - .gitlab/tinybird/*
+  before_script:
+    - apt update && apt install -y curl
+    - curl -LsSf https://api.tinybird.co/static/install.sh | sh
+  script:
+    - export PATH="$HOME/.local/bin:$PATH"
+    - cd $CI_PROJECT_DIR/.
+    - tb build
+    - tb test run
+    - tb --cloud --host ${{ TINYBIRD_HOST }} --token ${{ TINYBIRD_TOKEN }} deploy --check
+  services:
+    - name: tinybirdco/tinybird-local:beta
+      alias: tinybird-local

@@ -1,0 +1,23 @@
+
+DESCRIPTION >
+    Materialized table for usage metrics
+
+SCHEMA >
+    `timestamp` DateTime,
+    `requests` AggregateFunction(count),
+    `prompt_tokens` AggregateFunction(sum, UInt32),
+    `completion_tokens` AggregateFunction(sum, UInt32),
+    `total_tokens` AggregateFunction(sum, UInt32),
+    `total_cost` AggregateFunction(sum, Float32),
+    `avg_duration` AggregateFunction(avg, Float32),
+    `model` String,
+    `organization` String,
+    `project` String,
+    `environment` String,
+    `user` String,
+    `provider` String
+
+ENGINE "AggregatingMergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "timestamp, model, organization, project, environment, user, provider"
+ENGINE_PRIMARY_KEY "timestamp, model, organization, project"
