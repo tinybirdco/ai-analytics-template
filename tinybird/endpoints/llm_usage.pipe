@@ -1,0 +1,54 @@
+TOKEN "read_pipes" READ
+
+NODE endpoint
+SQL >
+    %
+    {% if not defined(column_name) %}
+        {{ error('column_name (String) query param is required') }}
+    {% end %}
+    {% if defined(column_name) and column_name not in ['model', 'provider', 'organization', 'project', 'environment', 'user'] %}
+        {{ error('column_name (String) query param must be one of the following: model, provider, organization, project, environment, user') }}
+    {% end %}
+    SELECT
+        toString({{column(column_name, 'model')}}) as category,
+        count() as total_requests,
+        countIf(exception != '') as total_errors,
+        sum(total_tokens) as total_tokens,
+        sum(completion_tokens) as total_completion_tokens,
+        sum(prompt_tokens) as total_prompt_tokens,
+        sum(cost) as total_cost,
+        avg(duration) as avg_duration,
+        avg(response_time) as avg_response_time
+    FROM llm_events
+    WHERE 1
+        {% if defined(organization) and organization != '' %}
+        AND organization = {{String(organization, '')}}
+        {% end %}
+        {% if defined(project) and project != '' %}
+        AND project = {{String(project, '')}}
+        {% end %}
+        {% if defined(environment) and environment != '' %}
+        AND environment = {{String(environment, '')}}
+        {% end %}
+        {% if defined(provider) and provider != '' %}
+        AND provider = {{String(provider, '')}}
+        {% end %}
+        {% if defined(user) and user != '' %}
+        AND user = {{String(user, '')}}
+        {% end %}
+        {% if defined(model) and model != '' %}
+        AND model = {{String(model, '')}}
+        {% end %}
+        {% if defined(start_date) %}
+        AND timestamp >= {{DateTime(start_date)}}
+        {% else %}
+        AND timestamp >= now() - interval 7 day
+        {% end %}
+        {% if defined(end_date) %}
+        AND timestamp < {{DateTime(end_date)}}
+        {% else %}
+        AND timestamp < now()
+        {% end %}
+    GROUP BY category
+
+TYPE endpoint
