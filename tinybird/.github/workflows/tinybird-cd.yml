@@ -1,0 +1,36 @@
+name: Tinybird - CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'tinybird/**'
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  TINYBIRD_HOST: ${{ secrets.TINYBIRD_HOST }}
+  TINYBIRD_TOKEN: ${{ secrets.TINYBIRD_TOKEN }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: '.'
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Tinybird CLI
+        run: curl -LsSf https://api.tinybird.co/static/install.sh | sh
+      
+      - name: Build project
+        run: tb build
+
+      - name: Verify deployment
+        run: tb --cloud --host ${{ env.TINYBIRD_HOST }} --token ${{ env.TINYBIRD_TOKEN }} deploy --check 
+      
+      - name: Deploy to cloud
+        run: tb --cloud --host ${{ env.TINYBIRD_HOST }} --token ${{ env.TINYBIRD_TOKEN }} deploy
