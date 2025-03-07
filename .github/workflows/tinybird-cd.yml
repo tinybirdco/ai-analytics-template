@@ -19,7 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: '.'
+        working-directory: 'tinybird'
+    services:
+      tinybird:
+        image: tinybirdco/tinybird-local:beta
+        ports:
+          - 7181:7181
     steps:
       - uses: actions/checkout@v3
       
