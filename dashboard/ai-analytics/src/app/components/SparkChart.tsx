@@ -5,6 +5,7 @@ import {
     SparkAreaChart,
     LineChart,
     BarChart,
+    AreaChart,
     Tab,
     TabGroup,
     TabList,
@@ -271,59 +272,80 @@ import {
     },
   ];
   
-  type ChartType = 'area' | 'line' | 'bar';
+  // Create consistent color mapping with divergent colors
+  const colorMap = {
+    'gpt-4': 'orange',
+    'gpt-3.5-turbo': 'cyan',
+    'gpt-4-turbo': 'amber',
+    'claude-2': 'teal',
+    // Add more models as needed
+  };
+
+  // Default colors for unknown models
+  const defaultColors = ['orange', 'cyan', 'amber', 'teal', 'lime', 'pink'];
+
+  type ChartType = 'area' | 'line' | 'bar' | 'stacked-bar' | 'stacked-area';
 
   interface SparkChartProps {
+    data: Array<{
+      date: string;
+      [key: string]: any;
+    }>;
+    categories: string[];
     chartType?: ChartType;
-    title?: string;
-    value?: string;
-    change?: {
-      value: string;
-      percent: string;
-      type: 'positive' | 'negative';
-    };
+    title: string;
+    value: string;
   }
 
   export default function SparkChart({ 
-    chartType = 'area',
-    title = 'Watchlist',
-    value = '$44,567.10',
-    change = { value: '+$451.30', percent: '1.2%', type: 'positive' }
+    data,
+    categories,
+    chartType = 'line',
+    title,
+    value
   }: SparkChartProps) {
     const ChartComponent = {
-      area: SparkAreaChart,
-      line: LineChart,
-      bar: BarChart
+      'stacked-bar': BarChart,
+      'stacked-area': AreaChart,
+      'area': SparkAreaChart,
+      'line': LineChart,
+      'bar': BarChart
     }[chartType];
 
+    const isStacked = chartType.startsWith('stacked-');
+
+    // Map colors consistently with TimeseriesChart
+    const colors = categories.map(category => 
+      colorMap[category as keyof typeof colorMap] || 
+      defaultColors[categories.indexOf(category) % defaultColors.length]
+    );
+
     return (
-      <>
-        <Card className="h-full w-full rounded-none border-0">
-          <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-            {title}
-          </p>
-          <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
-            {value}
-          </p>
-          <p className="mt-1 text-tremor-default font-medium">
-            <span className={`${change.type === 'positive' ? 'text-emerald-700 dark:text-emerald-500' : 'text-red-700 dark:text-red-500'}`}>
-              {change.value} ({change.percent})
-            </span>{' '}
-            <span className="font-normal text-tremor-content dark:text-dark-tremor-content">
-              Today
-            </span>
-          </p>
-          <div className="mt-6">
-            <ChartComponent
-              data={data}
-              index="date"
-              categories={["AMZN"]}
-              showGradient={true}
-              colors={['emerald']}
-              className="h-28 w-full"
-            />
-          </div>
-        </Card>
-      </>
+      <Card className="h-full w-full rounded-none border-0">
+        <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+          {title}
+        </p>
+        <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+          {value}
+        </p>
+        <div className="mt-6">
+          <ChartComponent
+            data={data}
+            index="date"
+            categories={categories}
+            showGradient={true}
+            colors={colors}
+            className="h-28 w-full"
+            showXAxis={true}
+            showYAxis={false}
+            showLegend={false}
+            showGridLines={false}
+            showAnimation={true}
+            curveType="monotone"
+            stack={isStacked}
+            rotateLabelX={-45}
+          />
+        </div>
+      </Card>
     );
   }
