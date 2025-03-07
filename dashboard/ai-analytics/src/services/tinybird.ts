@@ -7,6 +7,7 @@ export interface TinybirdParams {
   organization?: string;
   project?: string;
   column_name?: string;
+  dimension?: string;
 }
 
 export async function fetchLLMUsage(params: TinybirdParams = {}) {
@@ -26,6 +27,30 @@ export async function fetchLLMUsage(params: TinybirdParams = {}) {
       },
     }
   );
+
+  return response.json();
+}
+
+export async function fetchGenericCounter(params: TinybirdParams) {
+  const searchParams = new URLSearchParams();
+  
+  // Add all params to search params
+  Object.entries(params).forEach(([key, value]) => {
+    if (value) searchParams.set(key, value.toString());
+  });
+
+  const response = await fetch(
+    `${TINYBIRD_API_URL}/v0/pipes/generic_counter.json?${searchParams.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${TINYBIRD_API_KEY}`,
+      },
+    }
+  );
+  
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
 
   return response.json();
 } 
