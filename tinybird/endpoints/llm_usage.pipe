@@ -3,15 +3,14 @@ TOKEN "read_pipes" READ
 NODE endpoint
 SQL >
     %
-    {% if not defined(column_name) %}
-        {{ error('column_name (String) query param is required') }}
-    {% end %}
     {% if defined(column_name) and column_name not in ['model', 'provider', 'organization', 'project', 'environment', 'user'] %}
         {{ error('column_name (String) query param must be one of the following: model, provider, organization, project, environment, user') }}
     {% end %}
     SELECT
         toDate(timestamp) as date,
-        toString({{column(column_name, 'model')}}) as category,
+        {% if defined(column_name) %}
+            toString({{column(column_name, 'model')}}) as category,
+        {% end %}
         count() as total_requests,
         countIf(exception != '') as total_errors,
         sum(total_tokens) as total_tokens,
@@ -50,7 +49,11 @@ SQL >
         {% else %}
         AND timestamp < now()
         {% end %}
-    GROUP BY category, date
+    GROUP BY 
+    {% if defined(column_name) %}
+    category,
+    {% end %} 
+    date
     order by date ASC
 
 TYPE endpoint
