@@ -5,10 +5,8 @@ import TimeseriesChartContainer from './containers/TimeseriesChartContainer';
 import MetricsCards from './components/MetricsCards';
 import DataTable from './components/DataTable';
 import TabbedPane from './components/TabbedPane';
-import { useState } from 'react';
 
 export default function Dashboard() {
-  const [dateRange, setDateRange] = useState<{start: Date; end: Date} | null>(null);
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">

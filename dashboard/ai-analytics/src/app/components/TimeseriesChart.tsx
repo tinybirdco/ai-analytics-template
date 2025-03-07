@@ -13,7 +13,7 @@ import {
 import { useFilters } from '@/hooks/useTinybirdData';
 import { useSearchParams, useRouter } from 'next/navigation';
 
-function classNames(...classes) {
+function classNames(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(' ');
 }
 
@@ -79,13 +79,13 @@ export default function TimeseriesChart({ data }: TimeseriesChartProps) {
       key: 'model',
       data: transformedData,
       categories: models,
-      colors: models.map(model => colorMap[model] || defaultColors[models.indexOf(model) % defaultColors.length]),
+      colors: models.map(model => colorMap[model as keyof typeof colorMap] || defaultColors[models.indexOf(model) % defaultColors.length]),
       summary: models.map(model => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${colorMap[model] || defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
+        color: `bg-${colorMap[model as keyof typeof colorMap] || defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
       })),
     },
     {
