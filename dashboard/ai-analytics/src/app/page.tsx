@@ -1,10 +1,13 @@
+'use client';
+
 import TopBar from './components/TopBar';
-import TimeseriesChart from './components/TimeseriesChart';
+import TimeseriesChartContainer from './containers/TimeseriesChartContainer';
 import MetricsCards from './components/MetricsCards';
 import DataTable from './components/DataTable';
 import TabbedPane from './components/TabbedPane';
 
 export default function Dashboard() {
+
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">
       <TopBar />
@@ -14,7 +17,7 @@ export default function Dashboard() {
         <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
           {/* Timeseries Chart */}
           <div className="border border-gray-700">
-            <TimeseriesChart />
+            <TimeseriesChartContainer />
           </div>
           
           {/* Metrics Cards */}

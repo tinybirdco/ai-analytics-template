@@ -10,6 +10,7 @@ SQL >
         {{ error('column_name (String) query param must be one of the following: model, provider, organization, project, environment, user') }}
     {% end %}
     SELECT
+        toDate(timestamp) as date,
         toString({{column(column_name, 'model')}}) as category,
         count() as total_requests,
         countIf(exception != '') as total_errors,
@@ -49,6 +50,7 @@ SQL >
         {% else %}
         AND timestamp < now()
         {% end %}
-    GROUP BY category
+    GROUP BY category, date
+    order by date ASC
 
 TYPE endpoint
