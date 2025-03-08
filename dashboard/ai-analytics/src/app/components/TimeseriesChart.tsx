@@ -144,29 +144,13 @@ export default function TimeseriesChart({ data, filters }: TimeseriesChartProps)
   return (
     <Card className="h-full p-0 rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
       <div className="flex h-full flex-col">
-        <div className="p-6">
-          <h3 className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-            Requests
-          </h3>
-          <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
-            Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam
-            nonumy eirmod tempor invidunt.{' '}
-            <a
-              href="#"
-              className="inline-flex items-center gap-1 text-tremor-default text-tremor-brand dark:text-dark-tremor-brand"
-            >
-              Learn more
-              <RiExternalLinkLine className="size-4" aria-hidden={true} />
-            </a>
-          </p>
-        </div>
-        <div className="flex-1 border-t border-tremor-border p-6 dark:border-dark-tremor-border">
+        <div className="flex-1 border-t border-tremor-border p-6 dark:border-dark-tremor-border overflow-hidden">
           <TabGroup 
-            className="h-full"
+            className="h-full flex flex-col"
             onIndexChange={handleTabChange}
             defaultIndex={tabs.findIndex(t => t.key === searchParams.get('column_name')) || 0}
           >
-            <div className="md:flex md:items-center md:justify-between">
+            <div className="flex-none md:flex md:items-center md:justify-between">
               <TabList
                 variant="solid"
                 className="w-full rounded-tremor-small md:w-[400px]"
@@ -192,13 +176,10 @@ export default function TimeseriesChart({ data, filters }: TimeseriesChartProps)
                 </p>
               </div>
             </div>
-            <TabPanels className="h-[calc(100%-4rem)]">
+            <TabPanels className="flex-1 min-h-0 overflow-hidden">
               {tabs.map((tab) => (
-                <TabPanel key={tab.name} className="h-full">
-                  <ul
-                    role="list"
-                    className="mt-6 flex flex-wrap gap-x-20 gap-y-10"
-                  >
+                <TabPanel key={tab.name} className="h-full flex flex-col">
+                  <ul className="flex-none mt-6 flex flex-wrap gap-x-20 gap-y-10">
                     {tab.summary.map((item) => (
                       <li key={item.name}>
                         <div className="flex items-center space-x-2">
@@ -219,32 +200,34 @@ export default function TimeseriesChart({ data, filters }: TimeseriesChartProps)
                       </li>
                     ))}
                   </ul>
-                  <BarChart
-                    data={tab.data}
-                    index="date"
-                    categories={tab.categories}
-                    colors={tab.colors}
-                    stack={true}
-                    showLegend={false}
-                    yAxisWidth={45}
-                    valueFormatter={valueFormatter}
-                    className="h-[calc(100%-8rem)] mt-10 hidden md:block"
-                    showTooltip={true}
-                    showAnimation={true}
-                  />
-                  <BarChart
-                    data={tab.data}
-                    index="date"
-                    categories={tab.categories}
-                    colors={tab.colors}
-                    stack={true}
-                    showLegend={false}
-                    showYAxis={false}
-                    valueFormatter={valueFormatter}
-                    className="h-[calc(100%-8rem)] mt-6 md:hidden"
-                    showTooltip={true}
-                    showAnimation={true}
-                  />
+                  <div className="flex-1 min-h-0">
+                    <BarChart
+                      data={tab.data}
+                      index="date"
+                      categories={tab.categories}
+                      colors={tab.colors}
+                      stack={true}
+                      showLegend={false}
+                      yAxisWidth={45}
+                      valueFormatter={valueFormatter}
+                      className="h-full mt-10 hidden md:block"
+                      showTooltip={true}
+                      showAnimation={true}
+                    />
+                    <BarChart
+                      data={tab.data}
+                      index="date"
+                      categories={tab.categories}
+                      colors={tab.colors}
+                      stack={true}
+                      showLegend={false}
+                      showYAxis={false}
+                      valueFormatter={valueFormatter}
+                      className="h-full mt-6 md:hidden"
+                      showTooltip={true}
+                      showAnimation={true}
+                    />
+                  </div>
                 </TabPanel>
               ))}
             </TabPanels>

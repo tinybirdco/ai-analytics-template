@@ -69,21 +69,23 @@ export default function Dashboard() {
         onRemoveFilter={handleRemoveFilter}
       />
       
-      <main className="flex-1 grid grid-rows-[60%_40%]">
-        <div className="grid grid-cols-3">
-          <div className="col-span-2 border-b border-r border-gray-700">
+      <main className="flex-1 flex min-h-0">
+        {/* Main Content - 2/3 width */}
+        <div className="w-2/3 flex flex-col min-h-0">
+          <div className="h-[60vh] border-b border-r border-gray-700">
             <TimeseriesChartContainer filters={filters} />
           </div>
+          <div className="h-[35vh] border-r border-gray-700 overflow-hidden">
+            <DataTableContainer filters={filters} />
+          </div>
+        </div>
+
+        {/* Sidebar - 1/3 width */}
+        <div className="w-1/3 overflow-auto">
           <div className="border-b border-gray-700">
             <MetricsCards filters={filters} />
           </div>
-        </div>
-        
-        <div className="grid grid-cols-3">
-          <div className="col-span-2 border-r border-gray-700">
-            <DataTableContainer filters={filters} />
-          </div>
-          <div className="border-none border-gray-700">
+          <div>
             <TabbedPane 
               filters={filters}
               onFilterUpdate={handleFilterUpdate} 

@@ -13,5 +13,9 @@ export default function TimeseriesChartContainer({ filters }: TimeseriesChartCon
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;
 
-  return <TimeseriesChart data={data} filters={filters} />;
+  return (
+    <div className="h-[60vh] overflow-hidden">
+      <TimeseriesChart data={data} filters={filters} />
+    </div>
+  );
 } 

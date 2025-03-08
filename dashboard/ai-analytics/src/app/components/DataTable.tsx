@@ -41,6 +41,126 @@ const MOCK_DATA = {
       total_requests: 50,
       avg_duration: 150.2
     },
+    {
+      date: '2024-01-01',
+      model: 'gpt-4',
+      provider: 'OpenAI',
+      organization: 'Acme Inc',
+      project: 'chatbot',
+      environment: 'production',
+      user: 'john@acme.com',
+      total_tokens: 15000,
+      total_requests: 100,
+      avg_duration: 250.5
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-3.5-turbo',
+      provider: 'OpenAI',
+      organization: 'Beta Corp',
+      project: 'support',
+      environment: 'staging',
+      user: 'jane@beta.com',
+      total_tokens: 8000,
+      total_requests: 50,
+      avg_duration: 150.2
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-4',
+      provider: 'OpenAI',
+      organization: 'Acme Inc',
+      project: 'chatbot',
+      environment: 'production',
+      user: 'john@acme.com',
+      total_tokens: 15000,
+      total_requests: 100,
+      avg_duration: 250.5
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-3.5-turbo',
+      provider: 'OpenAI',
+      organization: 'Beta Corp',
+      project: 'support',
+      environment: 'staging',
+      user: 'jane@beta.com',
+      total_tokens: 8000,
+      total_requests: 50,
+      avg_duration: 150.2
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-4',
+      provider: 'OpenAI',
+      organization: 'Acme Inc',
+      project: 'chatbot',
+      environment: 'production',
+      user: 'john@acme.com',
+      total_tokens: 15000,
+      total_requests: 100,
+      avg_duration: 250.5
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-3.5-turbo',
+      provider: 'OpenAI',
+      organization: 'Beta Corp',
+      project: 'support',
+      environment: 'staging',
+      user: 'jane@beta.com',
+      total_tokens: 8000,
+      total_requests: 50,
+      avg_duration: 150.2
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-4',
+      provider: 'OpenAI',
+      organization: 'Acme Inc',
+      project: 'chatbot',
+      environment: 'production',
+      user: 'john@acme.com',
+      total_tokens: 15000,
+      total_requests: 100,
+      avg_duration: 250.5
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-3.5-turbo',
+      provider: 'OpenAI',
+      organization: 'Beta Corp',
+      project: 'support',
+      environment: 'staging',
+      user: 'jane@beta.com',
+      total_tokens: 8000,
+      total_requests: 50,
+      avg_duration: 150.2
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-4',
+      provider: 'OpenAI',
+      organization: 'Acme Inc',
+      project: 'chatbot',
+      environment: 'production',
+      user: 'john@acme.com',
+      total_tokens: 15000,
+      total_requests: 100,
+      avg_duration: 250.5
+    },
+    {
+      date: '2024-01-01',
+      model: 'gpt-3.5-turbo',
+      provider: 'OpenAI',
+      organization: 'Beta Corp',
+      project: 'support',
+      environment: 'staging',
+      user: 'jane@beta.com',
+      total_tokens: 8000,
+      total_requests: 50,
+      avg_duration: 150.2
+    },
     // Add more mock entries as needed
   ]
 };
@@ -65,17 +185,17 @@ export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-none p-4">
+      <div className="flex-none">
         <div className="md:flex md:items-center md:justify-between md:space-x-8">
-          <div>
+          {/* <div>
             <h3 className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
               Recent Activity
             </h3>
             <p className="mt-1 text-tremor-default leading-6 text-tremor-content dark:text-dark-tremor-content">
               Overview of recent LLM usage across your organization.
             </p>
-          </div>
-          <div className="mt-4 sm:flex sm:items-center sm:space-x-2 md:mt-0">
+          </div> */}
+          {/* <div className="mt-4 sm:flex sm:items-center sm:space-x-2 md:mt-0">
             <MultiSelect
               onValueChange={setSelectedStatus}
               placeholder="Select model..."
@@ -98,14 +218,14 @@ export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
                 </SelectItem>
               ))}
             </Select>
-          </div>
+          </div> */}
         </div>
       </div>
       
       <div className="flex-1 overflow-auto min-h-0">
         <div className="min-w-[1024px]">
           <Table>
-            <TableHead>
+            <TableHead className="sticky top-0 bg-gray-900 z-10">
               <TableRow>
                 <TableHeaderCell>Date</TableHeaderCell>
                 <TableHeaderCell>Model</TableHeaderCell>

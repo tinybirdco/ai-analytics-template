@@ -13,9 +13,8 @@ export default function DataTableContainer({ filters }: DataTableContainerProps)
   if (error) return <div>Error loading data</div>;
 
   return (
-    <Card className="h-full rounded-none flex flex-col" style={{ boxShadow: 'none' }}>
-      <h2 className="text-lg font-semibold flex-none">Recent Activity</h2>
-      <div className="flex-1 overflow-auto min-h-0">
+    <Card className="h-full rounded-none flex flex-col overflow-hidden" style={{ boxShadow: 'none' }}>
+      <div className="flex-1 overflow-auto">
         <DataTable data={data} />
       </div>
     </Card>

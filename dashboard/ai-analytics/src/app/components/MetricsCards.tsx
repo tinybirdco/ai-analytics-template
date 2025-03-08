@@ -8,12 +8,11 @@ interface MetricsCardsProps {
 
 export default function MetricsCards({ filters }: MetricsCardsProps) {
   return (
-    <div className="h-full grid grid-rows-3">
+    <div className="h-full grid grid-rows-2">
       <SparkChartContainer 
         chartType="line" 
         metric="avg_duration"
         title="Average Duration"
-        style={{ boxShadow: '0 10px 0 0 rgb(55 65 81)' }}
         filters={filters}
       />
       <SparkChartContainer 
