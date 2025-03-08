@@ -9,8 +9,13 @@ export function useLLMUsage(filters: Record<string, string>) {
 }
 
 export function useGenericCounter(dimension: string, filters: Record<string, string>) {
+  const allFilters = {
+    ...filters,
+    dimension
+  };
+
   return useQuery({
     queryKey: ['generic-counter', dimension, filters],
-    queryFn: () => fetchGenericCounter({ ...filters, dimension })
+    queryFn: () => fetchGenericCounter(allFilters)
   });
 } 

@@ -21,14 +21,8 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   const [barListData, setBarListData] = useState<Array<{ name: string; value: number }>>([]);
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  // Get all filters except current tab's filter
-  const queryFilters = useMemo(() => {
-    const filtered = { ...filters };
-    delete filtered[selectedTab];
-    return filtered;
-  }, [filters, selectedTab]);
-
-  const { data, isLoading, error } = useGenericCounter(selectedTab, queryFilters);
+  // Pass all filters to the query
+  const { data, isLoading, error } = useGenericCounter(selectedTab, filters);
 
   // Add effect to sync with URL params
   useEffect(() => {
@@ -44,18 +38,17 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   const handleSelectionChange = (newSelection: string[]) => {
     setSelectedValues(newSelection);
     
-    // Update URL params
+    // Update URL without scroll
     const params = new URLSearchParams(searchParams.toString());
     if (newSelection.length > 0) {
       params.set(selectedTab, newSelection.join(','));
     } else {
       params.delete(selectedTab);
-      // Also remove the filter from URL when clearing
       if (filters[selectedTab]) {
         delete filters[selectedTab];
       }
     }
-    router.push(`?${params.toString()}`);
+    window.history.replaceState({}, '', `?${params.toString()}`);
     
     // Notify parent to update filters
     onFilterUpdate(selectedTab, tabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
@@ -66,14 +59,14 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
     handleSelectionChange(newSelection);
   };
 
-  const handleTabChange = async (index: number) => {
+  const handleTabChange = (index: number) => {
     const tab = tabs[index];
     const dimension = tab.key;
     
-    // Update URL
-    const params = new URLSearchParams(searchParams);
+    // Update URL without scroll
+    const params = new URLSearchParams(searchParams.toString());
     params.set('dimension', dimension);
-    router.push(`?${params.toString()}`);
+    window.history.replaceState({}, '', `?${params.toString()}`);
     
     setSelectedTab(dimension);
   };
@@ -93,7 +86,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
     <div className="h-full">
       <TabGroup 
         defaultIndex={tabs.findIndex(t => t.key === selectedTab)}
-        onChange={handleTabChange}
+        onIndexChange={handleTabChange}
       >
         <TabList className="flex space-x-2">
           {tabs.map((tab) => (

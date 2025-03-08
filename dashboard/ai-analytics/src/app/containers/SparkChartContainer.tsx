@@ -5,22 +5,21 @@ import SparkChart from '../components/SparkChart';
 import { type ChartType } from '@tremor/react';
 
 interface SparkChartContainerProps {
+  data: any;
+  isLoading: boolean;
   chartType?: ChartType;
   metric: 'avg_duration' | 'total_requests' | 'total_tokens';
   title: string;
-  filters: Record<string, string>;
 }
 
 export default function SparkChartContainer({ 
+  data,
+  isLoading,
   chartType = 'area',
   metric,
   title,
-  filters
 }: SparkChartContainerProps) {
-  const { data, isLoading, error } = useLLMUsage(filters);
-  
   if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading data</div>;
 
   // Get unique dates and categories
   const dates = [...new Set(data.data.map(d => d.date))].sort();

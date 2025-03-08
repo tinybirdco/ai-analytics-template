@@ -8,6 +8,7 @@ import TabbedPane from './components/TabbedPane';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { tabs } from './constants';
+import { useLLMUsage } from '@/hooks/useTinybirdData';
 
 interface Selection {
   dimension: string;
@@ -19,8 +20,11 @@ export default function Dashboard() {
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selections, setSelections] = useState<Selection[]>([]);
   const searchParams = useSearchParams();
+  
+  // Shared LLM usage data
+  const { data: llmData, isLoading, error } = useLLMUsage(filters);
 
-  // Initialize selections from URL params
+  // Initialize from URL only once
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     const newSelections: Selection[] = [];
@@ -39,9 +43,15 @@ export default function Dashboard() {
       }
     });
 
+    // Get column_name from URL if present
+    const columnName = params.get('column_name');
+    if (columnName) {
+      newFilters.column_name = columnName;
+    }
+
     setSelections(newSelections);
     setFilters(newFilters);
-  }, [searchParams]);
+  }, []); // Only run once on mount
 
   const handleFilterUpdate = (dimension: string, dimensionName: string, values: string[]) => {
     setSelections(prev => {
@@ -88,6 +98,10 @@ export default function Dashboard() {
     });
   };
 
+  const handleTimeseriesFilterChange = (newFilters: Record<string, string>) => {
+    setFilters(newFilters);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">
       <TopBar
@@ -99,17 +113,25 @@ export default function Dashboard() {
         {/* Main Content - 2/3 width */}
         <div className="w-2/3 flex flex-col min-h-0">
           <div className="h-[60vh] border-b border-r border-gray-700">
-            <TimeseriesChartContainer filters={filters} />
+            <TimeseriesChartContainer 
+              data={llmData} 
+              isLoading={isLoading}
+              filters={filters}
+              onFiltersChange={handleTimeseriesFilterChange}
+            />
           </div>
           <div className="h-[35vh] border-r border-gray-700 overflow-hidden">
-            <DataTableContainer filters={filters} />
+            <DataTableContainer data={llmData} isLoading={isLoading} />
           </div>
         </div>
 
         {/* Sidebar - 1/3 width */}
         <div className="w-1/3 overflow-auto">
           <div className="border-b border-gray-700">
-            <MetricsCards filters={filters} />
+            <MetricsCards 
+              data={llmData} 
+              isLoading={isLoading} 
+            />
           </div>
           <div>
             <TabbedPane 

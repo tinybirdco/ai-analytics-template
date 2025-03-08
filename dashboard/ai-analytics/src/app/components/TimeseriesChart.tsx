@@ -37,9 +37,10 @@ interface TimeseriesChartProps {
     data: TimeseriesData[];
   };
   filters: Record<string, string>;
+  onFiltersChange?: (filters: Record<string, string>) => void;
 }
 
-export default function TimeseriesChart({ data, filters }: TimeseriesChartProps) {
+export default function TimeseriesChart({ data, filters, onFiltersChange }: TimeseriesChartProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -137,8 +138,11 @@ export default function TimeseriesChart({ data, filters }: TimeseriesChartProps)
     const params = new URLSearchParams(searchParams);
     params.set('column_name', tab.key);
     router.push(`?${params.toString()}`);
-    // Update filters which will trigger data refetch
-    filters.column_name = tab.key;
+    
+    // Create new filters object
+    const newFilters = { ...filters, column_name: tab.key };
+    // Pass the new filters up to parent component
+    onFiltersChange?.(newFilters);
   };
 
   return (
