@@ -3,7 +3,7 @@
 import TopBar from './components/TopBar';
 import TimeseriesChartContainer from './containers/TimeseriesChartContainer';
 import MetricsCards from './components/MetricsCards';
-import DataTable from './components/DataTable';
+import DataTableContainer from './containers/DataTableContainer';
 import TabbedPane from './components/TabbedPane';
 import { useState } from 'react';
 
@@ -70,8 +70,8 @@ export default function Dashboard() {
       />
       
       <main className="flex-1 grid grid-rows-[60%_40%]">
-        <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
-          <div className="border-b border-r border-gray-700">
+        <div className="grid grid-cols-3">
+          <div className="col-span-2 border-b border-r border-gray-700">
             <TimeseriesChartContainer filters={filters} />
           </div>
           <div className="border-b border-gray-700">
@@ -79,9 +79,9 @@ export default function Dashboard() {
           </div>
         </div>
         
-        <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
-          <div className="border-r border-gray-700">
-            <DataTable filters={filters} />
+        <div className="grid grid-cols-3">
+          <div className="col-span-2 border-r border-gray-700">
+            <DataTableContainer filters={filters} />
           </div>
           <div className="border-none border-gray-700">
             <TabbedPane 
