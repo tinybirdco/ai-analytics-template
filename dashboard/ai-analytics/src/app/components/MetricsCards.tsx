@@ -9,6 +9,7 @@ export default function MetricsCards() {
         chartType="line" 
         metric="avg_duration"
         title="Average Duration"
+        style={{ boxShadow: '0 10px 0 0 rgb(55 65 81)' }}
       />
       <SparkChartContainer 
         chartType="stacked-bar" 

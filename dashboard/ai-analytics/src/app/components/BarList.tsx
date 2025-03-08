@@ -4,12 +4,18 @@ import { useState } from 'react';
 import { RiSearchLine } from '@remixicon/react';
 import { BarList as TremorBarList, Card, Dialog, DialogPanel, TextInput } from '@tremor/react';
 
+interface BarListItem {
+  name: string;
+  value: number;
+}
+
 interface BarListProps {
   data: Array<{
     name: string;
     value: number;
   }>;
   valueFormatter?: (value: number) => string;
+  onSelectionChange?: (selectedItems: string[]) => void;
 }
 
 const defaultFormatter = (number: number) =>
@@ -17,10 +23,13 @@ const defaultFormatter = (number: number) =>
 
 export default function BarList({ 
   data, 
-  valueFormatter = defaultFormatter 
+  valueFormatter = defaultFormatter,
+  onSelectionChange
 }: BarListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+
   const filteredItems = data.filter((item) =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()),
   );
@@ -29,9 +38,29 @@ export default function BarList({
   const totalValue = data.reduce((sum, item) => sum + item.value, 0);
   const hasMoreItems = data.length > 5;
 
+  const handleBarClick = (itemName: string) => {
+    setSelectedItems(prev => {
+      const newSelection = prev.includes(itemName)
+        ? prev.filter(name => name !== itemName)
+        : [...prev, itemName];
+      
+      onSelectionChange?.(newSelection);
+      return newSelection;
+    });
+  };
+
+  const renderBarList = (items: BarListItem[]) => (
+    <TremorBarList<BarListItem>
+      data={items}
+      valueFormatter={valueFormatter}
+      className="mt-4"
+      onValueChange={(item: BarListItem) => handleBarClick(item.name)}
+    />
+  );
+
   return (
     <>
-      <Card className="h-full w-full rounded-none border-0">
+      <Card className="h-full w-full rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
         <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           Total
         </p>
@@ -46,11 +75,7 @@ export default function BarList({
             Count
           </p>
         </div>
-        <TremorBarList
-          data={data.slice(0, 5)}
-          valueFormatter={valueFormatter}
-          className="mt-4"
-        />
+        {renderBarList(data.slice(0, 5))}
         {hasMoreItems && (
           <div className="absolute inset-x-0 bottom-0 flex justify-center rounded-b-tremor-default bg-gradient-to-t from-tremor-background to-transparent py-7 dark:from-dark-tremor-background">
             <button
@@ -87,10 +112,7 @@ export default function BarList({
             </div>
             <div className="h-96 overflow-y-scroll px-6">
               {filteredItems.length > 0 ? (
-                <TremorBarList 
-                  data={filteredItems} 
-                  valueFormatter={valueFormatter} 
-                />
+                renderBarList(filteredItems)
               ) : (
                 <p className="flex h-full items-center justify-center text-tremor-default text-tremor-content-strong dark:text-dark-tremor-content-strong">
                   No results.

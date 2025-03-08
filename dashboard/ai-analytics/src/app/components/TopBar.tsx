@@ -1,29 +1,31 @@
 'use client';
 
-// import { useState } from 'react';
+import FilterChips from './FilterChips';
 
-// const organizations = {
-//   'acme_corp': {
-//     projects: ['marketplace', 'logistics', 'payments'],
-//   },
-//   'tech_dynamics': {
-//     projects: ['mobile_app', 'web_platform', 'analytics'],
-//   },
-//   'quantum_systems': {
-//     projects: ['quantum_sim', 'research_lab', 'cloud_compute'],
-//   },
-//   'data_pioneers': {
-//     projects: ['data_lake', 'ml_platform', 'bi_tools'],
-//   },
-//   'future_retail': {
-//     projects: ['pos_system', 'inventory', 'customer_portal'],
-//   }
-// };
+interface FilterSelection {
+  dimension: string;
+  dimensionName: string;
+  values: string[];
+}
 
-export default function TopBar() {
+interface TopBarProps {
+  selections: FilterSelection[];
+  onRemoveFilter: (dimension: string, value: string) => void;
+}
+
+export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   return (
-    <div className="h-12 border-b border-gray-700">
-      <h1 className="text-xl font-bold h-full flex items-center px-4">AI Analytics Dashboard</h1>
+    <div className="flex flex-wrap gap-2 p-4 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle border-b border-tremor-border dark:border-dark-tremor-border">
+      {selections.map(({ dimension, dimensionName, values }) => 
+        values.map(value => (
+          <FilterChips
+            key={`${dimension}-${value}`}
+            dimension={dimensionName}
+            value={value}
+            onRemove={() => onRemoveFilter(dimension, value)}
+          />
+        ))
+      )}
     </div>
   );
 } 

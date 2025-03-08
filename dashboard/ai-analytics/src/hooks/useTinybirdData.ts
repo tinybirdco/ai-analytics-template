@@ -28,13 +28,11 @@ export function useLLMUsage() {
 }
 
 // Hook for generic counter data
-export function useGenericCounter(dimension: string | null) {
-  const filters = useFilters((state) => state.filters);
-
+export function useGenericCounter(dimension: string | null, filters: Record<string, any> = {}) {
   return useQuery({
     queryKey: ['generic-counter', dimension, filters],
     queryFn: () => fetchGenericCounter({ ...filters, dimension }),
     staleTime: 30000,
-    enabled: !!dimension // Only fetch when dimension is provided
+    enabled: !!dimension
   });
 } 

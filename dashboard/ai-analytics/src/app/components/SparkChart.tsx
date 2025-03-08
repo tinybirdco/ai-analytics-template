@@ -321,7 +321,7 @@ import {
     );
 
     return (
-      <Card className="h-full w-full rounded-none border-0">
+      <Card className="h-full w-full rounded-none" style={{ boxShadow: 'none' }}>
         <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           {title}
         </p>

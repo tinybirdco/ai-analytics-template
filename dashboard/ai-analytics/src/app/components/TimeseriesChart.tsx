@@ -143,7 +143,7 @@ export default function TimeseriesChart({ data }: TimeseriesChartProps) {
   };
 
   return (
-    <Card className="h-full p-0 rounded-none border-0">
+    <Card className="h-full p-0 rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
       <div className="flex h-full flex-col">
         <div className="p-6">
           <h3 className="font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">

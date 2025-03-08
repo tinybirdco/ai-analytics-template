@@ -4,7 +4,8 @@ import { Tab, TabGroup, TabList } from '@tremor/react';
 import { useFilters, useGenericCounter } from '@/hooks/useTinybirdData';
 import { useSearchParams, useRouter } from 'next/navigation';
 import BarList from './BarList';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import FilterChips from './FilterChips';
 
 const tabs = [
   { name: 'Model', key: 'model' },
@@ -15,20 +16,76 @@ const tabs = [
   { name: 'User', key: 'user' }
 ];
 
-export default function TabbedPane() {
+interface TabbedPaneProps {
+  onFilterUpdate: (dimension: string, name: string, values: string[]) => void;
+}
+
+export default function TabbedPane({ onFilterUpdate }: TabbedPaneProps) {
+  const filters = useFilters((state) => state.filters);
   const setFilters = useFilters((state) => state.setFilters);
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialDimension = searchParams.get('dimension') || tabs[0].key;
   const [selectedTab, setSelectedTab] = useState<string>(initialDimension);
   const [barListData, setBarListData] = useState<Array<{ name: string; value: number }>>([]);
+  const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  // Set initial filter
+  // Get all filters except current tab's filter
+  const queryFilters = useMemo(() => {
+    const filtered = { ...filters };
+    delete filtered[selectedTab];
+    return filtered;
+  }, [filters, selectedTab]);
+
+  const { data, isLoading, error } = useGenericCounter(selectedTab, queryFilters);
+
+  // Add effect to sync with URL params
   useEffect(() => {
-    setFilters({ dimension: initialDimension });
-  }, []);
+    const params = new URLSearchParams(window.location.search);
+    const paramValue = params.get(selectedTab);
+    if (paramValue) {
+      setSelectedValues(paramValue.split(','));
+    } else {
+      setSelectedValues([]);
+    }
+  }, [selectedTab, searchParams]);
 
-  const { data, isLoading, error, refetch } = useGenericCounter(selectedTab);
+  const handleSelectionChange = (newSelection: string[]) => {
+    setSelectedValues(newSelection);
+    
+    // Update URL params
+    const params = new URLSearchParams(searchParams);
+    if (newSelection.length > 0) {
+      params.set(selectedTab, newSelection.join(','));
+    } else {
+      params.delete(selectedTab);
+    }
+    router.push(`?${params.toString()}`);
+    
+    // Update filters directly first
+    const newFilters = { ...filters };
+    if (newSelection.length > 0) {
+      newFilters[selectedTab] = newSelection.join(',');
+    } else {
+      delete newFilters[selectedTab];
+    }
+    setFilters(newFilters);
+    
+    // Then notify parent
+    onFilterUpdate(selectedTab, tabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
+  };
+
+  const handleTabChange = async (index: number) => {
+    const tab = tabs[index];
+    const dimension = tab.key;
+    
+    // Update URL
+    const params = new URLSearchParams(searchParams);
+    params.set('dimension', dimension);
+    router.push(`?${params.toString()}`);
+    
+    setSelectedTab(dimension);
+  };
 
   // Update barListData when data changes
   useEffect(() => {
@@ -40,23 +97,6 @@ export default function TabbedPane() {
       setBarListData(newData);
     }
   }, [data]);
-
-  const handleTabChange = async (index: number) => {
-    const tab = tabs[index];
-    const dimension = tab.key;
-    
-    // Update URL
-    const params = new URLSearchParams(searchParams);
-    params.set('dimension', dimension);
-    router.push(`?${params.toString()}`);
-    
-    // Update selected tab
-    setSelectedTab(dimension);
-    
-    // Update filters and trigger new request
-    setFilters({ dimension });
-    await refetch();
-  };
 
   return (
     <div className="h-full">
@@ -88,6 +128,7 @@ export default function TabbedPane() {
             <BarList 
               data={barListData}
               valueFormatter={(value: number) => value.toLocaleString()}
+              onSelectionChange={handleSelectionChange}
             />
           )}
         </div>
