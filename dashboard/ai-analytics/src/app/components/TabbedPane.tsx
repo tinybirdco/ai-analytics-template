@@ -6,15 +6,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import BarList from './BarList';
 import { useState, useEffect, useMemo } from 'react';
 import FilterChips from './FilterChips';
-
-const tabs = [
-  { name: 'Model', key: 'model' },
-  { name: 'Provider', key: 'provider' },
-  { name: 'Organization', key: 'organization' },
-  { name: 'Project', key: 'project' },
-  { name: 'Environment', key: 'environment' },
-  { name: 'User', key: 'user' }
-];
+import { tabs } from '../constants';
 
 interface TabbedPaneProps {
   filters: Record<string, string>;
@@ -53,16 +45,25 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
     setSelectedValues(newSelection);
     
     // Update URL params
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     if (newSelection.length > 0) {
       params.set(selectedTab, newSelection.join(','));
     } else {
       params.delete(selectedTab);
+      // Also remove the filter from URL when clearing
+      if (filters[selectedTab]) {
+        delete filters[selectedTab];
+      }
     }
     router.push(`?${params.toString()}`);
     
     // Notify parent to update filters
     onFilterUpdate(selectedTab, tabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
+  };
+
+  const handleRemoveFilter = (dimension: string, value: string) => {
+    const newSelection = selectedValues.filter(v => v !== value);
+    handleSelectionChange(newSelection);
   };
 
   const handleTabChange = async (index: number) => {

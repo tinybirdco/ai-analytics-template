@@ -5,7 +5,9 @@ import TimeseriesChartContainer from './containers/TimeseriesChartContainer';
 import MetricsCards from './components/MetricsCards';
 import DataTableContainer from './containers/DataTableContainer';
 import TabbedPane from './components/TabbedPane';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { tabs } from './constants';
 
 interface Selection {
   dimension: string;
@@ -16,6 +18,30 @@ interface Selection {
 export default function Dashboard() {
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selections, setSelections] = useState<Selection[]>([]);
+  const searchParams = useSearchParams();
+
+  // Initialize selections from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    const newSelections: Selection[] = [];
+    const newFilters: Record<string, string> = {};
+
+    // Check each possible dimension from tabs
+    tabs.forEach(tab => {
+      const values = params.get(tab.key)?.split(',') || [];
+      if (values.length > 0) {
+        newSelections.push({
+          dimension: tab.key,
+          dimensionName: tab.name,
+          values
+        });
+        newFilters[tab.key] = values.join(',');
+      }
+    });
+
+    setSelections(newSelections);
+    setFilters(newFilters);
+  }, [searchParams]);
 
   const handleFilterUpdate = (dimension: string, dimensionName: string, values: string[]) => {
     setSelections(prev => {
