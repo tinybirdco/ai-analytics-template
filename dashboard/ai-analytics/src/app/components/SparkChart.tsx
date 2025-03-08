@@ -13,7 +13,7 @@ import {
     TabPanels,
   } from '@tremor/react';
   
-  function classNames(...classes) {
+  function classNames(...classes: string[]) {
     return classes.filter(Boolean).join(' ');
   }
   
@@ -343,7 +343,6 @@ import {
             showAnimation={true}
             curveType="monotone"
             stack={isStacked}
-            rotateLabelX={-45}
           />
         </div>
       </Card>
