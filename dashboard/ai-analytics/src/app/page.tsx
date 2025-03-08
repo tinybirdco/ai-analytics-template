@@ -6,7 +6,6 @@ import MetricsCards from './components/MetricsCards';
 import DataTable from './components/DataTable';
 import TabbedPane from './components/TabbedPane';
 import { useState } from 'react';
-import { useFilters } from '@/hooks/useTinybirdData';
 
 interface Selection {
   dimension: string;
@@ -15,24 +14,25 @@ interface Selection {
 }
 
 export default function Dashboard() {
+  const [filters, setFilters] = useState<Record<string, string>>({});
   const [selections, setSelections] = useState<Selection[]>([]);
-  const setFilters = useFilters((state) => state.setFilters);
 
   const handleFilterUpdate = (dimension: string, dimensionName: string, values: string[]) => {
     setSelections(prev => {
       const otherSelections = prev.filter(s => s.dimension !== dimension);
-      const newSelections = values.length > 0 
+      return values.length > 0 
         ? [...otherSelections, { dimension, dimensionName, values }]
         : otherSelections;
+    });
 
-      // Update global filters using the new selections
-      const newFilters = newSelections.reduce((acc, { dimension, values }) => ({
-        ...acc,
-        [dimension]: values.join(',')
-      }), {});
-
-      setFilters(newFilters);
-      return newSelections;
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (values.length > 0) {
+        newFilters[dimension] = values.join(',');
+      } else {
+        delete newFilters[dimension];
+      }
+      return newFilters;
     });
   };
 
@@ -41,39 +41,22 @@ export default function Dashboard() {
       const newSelections = prev.map(selection => {
         if (selection.dimension === dimension) {
           const newValues = selection.values.filter(v => v !== value);
-          if (newValues.length === 0) {
-            return null;
-          }
-          return {
-            ...selection,
-            values: newValues
-          };
+          if (newValues.length === 0) return null;
+          return { ...selection, values: newValues };
         }
         return selection;
       }).filter((s): s is Selection => s !== null);
 
-      // Update global filters immediately
-      const newFilters = newSelections.reduce((acc, { dimension, values }) => ({
-        ...acc,
-        [dimension]: values.join(',')
-      }), {});
-
-      // Update filters first
-      setFilters(newFilters);
-
-      // Then update URL
-      const params = new URLSearchParams(window.location.search);
-      if (newSelections.length === 0) {
-        params.delete(dimension);
-      } else {
+      setFilters(prev => {
+        const newFilters = { ...prev };
         const selection = newSelections.find(s => s.dimension === dimension);
         if (selection) {
-          params.set(dimension, selection.values.join(','));
+          newFilters[dimension] = selection.values.join(',');
         } else {
-          params.delete(dimension);
+          delete newFilters[dimension];
         }
-      }
-      window.history.replaceState({}, '', `?${params.toString()}`);
+        return newFilters;
+      });
 
       return newSelections;
     });
@@ -87,29 +70,24 @@ export default function Dashboard() {
       />
       
       <main className="flex-1 grid grid-rows-[60%_40%]">
-        {/* Upper Section - 60% height */}
         <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
-          {/* Timeseries Chart */}
-          <div className=" border-b border-r border-gray-700">
-            <TimeseriesChartContainer />
+          <div className="border-b border-r border-gray-700">
+            <TimeseriesChartContainer filters={filters} />
           </div>
-          
-          {/* Metrics Cards */}
           <div className="border-b border-gray-700">
-            <MetricsCards />
+            <MetricsCards filters={filters} />
           </div>
         </div>
         
-        {/* Lower Section - 40% height */}
         <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
-          {/* Data Table with Search */}
           <div className="border-r border-gray-700">
-            <DataTable />
+            <DataTable filters={filters} />
           </div>
-          
-          {/* Tabbed Pane */}
           <div className="border-none border-gray-700">
-            <TabbedPane onFilterUpdate={handleFilterUpdate} />
+            <TabbedPane 
+              filters={filters}
+              onFilterUpdate={handleFilterUpdate} 
+            />
           </div>
         </div>
       </main>

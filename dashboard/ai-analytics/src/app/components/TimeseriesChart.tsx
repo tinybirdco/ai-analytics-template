@@ -10,7 +10,6 @@ import {
   TabPanel,
   TabPanels,
 } from '@tremor/react';
-import { useFilters } from '@/hooks/useTinybirdData';
 import { useSearchParams, useRouter } from 'next/navigation';
 
 function classNames(...classes: (string | undefined | null | false)[]) {
@@ -37,10 +36,10 @@ interface TimeseriesChartProps {
   data: {
     data: TimeseriesData[];
   };
+  filters: Record<string, string>;
 }
 
-export default function TimeseriesChart({ data }: TimeseriesChartProps) {
-  const setFilters = useFilters((state) => state.setFilters);
+export default function TimeseriesChart({ data, filters }: TimeseriesChartProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -139,7 +138,7 @@ export default function TimeseriesChart({ data }: TimeseriesChartProps) {
     params.set('column_name', tab.key);
     router.push(`?${params.toString()}`);
     // Update filters which will trigger data refetch
-    setFilters({ column_name: tab.key });
+    filters.column_name = tab.key;
   };
 
   return (

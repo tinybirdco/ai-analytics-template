@@ -8,14 +8,16 @@ interface SparkChartContainerProps {
   chartType?: ChartType;
   metric: 'avg_duration' | 'total_requests' | 'total_tokens';
   title: string;
+  filters: Record<string, string>;
 }
 
 export default function SparkChartContainer({ 
   chartType = 'area',
   metric,
-  title 
+  title,
+  filters
 }: SparkChartContainerProps) {
-  const { data, isLoading, error } = useLLMUsage();
+  const { data, isLoading, error } = useLLMUsage(filters);
   
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;

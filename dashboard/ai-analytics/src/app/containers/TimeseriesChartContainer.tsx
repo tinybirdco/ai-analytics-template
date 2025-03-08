@@ -1,13 +1,17 @@
 'use client';
 
-import { useLLMUsage } from '@/hooks/useTinybirdData';
 import TimeseriesChart from '../components/TimeseriesChart';
+import { useLLMUsage } from '@/hooks/useTinybirdData';
 
-export default function TimeseriesChartContainer() {
-  const { data, isLoading, error } = useLLMUsage();
+interface TimeseriesChartContainerProps {
+  filters: Record<string, string>;
+}
+
+export default function TimeseriesChartContainer({ filters }: TimeseriesChartContainerProps) {
+  const { data, isLoading, error } = useLLMUsage(filters);
   
   if (isLoading) return <div>Loading...</div>;
   if (error) return <div>Error loading data</div>;
 
-  return <TimeseriesChart data={data} />;
+  return <TimeseriesChart data={data} filters={filters} />;
 } 

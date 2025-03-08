@@ -1,7 +1,7 @@
 'use client';
 
 import { Tab, TabGroup, TabList } from '@tremor/react';
-import { useFilters, useGenericCounter } from '@/hooks/useTinybirdData';
+import { useGenericCounter } from '@/hooks/useTinybirdData';
 import { useSearchParams, useRouter } from 'next/navigation';
 import BarList from './BarList';
 import { useState, useEffect, useMemo } from 'react';
@@ -17,12 +17,11 @@ const tabs = [
 ];
 
 interface TabbedPaneProps {
+  filters: Record<string, string>;
   onFilterUpdate: (dimension: string, name: string, values: string[]) => void;
 }
 
-export default function TabbedPane({ onFilterUpdate }: TabbedPaneProps) {
-  const filters = useFilters((state) => state.filters);
-  const setFilters = useFilters((state) => state.setFilters);
+export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialDimension = searchParams.get('dimension') || tabs[0].key;
@@ -62,16 +61,7 @@ export default function TabbedPane({ onFilterUpdate }: TabbedPaneProps) {
     }
     router.push(`?${params.toString()}`);
     
-    // Update filters directly first
-    const newFilters = { ...filters };
-    if (newSelection.length > 0) {
-      newFilters[selectedTab] = newSelection.join(',');
-    } else {
-      delete newFilters[selectedTab];
-    }
-    setFilters(newFilters);
-    
-    // Then notify parent
+    // Notify parent to update filters
     onFilterUpdate(selectedTab, tabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
   };
 
