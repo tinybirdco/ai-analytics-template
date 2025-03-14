@@ -10,6 +10,7 @@ import {
   TabPanels,
 } from '@tremor/react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
 
 function classNames(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(' ');
@@ -42,6 +43,7 @@ interface TimeseriesChartProps {
 export default function TimeseriesChart({ data, filters, onFiltersChange }: TimeseriesChartProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { orgName } = useTinybirdToken();
 
   // Add null check for data
   if (!data?.data) {
@@ -107,20 +109,6 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       })),
     },
     {
-      name: 'Organization',
-      key: 'organization',
-      data: transformedData,
-      categories: models,
-      colors: defaultColors,
-      summary: models.map(model => ({
-        name: model,
-        total: data.data
-          .filter(d => d.category === model)
-          .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
-      })),
-    },
-    {
       name: 'Environment',
       key: 'environment',
       data: transformedData,
@@ -135,6 +123,23 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       })),
     }
   ];
+
+  if (!orgName) {
+    tabs.push({
+      name: 'Organization',
+      key: 'organization',
+      data: transformedData,
+      categories: models,
+      colors: defaultColors,
+      summary: models.map(model => ({
+        name: model,
+        total: data.data
+          .filter(d => d.category === model)
+          .reduce((sum, item) => sum + item.total_cost, 0),
+        color: `bg-${defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
+      })),
+    })
+  }
 
   const handleTabChange = (index: number) => {
     const tab = tabs[index];

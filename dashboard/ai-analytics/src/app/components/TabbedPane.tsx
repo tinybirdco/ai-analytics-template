@@ -6,6 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import BarList from './BarList';
 import { useState, useEffect } from 'react';
 import { tabs } from '../constants';
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
 
 interface TabbedPaneProps {
   filters: Record<string, string>;
@@ -13,8 +14,10 @@ interface TabbedPaneProps {
 }
 
 export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps) {
+  const { orgName } = useTinybirdToken();
   const searchParams = useSearchParams();
-  const initialDimension = searchParams.get('dimension') || tabs[0].key;
+  const filteredTabs = tabs.filter(tab => !orgName || tab.key !== 'organization');
+  const initialDimension = searchParams.get('dimension') || filteredTabs[0].key;
   const [selectedTab, setSelectedTab] = useState<string>(initialDimension);
   const [barListData, setBarListData] = useState<Array<{ name: string; value: number }>>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -50,7 +53,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
     window.history.replaceState({}, '', `?${params.toString()}`);
     
     // Notify parent to update filters
-    onFilterUpdate(selectedTab, tabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
+    onFilterUpdate(selectedTab, filteredTabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
   };
 
   // const handleRemoveFilter = (dimension: string, value: string) => {
@@ -59,7 +62,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   // };
 
   const handleTabChange = (index: number) => {
-    const tab = tabs[index];
+    const tab = filteredTabs[index];
     const dimension = tab.key;
     
     // Update URL without scroll
@@ -85,11 +88,11 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   return (
     <div className="h-full">
       <TabGroup 
-        defaultIndex={tabs.findIndex(t => t.key === selectedTab)}
+        defaultIndex={filteredTabs.findIndex(t => t.key === selectedTab)}
         onIndexChange={handleTabChange}
       >
         <TabList className="flex space-x-2">
-          {tabs.map((tab) => (
+          {filteredTabs.map((tab) => (
             <Tab
               key={tab.key}
               // @ts-expect-error fix later

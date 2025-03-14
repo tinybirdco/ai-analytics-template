@@ -9,22 +9,21 @@ import { useTinybirdToken } from '@/providers/TinybirdProvider'
 const inter = Inter({ subsets: ["latin"] })
 
 function RootLayoutContent({ children }: { children: React.ReactNode }) {
-  const { setToken } = useTinybirdToken()
+  const { setToken, setOrgName } = useTinybirdToken()
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    console.log('Fetching token...');
     fetch(window.location.pathname)
       .then(response => {
         const token = response.headers.get('x-tinybird-token')
-        console.log('Got token:', token);
+        const orgName = response.headers.get('x-org-name')
         if (token) {
-          console.log('Setting token...');
           setToken(token)
+          setOrgName(orgName || '')
           setIsReady(true)
         }
       })
-  }, [setToken])
+  }, [setToken, setOrgName])
 
   if (!isReady) return <div>Loading...</div>
 

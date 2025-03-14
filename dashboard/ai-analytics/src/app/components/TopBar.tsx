@@ -3,6 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
 
 interface Selection {
   dimension: string;
@@ -18,6 +19,7 @@ interface TopBarProps {
 export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { orgName } = useTinybirdToken();
 
   const handleRemoveFilter = (dimension: string, value: string) => {
     // Get current params
@@ -44,6 +46,9 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
       <div className="flex items-center space-x-4">
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {orgName || 'Admin User'}
+        </span>
         {selections.map((selection) => (
           selection.values.map((value) => (
             <FilterChips
