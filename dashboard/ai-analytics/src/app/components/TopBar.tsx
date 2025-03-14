@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SignInButton, SignUpButton, SignOutButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
 
 interface Selection {

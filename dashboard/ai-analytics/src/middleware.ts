@@ -1,15 +1,14 @@
 import { clerkMiddleware } from "@clerk/nextjs/server"
-import { getAuth } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import * as jose from 'jose'
 
 console.log('MIDDLEWARE FILE LOADED!!!')
 
-export default clerkMiddleware(async (auth, req) => {
+export default clerkMiddleware(async (auth) => {
   debugger;
   console.log('🔥🔥🔥 MIDDLEWARE EXECUTING 🔥🔥🔥')
   const authentication = await auth()
-  const { userId, sessionId, getToken, sessionClaims, orgId, orgRole, orgPermissions } = authentication
+  const { userId, sessionId, sessionClaims, orgId, orgRole, orgPermissions } = authentication
   console.log('Auth details:', { userId, sessionId, sessionClaims, orgId, orgRole, orgPermissions })
 
   // If user is not authenticated, continue without modification

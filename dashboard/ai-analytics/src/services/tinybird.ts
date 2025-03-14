@@ -1,7 +1,4 @@
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
-
 const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL;
-const TINYBIRD_API_KEY = process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
 
 export interface TinybirdParams {
   start_date?: string;
