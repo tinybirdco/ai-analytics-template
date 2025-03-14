@@ -21,7 +21,7 @@ export default clerkMiddleware(async (auth) => {
     // const sessionToken = await authentication.getToken({
     //   template: "tinybird-logs-explorer"  // This is key for getting org data
     // })
-    const orgName = orgPermissions?.[0]?.split(':').pop()
+    const orgName = orgPermissions?.[0]?.split(':').pop() || ''
 
     // Create Tinybird JWT
     const secret = new TextEncoder().encode(process.env.TINYBIRD_JWT_SECRET)
@@ -59,7 +59,7 @@ export default clerkMiddleware(async (auth) => {
     // Clone the response and add token
     const response = NextResponse.next()
     response.headers.set('x-tinybird-token', token)
-    
+    response.headers.set('x-org-name', orgName)
     return response
   } catch (error) {
     console.error('Middleware error:', error)
