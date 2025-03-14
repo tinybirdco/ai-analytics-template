@@ -1,14 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchLLMUsage, fetchGenericCounter } from '@/services/tinybird';
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
 
 export function useLLMUsage(filters: Record<string, string>) {
+  const { token } = useTinybirdToken();
+
   return useQuery({
     queryKey: ['llm-usage', filters],
-    queryFn: () => fetchLLMUsage(filters)
+    queryFn: () => fetchLLMUsage(token!, filters),
+    enabled: !!token
   });
 }
 
 export function useGenericCounter(dimension: string, filters: Record<string, string>) {
+  const { token } = useTinybirdToken();
   const allFilters = {
     ...filters,
     dimension
@@ -16,6 +21,6 @@ export function useGenericCounter(dimension: string, filters: Record<string, str
 
   return useQuery({
     queryKey: ['generic-counter', dimension, filters],
-    queryFn: () => fetchGenericCounter(allFilters)
+    queryFn: () => fetchGenericCounter(token!, allFilters)
   });
 } 
