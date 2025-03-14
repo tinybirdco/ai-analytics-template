@@ -1,6 +1,5 @@
 'use client';
 
-import { RiExternalLinkLine } from '@remixicon/react';
 import {
   BarChart,
   Card,

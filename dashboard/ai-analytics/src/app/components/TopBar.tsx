@@ -1,7 +1,6 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import FilterChips from './FilterChips';
 
 interface Selection {

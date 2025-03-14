@@ -5,7 +5,7 @@ import TimeseriesChartContainer from './containers/TimeseriesChartContainer';
 import MetricsCards from './components/MetricsCards';
 import DataTableContainer from './containers/DataTableContainer';
 import TabbedPane from './components/TabbedPane';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { tabs } from './constants';
 import { useLLMUsage } from '@/hooks/useTinybirdData';
@@ -17,12 +17,20 @@ interface Selection {
 }
 
 export default function Dashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
   const [filters, setFilters] = useState<Record<string, string>>({});
   const [selections, setSelections] = useState<Selection[]>([]);
   const searchParams = useSearchParams();
   
   // Shared LLM usage data
-  const { data: llmData, isLoading, error } = useLLMUsage(filters);
+  const { data: llmData, isLoading } = useLLMUsage(filters);
 
   // Initialize from URL only once
   useEffect(() => {
@@ -51,7 +59,7 @@ export default function Dashboard() {
 
     setSelections(newSelections);
     setFilters(newFilters);
-  }, []); // Only run once on mount
+  }, [searchParams]); // Only run once on mount
 
   const handleFilterUpdate = (dimension: string, dimensionName: string, values: string[]) => {
     setSelections(prev => {

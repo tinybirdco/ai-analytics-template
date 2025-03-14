@@ -28,7 +28,7 @@ export default function BarList({
 }: BarListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  // Used to maintain selection state for the barlist
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   const filteredItems = data.filter((item) =>

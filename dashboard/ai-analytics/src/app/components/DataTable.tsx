@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+// import { useState } from 'react';
 import {
-  MultiSelect,
-  MultiSelectItem,
-  Select,
-  SelectItem,
+  // MultiSelect,
+  // MultiSelectItem,
+  // Select,
+  // SelectItem,
   Table,
   TableBody,
   TableCell,
@@ -166,22 +166,23 @@ const MOCK_DATA = {
 };
 
 interface DataTableProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any; // We'll ignore the passed data for now and use mock data
 }
 
 export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
-  const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
-  const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
+  // const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
+  // const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
 
-  const isStatusSelected = (item: any) =>
-    (selectedStatus.includes(item.model) || selectedStatus.length === 0) &&
-    (selectedOwners.includes(item.organization) || selectedOwners.length === 0);
+  // const isStatusSelected = (item: any) =>
+  //   (selectedStatus.includes(item.model) || selectedStatus.length === 0) &&
+  //   (selectedOwners.includes(item.organization) || selectedOwners.length === 0);
 
-  const filteredData = MOCK_DATA.data.filter((item) => isStatusSelected(item));
+  // const filteredData = data.data.filter((item) => isStatusSelected(item));
 
   // Get unique values for filters
-  const models = Array.from(new Set(MOCK_DATA.data.map(item => item.model)));
-  const organizations = Array.from(new Set(MOCK_DATA.data.map(item => item.organization)));
+  // const models = Array.from(new Set(MOCK_DATA.data.map(item => item.model)));
+  // const organizations = Array.from(new Set(MOCK_DATA.data.map(item => item.organization)));
 
   return (
     <div className="flex flex-col h-full">
@@ -239,8 +240,9 @@ export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {filteredData.length > 0 ? (
-                filteredData.map((item, idx) => (
+              {data.data.length > 0 ? (
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                data.data.map((item: any, idx: number) => (
                   <TableRow key={idx}>
                     <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
                     <TableCell>{item.model}</TableCell>

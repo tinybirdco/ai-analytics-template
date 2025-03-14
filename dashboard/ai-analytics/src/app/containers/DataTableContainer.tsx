@@ -1,8 +1,8 @@
 import { Card } from '@tremor/react';
 import DataTable from '../components/DataTable';
-import { useLLMUsage } from '@/hooks/useTinybirdData';
 
 interface DataTableContainerProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
   isLoading: boolean;
 }

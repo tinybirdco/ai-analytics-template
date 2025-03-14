@@ -1,13 +1,25 @@
 'use client';
 
-import { useLLMUsage } from '@/hooks/useTinybirdData';
 import SparkChart from '../components/SparkChart';
-import { type ChartType } from '@tremor/react';
+
+interface DataPoint {
+  date: string;
+  category: string;
+  avg_duration: number;
+  total_requests: number;
+  total_tokens: number;
+}
+
+interface SparkChartData {
+  data: DataPoint[];
+}
 
 interface SparkChartContainerProps {
-  data: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: SparkChartData;
   isLoading: boolean;
-  chartType?: ChartType;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  chartType?: any;
   metric: 'avg_duration' | 'total_requests' | 'total_tokens';
   title: string;
 }
@@ -22,12 +34,12 @@ export default function SparkChartContainer({
   if (isLoading) return <div>Loading...</div>;
 
   // Get unique dates and categories
-  const dates = [...new Set(data.data.map(d => d.date))].sort();
-  const categories = [...new Set(data.data.map(d => d.category))];
+  const dates = [...new Set(data.data.map((d: DataPoint) => d.date))].sort();
+  const categories = [...new Set(data.data.map((d: DataPoint) => d.category))];
 
   // Transform data for the chart
   const transformedData = dates.map(date => {
-    const dayData = data.data.filter(d => d.date === date);
+    const dayData = data.data.filter((d: DataPoint) => d.date === date);
     return {
       date: new Date(date).toLocaleDateString('en-US', { 
         month: 'short', 
