@@ -1,13 +1,30 @@
 'use client';
 
-import { useLLMUsage } from '@/hooks/useTinybirdData';
 import TimeseriesChart from '../components/TimeseriesChart';
 
-export default function TimeseriesChartContainer() {
-  const { data, isLoading, error } = useLLMUsage();
-  
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading data</div>;
+interface TimeseriesChartContainerProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data: any;
+  isLoading: boolean;
+  filters: Record<string, string>;
+  onFiltersChange: (filters: Record<string, string>) => void;
+}
 
-  return <TimeseriesChart data={data} />;
+export default function TimeseriesChartContainer({ 
+  data, 
+  isLoading, 
+  filters,
+  onFiltersChange 
+}: TimeseriesChartContainerProps) {
+  if (isLoading) return <div>Loading...</div>;
+
+  return (
+    <div className="h-[60vh] overflow-hidden">
+      <TimeseriesChart 
+        data={data} 
+        filters={filters} 
+        onFiltersChange={onFiltersChange}
+      />
+    </div>
+  );
 } 

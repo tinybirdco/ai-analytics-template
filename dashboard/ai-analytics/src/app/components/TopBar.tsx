@@ -1,29 +1,57 @@
 'use client';
 
-// import { useState } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
+import FilterChips from './FilterChips';
 
-// const organizations = {
-//   'acme_corp': {
-//     projects: ['marketplace', 'logistics', 'payments'],
-//   },
-//   'tech_dynamics': {
-//     projects: ['mobile_app', 'web_platform', 'analytics'],
-//   },
-//   'quantum_systems': {
-//     projects: ['quantum_sim', 'research_lab', 'cloud_compute'],
-//   },
-//   'data_pioneers': {
-//     projects: ['data_lake', 'ml_platform', 'bi_tools'],
-//   },
-//   'future_retail': {
-//     projects: ['pos_system', 'inventory', 'customer_portal'],
-//   }
-// };
+interface Selection {
+  dimension: string;
+  dimensionName: string;
+  values: string[];
+}
 
-export default function TopBar() {
+interface TopBarProps {
+  selections: Selection[];
+  onRemoveFilter: (dimension: string, value: string) => void;
+}
+
+export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleRemoveFilter = (dimension: string, value: string) => {
+    // Get current params
+    const params = new URLSearchParams(searchParams.toString());
+    const currentValues = params.get(dimension)?.split(',') || [];
+    
+    // Remove the value
+    const newValues = currentValues.filter(v => v !== value);
+    
+    // Update or remove the param
+    if (newValues.length > 0) {
+      params.set(dimension, newValues.join(','));
+    } else {
+      params.delete(dimension);
+    }
+    
+    // Update URL
+    router.push(`?${params.toString()}`);
+    
+    // Notify parent
+    onRemoveFilter(dimension, value);
+  };
+
   return (
-    <div className="h-12 border-b border-gray-700">
-      <h1 className="text-xl font-bold h-full flex items-center px-4">AI Analytics Dashboard</h1>
+    <div className="flex flex-wrap gap-2 p-4 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle border-b border-tremor-border dark:border-dark-tremor-border">
+      {selections.map((selection) => (
+        selection.values.map((value) => (
+          <FilterChips
+            key={`${selection.dimension}-${value}`}
+            dimension={selection.dimensionName}
+            value={value}
+            onRemove={() => handleRemoveFilter(selection.dimension, value)}
+          />
+        ))
+      ))}
     </div>
   );
 } 

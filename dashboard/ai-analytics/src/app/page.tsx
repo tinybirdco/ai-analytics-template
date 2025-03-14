@@ -3,39 +3,149 @@
 import TopBar from './components/TopBar';
 import TimeseriesChartContainer from './containers/TimeseriesChartContainer';
 import MetricsCards from './components/MetricsCards';
-import DataTable from './components/DataTable';
+import DataTableContainer from './containers/DataTableContainer';
 import TabbedPane from './components/TabbedPane';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { tabs } from './constants';
+import { useLLMUsage } from '@/hooks/useTinybirdData';
+
+interface Selection {
+  dimension: string;
+  dimensionName: string;
+  values: string[];
+}
 
 export default function Dashboard() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+function DashboardContent() {
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [selections, setSelections] = useState<Selection[]>([]);
+  const searchParams = useSearchParams();
+  
+  // Shared LLM usage data
+  const { data: llmData, isLoading } = useLLMUsage(filters);
+
+  // Initialize from URL only once
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    const newSelections: Selection[] = [];
+    const newFilters: Record<string, string> = {};
+
+    // Check each possible dimension from tabs
+    tabs.forEach(tab => {
+      const values = params.get(tab.key)?.split(',') || [];
+      if (values.length > 0) {
+        newSelections.push({
+          dimension: tab.key,
+          dimensionName: tab.name,
+          values
+        });
+        newFilters[tab.key] = values.join(',');
+      }
+    });
+
+    // Get column_name from URL if present
+    const columnName = params.get('column_name');
+    if (columnName) {
+      newFilters.column_name = columnName;
+    }
+
+    setSelections(newSelections);
+    setFilters(newFilters);
+  }, [searchParams]); // Only run once on mount
+
+  const handleFilterUpdate = (dimension: string, dimensionName: string, values: string[]) => {
+    setSelections(prev => {
+      const otherSelections = prev.filter(s => s.dimension !== dimension);
+      return values.length > 0 
+        ? [...otherSelections, { dimension, dimensionName, values }]
+        : otherSelections;
+    });
+
+    setFilters(prev => {
+      const newFilters = { ...prev };
+      if (values.length > 0) {
+        newFilters[dimension] = values.join(',');
+      } else {
+        delete newFilters[dimension];
+      }
+      return newFilters;
+    });
+  };
+
+  const handleRemoveFilter = (dimension: string, value: string) => {
+    setSelections(prev => {
+      const newSelections = prev.map(selection => {
+        if (selection.dimension === dimension) {
+          const newValues = selection.values.filter(v => v !== value);
+          if (newValues.length === 0) return null;
+          return { ...selection, values: newValues };
+        }
+        return selection;
+      }).filter((s): s is Selection => s !== null);
+
+      setFilters(prev => {
+        const newFilters = { ...prev };
+        const selection = newSelections.find(s => s.dimension === dimension);
+        if (selection) {
+          newFilters[dimension] = selection.values.join(',');
+        } else {
+          delete newFilters[dimension];
+        }
+        return newFilters;
+      });
+
+      return newSelections;
+    });
+  };
+
+  const handleTimeseriesFilterChange = (newFilters: Record<string, string>) => {
+    setFilters(newFilters);
+  };
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">
-      <TopBar />
+      <TopBar
+        selections={selections}
+        onRemoveFilter={handleRemoveFilter}
+      />
       
-      <main className="flex-1 grid grid-rows-[60%_40%]">
-        {/* Upper Section - 60% height */}
-        <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
-          {/* Timeseries Chart */}
-          <div className="border border-gray-700">
-            <TimeseriesChartContainer />
+      <main className="flex-1 flex min-h-0">
+        {/* Main Content - 2/3 width */}
+        <div className="w-2/3 flex flex-col min-h-0">
+          <div className="h-[60vh] border-b border-r border-gray-700">
+            <TimeseriesChartContainer 
+              data={llmData} 
+              isLoading={isLoading}
+              filters={filters}
+              onFiltersChange={handleTimeseriesFilterChange}
+            />
           </div>
-          
-          {/* Metrics Cards */}
-          <div className="border border-gray-700">
-            <MetricsCards />
+          <div className="h-[35vh] border-r border-gray-700 overflow-hidden">
+            <DataTableContainer data={llmData} isLoading={isLoading} />
           </div>
         </div>
-        
-        {/* Lower Section - 40% height */}
-        <div className="grid grid-cols-[1fr_minmax(0,max(33.333%,400px))]">
-          {/* Data Table with Search */}
-          <div className="border border-gray-700">
-            <DataTable />
+
+        {/* Sidebar - 1/3 width */}
+        <div className="w-1/3 overflow-auto">
+          <div className="border-b border-gray-700">
+            <MetricsCards 
+              data={llmData} 
+              isLoading={isLoading} 
+            />
           </div>
-          
-          {/* Tabbed Pane */}
-          <div className="border border-gray-700">
-            <TabbedPane />
+          <div>
+            <TabbedPane 
+              filters={filters}
+              onFilterUpdate={handleFilterUpdate} 
+            />
           </div>
         </div>
       </main>
