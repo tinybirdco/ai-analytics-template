@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
+import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
 
 interface Selection {
@@ -41,17 +42,40 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   };
 
   return (
-    <div className="flex flex-wrap gap-2 p-4 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle border-b border-tremor-border dark:border-dark-tremor-border">
-      {selections.map((selection) => (
-        selection.values.map((value) => (
-          <FilterChips
-            key={`${selection.dimension}-${value}`}
-            dimension={selection.dimensionName}
-            value={value}
-            onRemove={() => handleRemoveFilter(selection.dimension, value)}
-          />
-        ))
-      ))}
+    <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+      <div className="flex items-center space-x-4">
+        {selections.map((selection) => (
+          selection.values.map((value) => (
+            <FilterChips
+              key={`${selection.dimension}-${value}`}
+              dimension={selection.dimensionName}
+              value={value}
+              onRemove={() => handleRemoveFilter(selection.dimension, value)}
+            />
+          ))
+        ))}
+      </div>
+      
+      <div className="flex items-center space-x-4">
+        {/* Auth buttons */}
+        <div className="flex items-center space-x-2">
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                Sign In
+              </button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <button className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900">
+                Sign Up
+              </button>
+            </SignUpButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
+        </div>
+      </div>
     </div>
   );
 } 

@@ -1,27 +1,46 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import { TinybirdProvider } from '@/providers/TinybirdProvider';
+'use client'
+import { useEffect, useState } from 'react'
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { TinybirdProvider } from '@/providers/TinybirdProvider'
+import { ClerkProvider } from '@clerk/nextjs'
+import { useTinybirdToken } from '@/providers/TinybirdProvider'
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] })
 
-export const metadata: Metadata = {
-  title: "LLM Analytics Dashboard",
-  description: "Analytics dashboard for LLM usage and metrics",
-};
+function RootLayoutContent({ children }: { children: React.ReactNode }) {
+  const { setToken } = useTinybirdToken()
+  const [isReady, setIsReady] = useState(false)
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+  useEffect(() => {
+    console.log('Fetching token...');
+    fetch(window.location.pathname)
+      .then(response => {
+        const token = response.headers.get('x-tinybird-token')
+        console.log('Got token:', token);
+        if (token) {
+          console.log('Setting token...');
+          setToken(token)
+          setIsReady(true)
+        }
+      })
+  }, [setToken])
+
+  if (!isReady) return <div>Loading...</div>
+
+  return children
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
-        <TinybirdProvider>
-          {children}
-        </TinybirdProvider>
+        <ClerkProvider>
+          <TinybirdProvider>
+            <RootLayoutContent>{children}</RootLayoutContent>
+          </TinybirdProvider>
+        </ClerkProvider>
       </body>
     </html>
-  );
+  )
 }

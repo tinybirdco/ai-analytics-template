@@ -43,6 +43,11 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  // Add null check for data
+  if (!data?.data) {
+    return <div>Loading...</div>;
+  }
+
   const dates = [...new Set(data.data.map(d => d.date))].sort();
   const models = [...new Set(data.data.map(d => d.category))];
 
