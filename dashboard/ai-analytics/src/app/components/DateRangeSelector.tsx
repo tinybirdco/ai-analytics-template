@@ -227,7 +227,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   };
 
   // Handle calendar date selection
-  const handleCalendarSelect = (range: { from: Date; to?: Date }) => {
+  const handleCalendarSelect = (range: { from: Date | undefined; to?: Date | undefined }) => {
     if (!range.from) return;
     
     const start = range.from;
