@@ -135,7 +135,10 @@ function DashboardContent() {
             />
           </div>
           <div className="h-[35vh] border-r border-gray-700 overflow-hidden">
-            <DataTableContainer data={llmData} isLoading={isLoading} />
+            <DataTableContainer 
+              isLoading={isLoading}
+              filters={filters} 
+            />
           </div>
         </div>
 
