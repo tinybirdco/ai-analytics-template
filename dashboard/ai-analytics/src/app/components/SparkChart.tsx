@@ -75,7 +75,7 @@ import {
             colors={colors}
             className="h-28 w-full"
             showXAxis={true}
-            showYAxis={false}
+            showYAxis={true}
             showLegend={false}
             showGridLines={false}
             showAnimation={true}

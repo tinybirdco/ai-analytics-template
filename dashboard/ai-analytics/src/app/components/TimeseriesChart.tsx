@@ -213,7 +213,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       </li>
                     ))}
                   </ul>
-                  <div className="flex-1 min-h-0">
+                  <div className="flex-1 min-h-0 pb-6">
                     <BarChart
                       data={tab.data}
                       index="date"
@@ -223,9 +223,10 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showLegend={false}
                       yAxisWidth={45}
                       valueFormatter={valueFormatter}
-                      className="h-full mt-10 hidden md:block"
+                      className="h-[calc(100%-24px)] mt-10 hidden md:block"
                       showTooltip={true}
                       showAnimation={true}
+                      showXAxis={true}
                     />
                     <BarChart
                       data={tab.data}
@@ -236,9 +237,10 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showLegend={false}
                       showYAxis={false}
                       valueFormatter={valueFormatter}
-                      className="h-full mt-6 md:hidden"
+                      className="h-[calc(100%-24px)] mt-6 md:hidden"
                       showTooltip={true}
                       showAnimation={true}
+                      showXAxis={true}
                     />
                   </div>
                 </TabPanel>
