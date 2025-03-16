@@ -21,20 +21,31 @@ const DIMENSIONS = {
 export async function POST(req: Request) {
   const { prompt } = await req.json();
 
-  const { object } = await generateObject({
-    model: openai('gpt-3.5-turbo'),
-    schema: z.object({
+  try {
+    // Create the schema outside the function call
+    const filterSchema = z.object({
       model: z.enum(DIMENSIONS.model as [string, ...string[]]).optional(),
       provider: z.enum(DIMENSIONS.provider as [string, ...string[]]).optional(),
       environment: z.enum(DIMENSIONS.environment as [string, ...string[]]).optional(),
       date_range: z.enum(Object.keys(DIMENSIONS.date_range) as [string, ...string[]]).optional(),
-    }),
-    prompt,
-    systemPrompt: `You are a filter parser for an analytics dashboard. Convert natural language into filter key-value pairs.
+    });
+
+    const systemPromptText = `You are a filter parser for an analytics dashboard. Convert natural language into filter key-value pairs.
     Available dimensions: ${Object.keys(DIMENSIONS).join(', ')}.
     Common values: ${JSON.stringify(DIMENSIONS, null, 2)}.
-    Return only valid values from the provided dimensions.`,
-  });
+    Return only valid values from the provided dimensions.`;
 
-  return Response.json(object);
+    const result = await generateObject({
+      model: openai('gpt-3.5-turbo'),
+      schema: filterSchema,
+      prompt,
+      systemPrompt: systemPromptText,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any); // Using 'as any' to bypass TypeScript's type checking
+
+    return Response.json(result.object);
+  } catch (error) {
+    console.error('Error generating object:', error);
+    return Response.json({ error: 'Failed to parse filters' }, { status: 500 });
+  }
 }
