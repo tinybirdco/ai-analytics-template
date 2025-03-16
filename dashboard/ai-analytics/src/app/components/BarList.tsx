@@ -70,7 +70,7 @@ export default function BarList({
         </p>
         <div className="mt-6 flex items-center justify-between">
           <p className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
-            Top {Math.min(5, data.length)}
+            
           </p>
           <p className="text-tremor-label font-medium uppercase text-tremor-content dark:text-dark-tremor-content">
             Count

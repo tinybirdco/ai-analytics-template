@@ -5,6 +5,7 @@ import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from "@cl
 import FilterChips from './FilterChips';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
+import DateRangeSelector from './DateRangeSelector';
 
 interface Selection {
   dimension: string;
@@ -131,6 +132,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             </div>
           )}
         </div>
+        <DateRangeSelector />
         <div className="flex flex-wrap gap-2">
           {selections.map((selection) => (
             selection.values.map((value) => (

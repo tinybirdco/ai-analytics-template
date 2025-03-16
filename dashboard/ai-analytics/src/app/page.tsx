@@ -57,6 +57,12 @@ function DashboardContent() {
       newFilters.column_name = columnName;
     }
 
+    // Add date range parameters to filters
+    const startDate = params.get('start_date');
+    const endDate = params.get('end_date');
+    if (startDate) newFilters.start_date = startDate;
+    if (endDate) newFilters.end_date = endDate;
+
     setSelections(newSelections);
     setFilters(newFilters);
   }, [searchParams]); // This should run whenever searchParams changes
