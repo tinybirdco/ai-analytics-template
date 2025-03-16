@@ -38,6 +38,9 @@ SQL >
         {% if defined(model) %}
         AND model = {{String(model, '')}}
         {% end %}
+        {% if defined(provider) %}
+        AND provider = {{String(provider, '')}}
+        {% end %}
         {% if defined(chat_id) %}
         AND chat_id = {{String(chat_id, '')}}
         {% end %}

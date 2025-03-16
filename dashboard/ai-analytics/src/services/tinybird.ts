@@ -9,6 +9,18 @@ export interface TinybirdParams {
   dimension?: string;
 }
 
+export interface LLMMessagesParams {
+  start_date?: string;
+  end_date?: string;
+  organization?: string;
+  project?: string;
+  environment?: string;
+  user?: string;
+  model?: string;
+  chat_id?: string;
+  limit?: number;
+}
+
 export async function fetchLLMUsage(token: string, params: TinybirdParams = {}) {
   console.log('Tinybird token in service:', token);
   
@@ -73,6 +85,36 @@ export async function fetchGenericCounter(token: string, params: TinybirdParams)
   );
   
   if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+
+  return response.json();
+}
+
+export async function fetchLLMMessages(token: string, params: LLMMessagesParams = {}) {
+  if (!token) throw new Error('No Tinybird token available');
+  
+  const searchParams = new URLSearchParams();
+  
+  // Add all params to search params
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined) searchParams.set(key, value.toString());
+  });
+
+  const url = `${TINYBIRD_API_URL}/v0/pipes/llm_messages.json?${searchParams.toString()}`;
+  console.log('Tinybird LLM Messages request URL:', url);
+  
+  const response = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  console.log('Tinybird LLM Messages response status:', response.status);
+  
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('Tinybird error:', error);
     throw new Error('Network response was not ok');
   }
 

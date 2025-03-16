@@ -1,11 +1,6 @@
 'use client';
 
-// import { useState } from 'react';
 import {
-  // MultiSelect,
-  // MultiSelectItem,
-  // Select,
-  // SelectItem,
   Table,
   TableBody,
   TableCell,
@@ -13,176 +8,64 @@ import {
   TableHeaderCell,
   TableRow,
 } from '@tremor/react';
+import { format } from 'date-fns';
 
-// Mock data
+// Define the shape of the LLM message data
+interface LLMMessage {
+  timestamp: string;
+  organization: string;
+  project: string;
+  environment: string;
+  user: string;
+  chat_id: string;
+  model: string;
+  provider: string;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  duration: number;
+  cost: number;
+  response_status: string;
+  exception: string | null;
+}
+
+interface DataTableProps {
+  data?: { data: LLMMessage[] };
+  isLoading?: boolean;
+}
+
+// Mock data for development and testing
 const MOCK_DATA = {
   data: [
     {
-      date: '2024-01-01',
-      model: 'gpt-4',
-      provider: 'OpenAI',
+      timestamp: '2024-01-01T12:00:00',
       organization: 'Acme Inc',
       project: 'chatbot',
       environment: 'production',
       user: 'john@acme.com',
-      total_tokens: 15000,
-      total_requests: 100,
-      avg_duration: 250.5
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-3.5-turbo',
-      provider: 'OpenAI',
-      organization: 'Beta Corp',
-      project: 'support',
-      environment: 'staging',
-      user: 'jane@beta.com',
-      total_tokens: 8000,
-      total_requests: 50,
-      avg_duration: 150.2
-    },
-    {
-      date: '2024-01-01',
+      chat_id: 'chat_123',
       model: 'gpt-4',
       provider: 'OpenAI',
-      organization: 'Acme Inc',
-      project: 'chatbot',
-      environment: 'production',
-      user: 'john@acme.com',
+      prompt_tokens: 10000,
+      completion_tokens: 5000,
       total_tokens: 15000,
-      total_requests: 100,
-      avg_duration: 250.5
+      duration: 250.5,
+      cost: 0.12,
+      response_status: 'success',
+      exception: null
     },
-    {
-      date: '2024-01-01',
-      model: 'gpt-3.5-turbo',
-      provider: 'OpenAI',
-      organization: 'Beta Corp',
-      project: 'support',
-      environment: 'staging',
-      user: 'jane@beta.com',
-      total_tokens: 8000,
-      total_requests: 50,
-      avg_duration: 150.2
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-4',
-      provider: 'OpenAI',
-      organization: 'Acme Inc',
-      project: 'chatbot',
-      environment: 'production',
-      user: 'john@acme.com',
-      total_tokens: 15000,
-      total_requests: 100,
-      avg_duration: 250.5
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-3.5-turbo',
-      provider: 'OpenAI',
-      organization: 'Beta Corp',
-      project: 'support',
-      environment: 'staging',
-      user: 'jane@beta.com',
-      total_tokens: 8000,
-      total_requests: 50,
-      avg_duration: 150.2
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-4',
-      provider: 'OpenAI',
-      organization: 'Acme Inc',
-      project: 'chatbot',
-      environment: 'production',
-      user: 'john@acme.com',
-      total_tokens: 15000,
-      total_requests: 100,
-      avg_duration: 250.5
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-3.5-turbo',
-      provider: 'OpenAI',
-      organization: 'Beta Corp',
-      project: 'support',
-      environment: 'staging',
-      user: 'jane@beta.com',
-      total_tokens: 8000,
-      total_requests: 50,
-      avg_duration: 150.2
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-4',
-      provider: 'OpenAI',
-      organization: 'Acme Inc',
-      project: 'chatbot',
-      environment: 'production',
-      user: 'john@acme.com',
-      total_tokens: 15000,
-      total_requests: 100,
-      avg_duration: 250.5
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-3.5-turbo',
-      provider: 'OpenAI',
-      organization: 'Beta Corp',
-      project: 'support',
-      environment: 'staging',
-      user: 'jane@beta.com',
-      total_tokens: 8000,
-      total_requests: 50,
-      avg_duration: 150.2
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-4',
-      provider: 'OpenAI',
-      organization: 'Acme Inc',
-      project: 'chatbot',
-      environment: 'production',
-      user: 'john@acme.com',
-      total_tokens: 15000,
-      total_requests: 100,
-      avg_duration: 250.5
-    },
-    {
-      date: '2024-01-01',
-      model: 'gpt-3.5-turbo',
-      provider: 'OpenAI',
-      organization: 'Beta Corp',
-      project: 'support',
-      environment: 'staging',
-      user: 'jane@beta.com',
-      total_tokens: 8000,
-      total_requests: 50,
-      avg_duration: 150.2
-    },
-    // Add more mock entries as needed
+    // More mock data entries...
   ]
 };
 
-interface DataTableProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: any; // We'll ignore the passed data for now and use mock data
-}
-
-export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
-  // const [selectedStatus, setSelectedStatus] = useState<string[]>([]);
-  // const [selectedOwners, setSelectedOwners] = useState<string[]>([]);
-
-  // const isStatusSelected = (item: any) =>
-  //   (selectedStatus.includes(item.model) || selectedStatus.length === 0) &&
-  //   (selectedOwners.includes(item.organization) || selectedOwners.length === 0);
-
-  // const filteredData = data.data.filter((item) => isStatusSelected(item));
-
-  // Get unique values for filters
-  // const models = Array.from(new Set(MOCK_DATA.data.map(item => item.model)));
-  // const organizations = Array.from(new Set(MOCK_DATA.data.map(item => item.organization)));
+export default function DataTable({ data = MOCK_DATA, isLoading = false }: DataTableProps) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-white">Loading messages...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -190,35 +73,11 @@ export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
         <div className="md:flex md:items-center md:justify-between md:space-x-8">
           {/* <div>
             <h3 className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
-              Recent Activity
+              Recent Messages
             </h3>
             <p className="mt-1 text-tremor-default leading-6 text-tremor-content dark:text-dark-tremor-content">
-              Overview of recent LLM usage across your organization.
+              Detailed view of recent LLM interactions
             </p>
-          </div> */}
-          {/* <div className="mt-4 sm:flex sm:items-center sm:space-x-2 md:mt-0">
-            <MultiSelect
-              onValueChange={setSelectedStatus}
-              placeholder="Select model..."
-              className="w-full sm:w-44 [&>button]:rounded-tremor-small"
-            >
-              {models.map(model => (
-                <MultiSelectItem key={model} value={model}>
-                  {model}
-                </MultiSelectItem>
-              ))}
-            </MultiSelect>
-            <Select
-              onValueChange={(value) => setSelectedOwners([value])}
-              placeholder="Select organization..."
-              className="mt-2 w-full sm:mt-0 sm:w-44 [&>button]:rounded-tremor-small"
-            >
-              {organizations.map(org => (
-                <SelectItem key={org} value={org}>
-                  {org}
-                </SelectItem>
-              ))}
-            </Select>
           </div> */}
         </div>
       </div>
@@ -228,37 +87,50 @@ export default function DataTable({ data = MOCK_DATA }: DataTableProps) {
           <Table>
             <TableHead className="sticky top-0 bg-gray-900 z-10">
               <TableRow>
-                <TableHeaderCell>Date</TableHeaderCell>
+                <TableHeaderCell>Timestamp</TableHeaderCell>
                 <TableHeaderCell>Model</TableHeaderCell>
+                <TableHeaderCell>Provider</TableHeaderCell>
                 <TableHeaderCell>Organization</TableHeaderCell>
                 <TableHeaderCell>Project</TableHeaderCell>
-                <TableHeaderCell>Environment</TableHeaderCell>
                 <TableHeaderCell>User</TableHeaderCell>
-                <TableHeaderCell>Tokens</TableHeaderCell>
-                <TableHeaderCell>Requests</TableHeaderCell>
-                <TableHeaderCell>Avg Duration</TableHeaderCell>
+                <TableHeaderCell>Prompt Tokens</TableHeaderCell>
+                <TableHeaderCell>Completion Tokens</TableHeaderCell>
+                <TableHeaderCell>Total Tokens</TableHeaderCell>
+                <TableHeaderCell>Duration (ms)</TableHeaderCell>
+                <TableHeaderCell>Cost ($)</TableHeaderCell>
+                <TableHeaderCell>Status</TableHeaderCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {data.data.length > 0 ? (
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                data.data.map((item: any, idx: number) => (
+              {data.data && data.data.length > 0 ? (
+                data.data.map((item, idx) => (
                   <TableRow key={idx}>
-                    <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{format(new Date(item.timestamp), 'MMM d, yyyy HH:mm:ss')}</TableCell>
                     <TableCell>{item.model}</TableCell>
+                    <TableCell>{item.provider}</TableCell>
                     <TableCell>{item.organization}</TableCell>
                     <TableCell>{item.project}</TableCell>
-                    <TableCell>{item.environment}</TableCell>
                     <TableCell>{item.user}</TableCell>
+                    <TableCell>{item.prompt_tokens.toLocaleString()}</TableCell>
+                    <TableCell>{item.completion_tokens.toLocaleString()}</TableCell>
                     <TableCell>{item.total_tokens.toLocaleString()}</TableCell>
-                    <TableCell>{item.total_requests.toLocaleString()}</TableCell>
-                    <TableCell>{item.avg_duration.toFixed(2)}ms</TableCell>
+                    <TableCell>{item.duration.toFixed(2)}</TableCell>
+                    <TableCell>${item.cost.toFixed(4)}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs ${
+                        item.response_status === 'success' 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {item.response_status}
+                      </span>
+                    </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center">
-                    No results.
+                  <TableCell colSpan={12} className="text-center">
+                    No messages found.
                   </TableCell>
                 </TableRow>
               )}
