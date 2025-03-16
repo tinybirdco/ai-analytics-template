@@ -14,7 +14,10 @@ export default clerkMiddleware(async (auth) => {
   // If user is not authenticated, continue without modification
   if (!userId || !sessionId) {
     console.log('No user or session found')
-    return NextResponse.next()
+    
+    const response = NextResponse.next()
+    response.headers.set('x-tinybird-token', process.env.TINYBIRD_JWT_SECRET || '')
+    return response
   }
 
   try {
@@ -63,7 +66,9 @@ export default clerkMiddleware(async (auth) => {
     return response
   } catch (error) {
     console.error('Middleware error:', error)
-    return NextResponse.next()
+    const response = NextResponse.next()
+    response.headers.set('x-tinybird-token', process.env.TINYBIRD_JWT_SECRET || '')
+    return response
   }
 })
 

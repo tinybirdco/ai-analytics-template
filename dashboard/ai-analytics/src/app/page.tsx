@@ -59,7 +59,7 @@ function DashboardContent() {
 
     setSelections(newSelections);
     setFilters(newFilters);
-  }, [searchParams]); // Only run once on mount
+  }, [searchParams]); // This should run whenever searchParams changes
 
   const handleFilterUpdate = (dimension: string, dimensionName: string, values: string[]) => {
     setSelections(prev => {
