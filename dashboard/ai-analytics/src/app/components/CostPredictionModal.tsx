@@ -3,9 +3,23 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { AreaChart } from '@tremor/react';
 import { useLLMUsage } from '@/hooks/useTinybirdData';
+
+// Define the type for chart tooltip payload
+interface ChartTooltipPayload {
+  color: string;
+  dataKey: string;
+  fill: string;
+  name: string;
+  stroke: string;
+  value: number;
+  payload: {
+    date: string;
+    actualCost: number;
+    predictedCost: number;
+  };
+}
 
 interface CostPredictionModalProps {
   isOpen: boolean;
@@ -30,6 +44,19 @@ interface DailyCost {
   predictedCost: number;
 }
 
+interface UsageDataItem {
+  date: string;
+  total_prompt_tokens: number;
+  total_completion_tokens: number;
+  total_cost: number;
+}
+
+interface DateAggregatedData {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_cost: number;
+}
+
 export default function CostPredictionModal({ 
   isOpen, 
   onClose,
@@ -49,7 +76,6 @@ export default function CostPredictionModal({
   const [showExamples, setShowExamples] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
-  const { token } = useTinybirdToken();
 
   // Example queries that users can select
   const exampleQueries = [
@@ -172,7 +198,7 @@ export default function CostPredictionModal({
     setTimeout(() => setCopiedExample(null), 2000);
   };
 
-  const calculateCosts = (usageData: any[], params: CostParameters) => {
+  const calculateCosts = (usageData: UsageDataItem[], params: CostParameters) => {
     // Add debugging
     console.log("Calculating costs with data:", usageData);
     console.log("Parameters:", params);
@@ -196,7 +222,7 @@ export default function CostPredictionModal({
     }
     
     // Group data by date
-    const dateMap = new Map();
+    const dateMap = new Map<string, DateAggregatedData>();
     
     // Log the structure of the first item to understand the data format
     if (processedData.length > 0) {
@@ -219,7 +245,7 @@ export default function CostPredictionModal({
         });
       }
       
-      const entry = dateMap.get(date);
+      const entry = dateMap.get(date)!;
       // Make sure we're accessing the correct properties based on the API response
       entry.prompt_tokens += day.total_prompt_tokens || 0;
       entry.completion_tokens += day.total_completion_tokens || 0;
@@ -291,8 +317,8 @@ export default function CostPredictionModal({
   };
 
   // Generate sample data for demonstration when no real data is available
-  const generateSampleData = (startDate: Date, endDate: Date, model: string | null): any[] => {
-    const sampleData = [];
+  const generateSampleData = (startDate: Date, endDate: Date, model: string | null): UsageDataItem[] => {
+    const sampleData: UsageDataItem[] = [];
     const currentDate = new Date(startDate);
     
     // Base token usage per day (randomized slightly for each day)
@@ -561,20 +587,24 @@ export default function CostPredictionModal({
                             customTooltip={(props) => (
                               <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
                                 <div className="font-medium text-white">{props.label}</div>
-                                {props.payload?.map((category, idx) => (
-                                  <div key={idx} className="flex items-center mt-1">
-                                    <div 
-                                      className="w-3 h-3 rounded-full mr-1" 
-                                      style={{ backgroundColor: category.color }}
-                                    />
-                                    <span className="text-gray-300">
-                                      {category.id === 'actualCost' ? 'Actual' : 'Predicted'}: 
-                                    </span>
-                                    <span className="ml-1 text-white font-medium">
-                                      ${Number(category.value).toFixed(2)}
-                                    </span>
-                                  </div>
-                                ))}
+                                {props.payload?.map((category, idx) => {
+                                  // Cast the category to the correct type
+                                  const typedCategory = category as unknown as ChartTooltipPayload;
+                                  return (
+                                    <div key={idx} className="flex items-center mt-1">
+                                      <div 
+                                        className="w-3 h-3 rounded-full mr-1" 
+                                        style={{ backgroundColor: typedCategory.color }}
+                                      />
+                                      <span className="text-gray-300">
+                                        {typedCategory.dataKey === 'actualCost' ? 'Actual' : 'Predicted'}: 
+                                      </span>
+                                      <span className="ml-1 text-white font-medium">
+                                        ${Number(typedCategory.value).toFixed(2)}
+                                      </span>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
                           />

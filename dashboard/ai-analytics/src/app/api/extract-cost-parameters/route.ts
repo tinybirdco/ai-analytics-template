@@ -4,6 +4,21 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 
+// Define the schema for cost parameters
+const costParametersSchema = z.object({
+  model: z.string().nullable().optional(),
+  promptTokenCost: z.number().nullable().optional(),
+  completionTokenCost: z.number().nullable().optional(),
+  discount: z.number().default(0).optional(),
+  timeframe: z.string().default('last month').optional(),
+  volumeChange: z.number().default(0).optional(),
+  start_date: z.string().optional(),
+  end_date: z.string().optional()
+});
+
+// Create a type from the schema
+type CostParameters = z.infer<typeof costParametersSchema>;
+
 export async function POST(req: Request) {
   try {
     const { query } = await req.json();
@@ -15,18 +30,6 @@ export async function POST(req: Request) {
     // Get today's date for the prompt
     const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     
-    // Define the schema for cost parameters with all fields optional
-    const costParametersSchema = z.object({
-      model: z.string().nullable().optional(),
-      promptTokenCost: z.number().nullable().optional(),
-      completionTokenCost: z.number().nullable().optional(),
-      discount: z.number().default(0).optional(),
-      timeframe: z.string().default('last month').optional(),
-      volumeChange: z.number().default(0).optional(),
-      start_date: z.string().optional(),
-      end_date: z.string().optional()
-    });
-
     const systemPromptText = `
       You are a cost prediction parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
       
@@ -57,18 +60,22 @@ export async function POST(req: Request) {
       schema: costParametersSchema,
       prompt: query,
       systemPrompt: systemPromptText,
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
+    // Type assertion to handle the result object
+    const extractedParams = result.object as CostParameters;
+    
     // Apply defaults for missing parameters
     const processedResult = {
-      model: result.object.model || null,
-      promptTokenCost: result.object.promptTokenCost || null,
-      completionTokenCost: result.object.completionTokenCost || null,
-      discount: result.object.discount || 0,
-      timeframe: result.object.timeframe || 'last month',
-      volumeChange: result.object.volumeChange || 0,
-      start_date: result.object.start_date || getDefaultStartDate('last month'),
-      end_date: result.object.end_date || today
+      model: extractedParams.model || null,
+      promptTokenCost: extractedParams.promptTokenCost || null,
+      completionTokenCost: extractedParams.completionTokenCost || null,
+      discount: extractedParams.discount || 0,
+      timeframe: extractedParams.timeframe || 'last month',
+      volumeChange: extractedParams.volumeChange || 0,
+      start_date: extractedParams.start_date || getDefaultStartDate('last month'),
+      end_date: extractedParams.end_date || today
     };
     
     return NextResponse.json(processedResult);
@@ -81,7 +88,7 @@ export async function POST(req: Request) {
 // Fallback function to calculate start date if the LLM doesn't provide one
 function getDefaultStartDate(timeframe: string): string {
   const now = new Date();
-  let startDate = new Date();
+  const startDate = new Date();
   
   if (timeframe === 'last week') {
     startDate.setDate(now.getDate() - 7);
