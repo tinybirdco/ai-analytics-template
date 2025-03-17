@@ -10,15 +10,17 @@ export interface TinybirdParams {
 }
 
 export interface LLMMessagesParams {
-  start_date?: string;
-  end_date?: string;
   organization?: string;
   project?: string;
   environment?: string;
   user?: string;
   model?: string;
+  provider?: string;
   chat_id?: string;
-  limit?: number;
+  start_date?: string;
+  end_date?: string;
+  embedding?: number[] | undefined;
+  similarity_threshold?: number | undefined;
 }
 
 export async function fetchLLMUsage(token: string, params: TinybirdParams = {}) {
@@ -94,15 +96,109 @@ export async function fetchGenericCounter(token: string, params: TinybirdParams)
 export async function fetchLLMMessages(token: string, params: LLMMessagesParams = {}) {
   if (!token) throw new Error('No Tinybird token available');
   
+  // Determine if we should use POST (for embeddings) or GET (for regular queries)
+  const hasEmbedding = params.embedding && params.embedding.length > 0;
+  
+  // Use vector search pipe if embedding is provided, otherwise use regular pipe
+  const pipeName = 'llm_messages';
+  const baseUrl = `${TINYBIRD_API_URL}/v0/pipes/${pipeName}.json`;
+  
+  let response;
+  
+  if (hasEmbedding) {
+    // Use POST for embedding queries to avoid URL length limitations
+    console.log('Using POST for Tinybird request with embeddings');
+    
+    // Create request body with all parameters
+    const requestBody: Record<string, string | number | number[] | boolean> = {};
+    
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        // For embedding, pass it directly as an array
+        if (key === 'embedding') {
+          requestBody[key] = value as number[];
+        } else {
+          requestBody[key] = value.toString();
+        }
+      }
+    });
+    
+    response = await fetch(baseUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(requestBody),
+    });
+  } else {
+    // Use GET for regular queries
+    const searchParams = new URLSearchParams();
+    
+    // Add all params to search params
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined) {
+        searchParams.set(key, value.toString());
+      }
+    });
+    
+    const url = `${baseUrl}?${searchParams.toString()}`;
+    console.log('Tinybird LLM Messages request URL:', url);
+    
+    response = await fetch(url, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+  }
+  
+  console.log('Tinybird LLM Messages response status:', response.status);
+  
+  if (!response.ok) {
+    const error = await response.text();
+    console.error('Tinybird error:', error);
+    throw new Error('Network response was not ok');
+  }
+  
+  return response.json();
+}
+
+// dashboard/ai-analytics/src/services/tinybird.ts
+// Add this new interface and function
+
+export interface LLMVectorSearchParams extends LLMMessagesParams {
+  embedding?: number[];
+  limit?: number;
+  similarity_threshold?: number;
+}
+
+export async function searchLLMMessagesByVector(
+  token: string, 
+  params: LLMVectorSearchParams = {}
+) {
+  if (!token) throw new Error('No Tinybird token available');
+  
   const searchParams = new URLSearchParams();
   
-  // Add all params to search params
+  // Add embedding as a JSON string if provided
+  if (params.embedding && params.embedding.length > 0) {
+    searchParams.set('embedding', JSON.stringify(params.embedding));
+  }
+  
+  // Add similarity threshold if provided
+  if (params.similarity_threshold) {
+    searchParams.set('similarity_threshold', params.similarity_threshold.toString());
+  }
+  
+  // Add all other params
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined) searchParams.set(key, value.toString());
+    if (value !== undefined && key !== 'embedding' && key !== 'similarity_threshold') {
+      searchParams.set(key, value.toString());
+    }
   });
 
-  const url = `${TINYBIRD_API_URL}/v0/pipes/llm_messages.json?${searchParams.toString()}`;
-  console.log('Tinybird LLM Messages request URL:', url);
+  const url = `${TINYBIRD_API_URL}/v0/pipes/llm_messages_vector_search.json?${searchParams.toString()}`;
+  console.log('Tinybird Vector Search request URL:', url);
   
   const response = await fetch(url, {
     headers: {
@@ -110,7 +206,7 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
     },
   });
 
-  console.log('Tinybird LLM Messages response status:', response.status);
+  console.log('Tinybird Vector Search response status:', response.status);
   
   if (!response.ok) {
     const error = await response.text();
@@ -119,4 +215,4 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
   }
 
   return response.json();
-} 
+}

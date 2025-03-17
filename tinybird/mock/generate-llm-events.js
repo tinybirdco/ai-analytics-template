@@ -1,10 +1,43 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { faker } = require('@faker-js/faker');
-const { program } = require('commander');
-const { v4: uuidv4 } = require('uuid');
+import fs from 'fs';
+import path from 'path';
+import { faker } from '@faker-js/faker';
+import { program } from 'commander';
+import { v4 as uuidv4 } from 'uuid';
+import { pipeline } from '@xenova/transformers';
+import { fileURLToPath } from 'url';
+
+// Get the directory name correctly in ESM
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Cache the embedding model
+let embeddingModel = null;
+
+// Function to get or initialize the embedding model
+async function getEmbeddingModel() {
+  if (!embeddingModel) {
+    console.log('Loading embedding model...');
+    embeddingModel = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    console.log('Embedding model loaded successfully');
+  }
+  return embeddingModel;
+}
+
+// Function to generate embedding for text
+async function generateEmbedding(text) {
+  if (!text) return [];
+  
+  try {
+    const model = await getEmbeddingModel();
+    const output = await model(text, { pooling: 'mean', normalize: true });
+    return Array.from(output.data);
+  } catch (error) {
+    console.error('Error generating embedding:', error);
+    return [];
+  }
+}
 
 // Organization, project, and user structure
 const organizations = {
@@ -161,7 +194,7 @@ openai.error.AuthenticationError: Incorrect API key provided: sk-${randomHex(16)
 ${errorType}: An unexpected error occurred during the API request.`;
 }
 
-function generateLlmEvent(timestamp, forceError = false) {
+async function generateLlmEvent(timestamp, forceError = false) {
   // Get or create chat session
   const { chatId, userId, org, project, environment, isNew } = getOrCreateChatSession(timestamp);
   
@@ -352,7 +385,7 @@ function generateLlmEvent(timestamp, forceError = false) {
   }
   
   // Generate the event with proper nesting
-  return {
+  const event = {
     start_time: timestamp.toISOString().replace('T', ' ').substring(0, 19),
     proxy_metadata: {
       organization: org,
@@ -392,6 +425,13 @@ function generateLlmEvent(timestamp, forceError = false) {
     log_event_type: 'llm',
     cache_hit: cacheHit
   };
+  
+  // Add embedding to the event
+  const textForEmbedding = status === 'error' ? userPrompt : `${userPrompt} ${assistantResponse}`;
+  const embedding = await generateEmbedding(textForEmbedding);
+  event.embedding = embedding;
+  
+  return event;
 }
 
 function generateSpikePeriods(startDate, endDate) {
@@ -426,10 +466,20 @@ function generateSpikePeriods(startDate, endDate) {
   return spikes.sort((a, b) => a.start.getTime() - b.start.getTime());
 }
 
-function generateEvents(startDate, endDate, eventsPerDay) {
+async function generateEvents(startDate, endDate, eventsPerDay) {
   const events = [];
   const currentDate = new Date(startDate);
   const endDateObj = new Date(endDate);
+  
+  // Calculate total days for progress reporting
+  const totalDays = Math.ceil((endDateObj - currentDate) / (24 * 60 * 60 * 1000)) + 1;
+  let currentDay = 1;
+  let totalEventsGenerated = 0;
+  
+  console.log(`Starting event generation for ${totalDays} days from ${startDate} to ${endDate}`);
+  console.log('Loading embedding model...');
+  await getEmbeddingModel();
+  console.log('Embedding model loaded successfully');
   
   // Generate random spike periods
   const spikePeriods = generateSpikePeriods(startDate, endDate);
@@ -441,6 +491,9 @@ function generateEvents(startDate, endDate, eventsPerDay) {
   })));
   
   while (currentDate <= endDateObj) {
+    const dateString = currentDate.toISOString().split('T')[0];
+    console.log(`Processing day ${currentDay}/${totalDays}: ${dateString}`);
+    
     // Determine number of events for this day based on day of week
     const dayOfWeek = currentDate.getDay();
     const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
@@ -450,8 +503,11 @@ function generateEvents(startDate, endDate, eventsPerDay) {
     
     // Calculate actual events for this day
     const dailyEvents = Math.round(eventsPerDay * dayMultiplier);
+    console.log(`  Generating ${dailyEvents} events for ${isWeekend ? 'weekend' : 'weekday'} day`);
     
     // Generate random events for this day
+    let dayEventsGenerated = 0;
+    
     for (let i = 0; i < dailyEvents; i++) {
       // Random time within the current day, with business hour weighting
       const timestamp = new Date(currentDate);
@@ -489,30 +545,44 @@ function generateEvents(startDate, endDate, eventsPerDay) {
         if (spike.type === 'traffic') {
           // Generate multiple events for this timestamp
           for (let j = 0; j < spike.multiplier; j++) {
-            const event = generateLlmEvent(timestamp, false);
+            const event = await generateLlmEvent(timestamp, false);
             events.push(event);
+            dayEventsGenerated++;
+            totalEventsGenerated++;
           }
           continue;
         } else if (spike.type === 'error') {
           // Force error based on spike error rate
           const forceError = faker.datatype.boolean(spike.errorRate);
-          const event = generateLlmEvent(timestamp, forceError);
+          const event = await generateLlmEvent(timestamp, forceError);
           events.push(event);
+          dayEventsGenerated++;
+          totalEventsGenerated++;
           continue;
         }
       }
       
       // Normal event generation
-      const event = generateLlmEvent(timestamp, false);
+      const event = await generateLlmEvent(timestamp, false);
       events.push(event);
+      dayEventsGenerated++;
+      totalEventsGenerated++;
     }
+    
+    console.log(`  Completed day ${currentDay}/${totalDays}: Generated ${dayEventsGenerated} events`);
+    console.log(`  Total events so far: ${totalEventsGenerated}`);
     
     // Move to next day
     currentDate.setDate(currentDate.getDate() + 1);
+    currentDay++;
   }
   
+  console.log(`Event generation complete. Total events: ${totalEventsGenerated}`);
+  
   // Sort events by timestamp
+  console.log('Sorting events by timestamp...');
   events.sort((a, b) => new Date(a.start_time) - new Date(b.start_time));
+  
   return events;
 }
 
@@ -531,7 +601,7 @@ function saveToNdjson(events, outputFile) {
 }
 
 // Main execution
-function main() {
+async function main() {
   const startDate = options.startDate;
   const endDate = options.endDate;
   const eventsPerDay = parseInt(options.eventsPerDay, 10);
@@ -539,10 +609,10 @@ function main() {
   
   console.log(`Generating LLM events from ${startDate} to ${endDate}...`);
   
-  const events = generateEvents(startDate, endDate, eventsPerDay);
+  const events = await generateEvents(startDate, endDate, eventsPerDay);
   
   saveToNdjson(events, outputFile);
   console.log(`Generated ${events.length} events and saved to ${outputFile}`);
 }
 
-main(); 
+await main();
