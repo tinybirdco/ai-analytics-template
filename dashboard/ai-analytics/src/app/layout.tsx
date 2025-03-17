@@ -5,6 +5,10 @@ import "./globals.css"
 import { TinybirdProvider } from '@/providers/TinybirdProvider'
 import { ClerkProvider } from '@clerk/nextjs'
 import { useTinybirdToken } from '@/providers/TinybirdProvider'
+import { ModalProvider } from './context/ModalContext'
+import CostPredictionModal from './components/CostPredictionModal'
+import { useModal } from './context/ModalContext'
+import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -30,13 +34,33 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   return children
 }
 
+function ModalController({ filters }: { filters: Record<string, string | undefined> }) {
+  const { isCostPredictionOpen, openCostPrediction, closeCostPrediction } = useModal()
+  
+  // Setup Cmd+K shortcut
+  useKeyboardShortcut('k', openCostPrediction, true)
+  
+  return (
+    <CostPredictionModal 
+      isOpen={isCostPredictionOpen} 
+      onClose={closeCostPrediction}
+      currentFilters={filters}
+    />
+  )
+}
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="dark">
       <body className={inter.className}>
         <ClerkProvider>
           <TinybirdProvider>
-            <RootLayoutContent>{children}</RootLayoutContent>
+            <ModalProvider>
+              <RootLayoutContent>
+                {children}
+                <ModalController filters={{}} />
+              </RootLayoutContent>
+            </ModalProvider>
           </TinybirdProvider>
         </ClerkProvider>
       </body>

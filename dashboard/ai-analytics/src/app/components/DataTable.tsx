@@ -159,6 +159,18 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
                 {message.response_status}
               </span>
             </div>
+            
+            {/* Add similarity score when available */}
+            {message.similarity !== undefined && (
+              <>
+                <div className="text-gray-400">Similarity</div>
+                <div className="text-white">
+                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                    {(message.similarity * 100).toFixed(0)}%
+                  </span>
+                </div>
+              </>
+            )}
           </div>
         </div>
         
@@ -258,15 +270,8 @@ export default function DataTable({
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Overlay when detail view is open */}
-      {selectedMessage && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-40"
-          onClick={handleCloseDetail}
-        />
-      )}
-      
-      <div className="flex-1 overflow-auto min-h-0">
+      {/* Content container with conditional blur */}
+      <div className={`flex-1 overflow-auto min-h-0 transition-all duration-300 ${selectedMessage ? 'blur-sm' : ''}`}>
         <div className="min-w-[1024px]">
           <Table>
             <TableHead className="sticky top-0 bg-gray-900 z-10">
@@ -336,6 +341,14 @@ export default function DataTable({
           </Table>
         </div>
       </div>
+      
+      {/* Semi-transparent overlay */}
+      {selectedMessage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-30 z-40 backdrop-blur-sm"
+          onClick={handleCloseDetail}
+        />
+      )}
       
       {/* Detail View */}
       {selectedMessage && (
