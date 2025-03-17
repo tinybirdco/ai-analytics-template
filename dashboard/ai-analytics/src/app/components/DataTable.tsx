@@ -27,11 +27,13 @@ interface LLMMessage {
   cost: number;
   response_status: string;
   exception: string | null;
+  similarity?: number;
 }
 
 interface DataTableProps {
   data?: { data: LLMMessage[] };
   isLoading?: boolean;
+  searchHighlight?: string | null;
 }
 
 // Mock data for development and testing
@@ -58,7 +60,11 @@ const MOCK_DATA = {
   ]
 };
 
-export default function DataTable({ data = MOCK_DATA, isLoading = false }: DataTableProps) {
+export default function DataTable({ 
+  data = MOCK_DATA, 
+  isLoading = false,
+  searchHighlight = null 
+}: DataTableProps) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -96,9 +102,10 @@ export default function DataTable({ data = MOCK_DATA, isLoading = false }: DataT
                 <TableHeaderCell>Prompt Tokens</TableHeaderCell>
                 <TableHeaderCell>Completion Tokens</TableHeaderCell>
                 <TableHeaderCell>Total Tokens</TableHeaderCell>
-                <TableHeaderCell>Duration (ms)</TableHeaderCell>
-                <TableHeaderCell>Cost ($)</TableHeaderCell>
+                <TableHeaderCell>Duration (s)</TableHeaderCell>
+                <TableHeaderCell>Cost</TableHeaderCell>
                 <TableHeaderCell>Status</TableHeaderCell>
+                {searchHighlight && <TableHeaderCell>Relevance</TableHeaderCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -125,11 +132,20 @@ export default function DataTable({ data = MOCK_DATA, isLoading = false }: DataT
                         {item.response_status}
                       </span>
                     </TableCell>
+                    {searchHighlight && (
+                      <TableCell>
+                        {item.similarity ? (
+                          <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                            {(item.similarity * 100).toFixed(0)}%
+                          </span>
+                        ) : '-'}
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={12} className="text-center">
+                  <TableCell colSpan={searchHighlight ? 13 : 12} className="text-center">
                     No messages found.
                   </TableCell>
                 </TableRow>

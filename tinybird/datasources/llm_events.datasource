@@ -20,6 +20,7 @@ SCHEMA >
     `exception` String `json:$.exception` DEFAULT '',
     `traceback` String `json:$.traceback` DEFAULT '',
     `response_status` LowCardinality(String) `json:$.standard_logging_object_status` DEFAULT 'unknown',
+    `embedding` Array(Float32) `json:$.embedding[:]` DEFAULT [],
 
     `messages` Array(Map(String, String)) `json:$.messages[:]` DEFAULT [],
     `response_choices` Array(String) `json:$.response.choices[:]` DEFAULT [],

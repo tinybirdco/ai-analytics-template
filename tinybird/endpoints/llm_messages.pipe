@@ -6,6 +6,10 @@ DESCRIPTION >
 NODE llm_messages_node
 SQL >
     %
+    {% if defined(embedding) %}
+        with 
+        if(length(embedding) > 0, cosineDistance(embedding, {{ Array(embedding, 'Float32') }}), 1.0) as similarity
+    {% end %}
     SELECT
         timestamp,
         organization,
@@ -55,7 +59,14 @@ SQL >
         {% else %}
         AND timestamp < now()
         {% end %}
-    ORDER BY timestamp DESC
+        {% if defined(embedding) %}
+        AND cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) > {{ Float64(similarity_threshold, 0.7) }}
+        {% end %}
+    {% if defined(embedding) %}
+      ORDER BY similarity DESC
+    {% else %}
+        ORDER BY timestamp DESC
+    {% end %}
     LIMIT {{Int32(limit, 100)}}
 
 TYPE endpoint
