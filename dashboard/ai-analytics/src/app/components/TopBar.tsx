@@ -6,6 +6,8 @@ import FilterChips from './FilterChips';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
+import { Calculator } from 'lucide-react';
+import { useModal } from '../context/ModalContext';
 
 interface Selection {
   dimension: string;
@@ -24,6 +26,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const { orgName } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const { openCostPrediction } = useModal();
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -164,6 +167,14 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
       </div>
+      
+      <button
+        onClick={openCostPrediction}
+        className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+      >
+        <Calculator className="w-4 h-4 mr-2" />
+        Predict Costs
+      </button>
     </div>
   );
 } 
