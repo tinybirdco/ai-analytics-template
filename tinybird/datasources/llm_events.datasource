@@ -20,7 +20,6 @@ SCHEMA >
     `exception` String `json:$.exception` DEFAULT '',
     `traceback` String `json:$.traceback` DEFAULT '',
     `response_status` LowCardinality(String) `json:$.standard_logging_object_status` DEFAULT 'unknown',
-    `embedding` Array(Float32) `json:$.embedding[:]` DEFAULT [],
 
     `messages` Array(Map(String, String)) `json:$.messages[:]` DEFAULT [],
     `response_choices` Array(String) `json:$.response.choices[:]` DEFAULT [],
@@ -37,9 +36,14 @@ SCHEMA >
     `cache_hit` Boolean `json:$.cache_hit` DEFAULT false,
     `response` String `json:$.response` DEFAULT '',
     `response_id` String `json:$.response.id`,
-    `response_object` String `json:$.response.object` DEFAULT 'unknown'
+    `response_object` String `json:$.response.object` DEFAULT 'unknown',
+
+    `embedding` Array(Float32) `json:$.embedding[:]` DEFAULT []
 
 ENGINE "MergeTree"
 ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
 ENGINE_SORTING_KEY "timestamp, organization, project, environment, user, chat_id"
 ENGINE_PRIMARY_KEY "timestamp, organization, project"
+
+FORWARD_QUERY >
+    select timestamp, organization, project, environment, user, chat_id, message_id, model, prompt_tokens, completion_tokens, total_tokens, response_time, duration, cost, exception, traceback, response_status, messages, response_choices, proxy_metadata, provider, llm_api_duration_ms, end_time, id, CAST(stream, 'Boolean') AS stream, call_type, api_key, log_event_type, CAST(cache_hit, 'Boolean') AS cache_hit, response, response_id, response_object, defaultValueOfTypeName('Array(Float32)') AS embedding
