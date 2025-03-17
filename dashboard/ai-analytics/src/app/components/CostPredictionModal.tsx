@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { X, Calculator, Copy, Check, Sparkles } from 'lucide-react';
+import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { AreaChart } from '@tremor/react';
 import { useLLMUsage } from '@/hooks/useTinybirdData';
@@ -46,6 +46,7 @@ export default function CostPredictionModal({
     percentChange: number;
   } | null>(null);
   const [copiedExample, setCopiedExample] = useState<number | null>(null);
+  const [showExamples, setShowExamples] = useState(false);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const { token } = useTinybirdToken();
@@ -378,16 +379,16 @@ export default function CostPredictionModal({
     <>
       {isOpen && (
         <>
-          {/* Backdrop */}
+          {/* Modal backdrop */}
           <div 
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
             onClick={onClose}
           />
           
-          {/* Modal */}
+          {/* Modal container */}
           <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
             <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
-              {/* Header */}
+              {/* Modal header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-800">
                 <div className="flex items-center space-x-2">
                   <Calculator className="h-5 w-5 text-blue-400" />
@@ -401,16 +402,13 @@ export default function CostPredictionModal({
                 </button>
               </div>
               
-              {/* Content - Make this scrollable */}
+              {/* Modal content */}
               <div className="p-4 overflow-y-auto flex-grow">
-                <p className="text-gray-300 mb-4">
-                  Predict how changes to your LLM usage would affect your costs. Ask a question like "What if we switch to GPT-4?" or "How would a 20% increase in volume affect our costs?"
-                </p>
-                
-                {/* Input form */}
-                <form onSubmit={handleSubmit} className="mb-6">
+                <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="relative">
-                    <Sparkles className="absolute left-3 top-3 h-5 w-5 text-blue-400" />
+                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                      <Sparkles className="h-4 w-4 text-blue-400" />
+                    </div>
                     <input
                       ref={inputRef}
                       type="text"
@@ -421,82 +419,97 @@ export default function CostPredictionModal({
                     />
                   </div>
                   
-                  <div className="mt-2 flex justify-end">
+                  {/* Examples dropdown */}
+                  <div className="bg-gray-800/50 rounded-lg">
                     <button
-                      type="submit"
-                      disabled={isLoading || !query.trim()}
-                      className={`px-4 py-2 rounded-lg font-medium ${
-                        isLoading || !query.trim()
-                          ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                          : 'bg-blue-600 text-white hover:bg-blue-500'
-                      }`}
+                      type="button"
+                      onClick={() => setShowExamples(!showExamples)}
+                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:text-white"
                     >
-                      {isLoading ? 'Analyzing...' : 'Predict'}
+                      <span>Example queries</span>
+                      {showExamples ? (
+                        <ChevronUp className="h-4 w-4" />
+                      ) : (
+                        <ChevronDown className="h-4 w-4" />
+                      )}
                     </button>
+                    
+                    {showExamples && (
+                      <div className="px-4 pb-3 space-y-2">
+                        {exampleQueries.map((example, index) => (
+                          <div key={index} className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleExampleClick(example)}
+                              className="flex-grow text-left text-sm text-blue-400 hover:text-blue-300 truncate"
+                            >
+                              {example}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => copyExample(index, example)}
+                              className="flex-shrink-0 text-gray-400 hover:text-white"
+                              title="Copy to clipboard"
+                            >
+                              {copiedExample === index ? (
+                                <Check className="h-4 w-4 text-green-400" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
+                  
+                  <button
+                    type="submit"
+                    disabled={isLoading || !query.trim()}
+                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                      isLoading || !query.trim()
+                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
+                  >
+                    {isLoading ? 'Calculating...' : 'Calculate Prediction'}
+                  </button>
                 </form>
                 
-                {/* Example queries */}
-                <div className="mb-6">
-                  <h3 className="text-sm font-medium text-gray-400 mb-2">Example queries</h3>
-                  <div className="space-y-2">
-                    {exampleQueries.map((example, index) => (
-                      <div key={index} className="flex items-center">
-                        <button
-                          onClick={() => handleExampleClick(example)}
-                          className="flex-grow text-left text-sm text-blue-400 hover:text-blue-300 bg-gray-800/50 hover:bg-gray-800 rounded-l-lg px-3 py-2 transition-colors"
-                        >
-                          {example}
-                        </button>
-                        <button
-                          onClick={() => copyExample(index, example)}
-                          className="bg-gray-800 text-gray-400 hover:text-white rounded-r-lg p-2 transition-colors"
-                          title="Copy to clipboard"
-                        >
-                          {copiedExample === index ? (
-                            <Check className="h-4 w-4 text-green-400" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                
-                {/* Loading state */}
-                {(isLoading || llmUsageQuery.isLoading) && (
-                  <div className="py-12 text-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                    <p className="mt-2 text-gray-300">Analyzing your request and calculating costs...</p>
-                  </div>
-                )}
-                
-                {/* Results */}
-                {summary && !isLoading && !llmUsageQuery.isLoading && (
-                  <div className="mt-8">
-                    <h3 className="text-lg font-medium text-white mb-4">Cost Prediction Results</h3>
-                    
-                    <div className="bg-gray-800 rounded-lg p-4 mb-6">
-                      <div className="grid grid-cols-3 gap-4 mb-4">
-                        <div>
-                          <div className="text-sm text-gray-400">Current Cost</div>
-                          <div className="text-2xl font-bold text-white">${summary.actualTotal.toFixed(2)}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-gray-400">Predicted Cost</div>
-                          <div className="text-2xl font-bold text-blue-400">${summary.predictedTotal.toFixed(2)}</div>
-                        </div>
-                        <div>
-                          <div className="text-sm text-gray-400">Difference</div>
-                          <div className={`text-2xl font-bold ${summary.difference >= 0 ? 'text-red-400' : 'text-green-400'}`}>
-                            ${Math.abs(summary.difference).toFixed(2)} ({summary.difference >= 0 ? '+' : '-'}{Math.abs(summary.percentChange).toFixed(1)}%)
-                          </div>
-                        </div>
+                {/* Results section */}
+                {summary && (
+                  <div className="mt-6 space-y-4">
+                    {/* Summary cards */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <div className="bg-gray-800 rounded-lg p-4">
+                        <div className="text-sm text-gray-400 mb-1">Current Cost</div>
+                        <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
                       </div>
                       
+                      <div className="bg-gray-800 rounded-lg p-4">
+                        <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
+                        <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
+                      </div>
+                      
+                      <div className={`rounded-lg p-4 ${
+                        summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
+                      }`}>
+                        <div className="text-sm text-gray-300 mb-1">Difference</div>
+                        <div className="text-xl font-semibold text-white">
+                          {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
+                        </div>
+                        <div className="text-sm text-gray-300">
+                          {summary.difference > 0 ? '+' : ''}
+                          {summary.percentChange.toFixed(1)}%
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Parameters and chart */}
+                    <div className="space-y-4">
+                      {/* Parameters */}
                       {parameters && (
-                        <div className="mt-4 pt-4 border-t border-gray-700">
+                        <div className="bg-gray-800 rounded-lg p-4">
                           <h4 className="text-sm font-medium text-gray-300 mb-2">Prediction Parameters</h4>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                             <div className="text-gray-400">Model</div>
@@ -530,44 +543,44 @@ export default function CostPredictionModal({
                           </div>
                         </div>
                       )}
+                      
+                      {/* Chart */}
+                      {dailyCosts.length > 0 && (
+                        <div className="bg-gray-800 rounded-lg p-4">
+                          <div className="text-sm text-gray-400 mb-2">Cost Comparison Over Time</div>
+                          <AreaChart
+                            className="h-64"
+                            data={dailyCosts}
+                            index="date"
+                            categories={["actualCost", "predictedCost"]}
+                            colors={["gray", "blue"]}
+                            valueFormatter={(value) => `$${value.toFixed(2)}`}
+                            showLegend={true}
+                            showGridLines={false}
+                            showAnimation={true}
+                            customTooltip={(props) => (
+                              <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
+                                <div className="font-medium text-white">{props.label}</div>
+                                {props.payload?.map((category, idx) => (
+                                  <div key={idx} className="flex items-center mt-1">
+                                    <div 
+                                      className="w-3 h-3 rounded-full mr-1" 
+                                      style={{ backgroundColor: category.color }}
+                                    />
+                                    <span className="text-gray-300">
+                                      {category.id === 'actualCost' ? 'Actual' : 'Predicted'}: 
+                                    </span>
+                                    <span className="ml-1 text-white font-medium">
+                                      ${Number(category.value).toFixed(2)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          />
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Chart */}
-                    {dailyCosts.length > 0 && (
-                      <div className="bg-gray-800 rounded-lg p-4">
-                        <div className="text-sm text-gray-400 mb-2">Cost Comparison Over Time</div>
-                        <AreaChart
-                          className="h-64"
-                          data={dailyCosts}
-                          index="date"
-                          categories={["actualCost", "predictedCost"]}
-                          colors={["gray", "blue"]}
-                          valueFormatter={(value) => `$${value.toFixed(2)}`}
-                          showLegend={true}
-                          showGridLines={false}
-                          showAnimation={true}
-                          customTooltip={(props) => (
-                            <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
-                              <div className="font-medium text-white">{props.label}</div>
-                              {props.payload?.map((category, idx) => (
-                                <div key={idx} className="flex items-center mt-1">
-                                  <div 
-                                    className="w-3 h-3 rounded-full mr-1" 
-                                    style={{ backgroundColor: category.color }}
-                                  />
-                                  <span className="text-gray-300">
-                                    {category.id === 'actualCost' ? 'Actual' : 'Predicted'}: 
-                                  </span>
-                                  <span className="ml-1 text-white font-medium">
-                                    ${Number(category.value).toFixed(2)}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        />
-                      </div>
-                    )}
                   </div>
                 )}
                 
