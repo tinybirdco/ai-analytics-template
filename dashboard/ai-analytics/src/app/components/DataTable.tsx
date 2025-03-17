@@ -93,7 +93,7 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
     if (typeof msg.response_choices === 'string') {
       try {
         return JSON.parse(msg.response_choices);
-      } catch (e) {
+      } catch {
         try {
           // Handle case where response_choices is an array of JSON strings
           return (msg.response_choices as unknown as string[]).map(choice => JSON.parse(choice));
@@ -176,7 +176,7 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
                 if (messages && messages.length > 0) {
                   return (
                     <div key={idx} className="space-y-2">
-                      {messages.map((chatMsg: any, msgIdx: number) => (
+                      {messages.map((chatMsg: { role: string; content: string }, msgIdx: number) => (
                         <div key={`${idx}-${msgIdx}`} className={`rounded-lg p-3 text-white ${
                           chatMsg.role === 'user' ? 'bg-gray-700' : 
                           chatMsg.role === 'assistant' ? 'bg-blue-900' : 
@@ -194,7 +194,7 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
                             <div className="mt-4">
                               <div className="text-sm text-gray-400 mb-2">Alternative Responses:</div>
                               <div className="space-y-2">
-                                {parseResponseChoices(msg).slice(1).map((choice: any, choiceIdx: number) => (
+                                {parseResponseChoices(msg).slice(1).map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
                                   <div key={`choice-${choiceIdx}`} className="bg-gray-700 rounded-lg p-3 text-white opacity-75">
                                     <div className="text-xs text-gray-400 mb-1">Alternative {choiceIdx + 1}</div>
                                     <div className="whitespace-pre-wrap">
@@ -211,23 +211,9 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
                   );
                 }
                 
-                // Fallback to prompt/response if no structured messages
+                // Fallback
                 return (
                   <div key={idx} className="space-y-2">
-                    {msg.prompt && (
-                      <div className="bg-gray-700 rounded-lg p-3 text-white">
-                        <div className="text-xs text-gray-400 mb-1">User</div>
-                        <div className="whitespace-pre-wrap">{msg.prompt}</div>
-                      </div>
-                    )}
-                    
-                    {msg.response && (
-                      <div className="bg-blue-900 rounded-lg p-3 text-white">
-                        <div className="text-xs text-gray-400 mb-1">Assistant</div>
-                        <div className="whitespace-pre-wrap">{msg.response}</div>
-                      </div>
-                    )}
-                    
                     {msg.response_status !== 'success' && msg.exception && (
                       <div className="bg-red-900 rounded-lg p-3 text-white">
                         <div className="text-xs text-gray-400 mb-1">Error</div>
