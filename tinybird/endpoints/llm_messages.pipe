@@ -67,6 +67,6 @@ SQL >
     {% else %}
         ORDER BY timestamp DESC
     {% end %}
-    LIMIT {{Int32(limit, 100)}}
+    LIMIT {{Int32(limit, 200)}}
 
 TYPE endpoint
