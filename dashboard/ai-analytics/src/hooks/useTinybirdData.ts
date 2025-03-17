@@ -87,7 +87,7 @@ export function useLLMVectorSearch(
     queryFn: () => searchLLMMessagesByVector(token!, { 
       ...filters, 
       embedding: embedding || undefined,
-      similarity_threshold: 0.7, // Adjust as needed
+      similarity_threshold: 0.3, // Adjust as needed
     }),
     enabled: !!token && !!embedding,
   });

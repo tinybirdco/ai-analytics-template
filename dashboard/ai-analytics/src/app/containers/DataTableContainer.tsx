@@ -56,8 +56,8 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
   const messagesQuery = useLLMMessages({
     ...filters,
     ...(embedding ? {
-      embedding: JSON.stringify(embedding),
-      similarity_threshold: 0.7
+      embedding: embedding,
+      similarity_threshold: 0.3
     } : {})
   });
   

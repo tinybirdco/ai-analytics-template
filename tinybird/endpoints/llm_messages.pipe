@@ -7,8 +7,7 @@ NODE llm_messages_node
 SQL >
     %
     {% if defined(embedding) %}
-        with 
-        if(length(embedding) > 0, cosineDistance(embedding, {{ Array(embedding, 'Float32') }}), 1.0) as similarity
+        with cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) as similarity
     {% end %}
     SELECT
         timestamp,
@@ -17,6 +16,7 @@ SQL >
         environment,
         user,
         chat_id,
+        message_id,
         model,
         provider,
         prompt_tokens,
@@ -26,6 +26,16 @@ SQL >
         cost,
         response_status,
         exception
+        {% if defined(embedding) %}
+            , similarity
+        {% else %}
+            , 0 as similarity
+        {% end %}
+        {% if defined(chat_id) %}
+            , messages, response_choices
+        {% else %}
+            , [] as messages, [] as response_choices
+        {% end %}
     FROM llm_events
     WHERE 1
         {% if defined(organization) %}
@@ -49,6 +59,9 @@ SQL >
         {% if defined(chat_id) %}
         AND chat_id = {{String(chat_id, '')}}
         {% end %}
+        {% if defined(message_id) %}
+        AND message_id = {{String(message_id, '')}}
+        {% end %}
         {% if defined(start_date) %}
         AND timestamp >= {{DateTime(start_date)}}
         {% else %}
@@ -60,10 +73,10 @@ SQL >
         AND timestamp < now()
         {% end %}
         {% if defined(embedding) %}
-        AND cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) > {{ Float64(similarity_threshold, 0.7) }}
+        AND cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) > {{ Float64(similarity_threshold, 0.3) }}
         {% end %}
     {% if defined(embedding) %}
-      ORDER BY similarity DESC
+      ORDER BY similarity ASC
     {% else %}
         ORDER BY timestamp DESC
     {% end %}
