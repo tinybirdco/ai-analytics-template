@@ -19,8 +19,8 @@ export interface LLMMessagesParams {
   chat_id?: string;
   start_date?: string;
   end_date?: string;
-  embedding?: number[];
-  similarity_threshold?: number;
+  embedding?: number[] | undefined;
+  similarity_threshold?: number | undefined;
 }
 
 export async function fetchLLMUsage(token: string, params: TinybirdParams = {}) {
@@ -110,13 +110,13 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
     console.log('Using POST for Tinybird request with embeddings');
     
     // Create request body with all parameters
-    const requestBody: Record<string, any> = {};
+    const requestBody: Record<string, string | number | number[] | boolean> = {};
     
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
         // For embedding, pass it directly as an array
         if (key === 'embedding') {
-          requestBody[key] = value;
+          requestBody[key] = value as number[];
         } else {
           requestBody[key] = value.toString();
         }

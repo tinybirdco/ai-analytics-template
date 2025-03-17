@@ -26,7 +26,7 @@ export function useGenericCounter(dimension: string, filters: Record<string, str
   });
 }
 
-export function useLLMMessages(filters: Record<string, string>) {
+export function useLLMMessages(filters: Record<string, string | number[] | string | number | undefined>) {
   const { token } = useTinybirdToken();
 
   return useQuery({
@@ -44,7 +44,7 @@ export function useLLMVectorSearch(
 ) {
   const { token } = useTinybirdToken();
   const [embedding, setEmbedding] = useState<number[] | null>(null);
-  const [isGeneratingEmbedding, setIsGeneratingEmbedding] = useState(false);
+  // const [isGeneratingEmbedding, setIsGeneratingEmbedding] = useState(false);
 
   // Generate embedding when search text changes
   useEffect(() => {
@@ -54,7 +54,7 @@ export function useLLMVectorSearch(
         return;
       }
       
-      setIsGeneratingEmbedding(true);
+      // setIsGeneratingEmbedding(true);
       try {
         const response = await fetch('/api/generate-embedding', {
           method: 'POST',
@@ -73,9 +73,10 @@ export function useLLMVectorSearch(
       } catch (error) {
         console.error('Error generating embedding:', error);
         setEmbedding(null);
-      } finally {
-        setIsGeneratingEmbedding(false);
-      }
+      } 
+      // finally {
+      //   setIsGeneratingEmbedding(false);
+      // }
     }
     
     generateEmbedding();

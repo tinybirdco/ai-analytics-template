@@ -1,13 +1,14 @@
 // dashboard/ai-analytics/src/app/api/generate-embedding/route.ts
 import { NextResponse } from 'next/server';
 import { pipeline } from '@xenova/transformers';
+import type { FeatureExtractionPipeline } from '@xenova/transformers/types/pipelines';
 
 // Cache the model to avoid reloading it for every request
-let embeddingPipeline: any = null;
+let embeddingPipeline: FeatureExtractionPipeline | null = null;
 
 async function getEmbeddingModel() {
   if (!embeddingPipeline) {
-    embeddingPipeline = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
+    embeddingPipeline = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2') as FeatureExtractionPipeline;
   }
   return embeddingPipeline;
 }

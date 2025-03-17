@@ -55,8 +55,10 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
   // Use the regular messages hook with embedding when available
   const messagesQuery = useLLMMessages({
     ...filters,
-    embedding: embedding || undefined,
-    similarity_threshold: embedding ? 0.7 : undefined, // Only use threshold when embedding exists
+    ...(embedding ? {
+      embedding: JSON.stringify(embedding),
+      similarity_threshold: 0.7
+    } : {})
   });
   
   const handleSearch = (e: React.FormEvent) => {
