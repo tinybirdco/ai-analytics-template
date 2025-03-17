@@ -1,3 +1,4 @@
+TOKEN "read_pipes" READ
 
 DESCRIPTION >
     Get detailed LLM messages with filters
