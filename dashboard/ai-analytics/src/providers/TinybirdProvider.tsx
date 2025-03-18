@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 interface TinybirdContextType {
@@ -15,11 +15,25 @@ const TinybirdContext = createContext<TinybirdContextType | null>(null);
 const queryClient = new QueryClient();
 
 export function TinybirdProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [orgName, setOrgName] = useState<string | null>(null);
+  const [token, setTokenState] = useState<string | null>(null);
+  const [orgName, setOrgNameState] = useState<string | null>(null);
+
+  // Memoize these functions so they don't change on every render
+  const setToken = useCallback((newToken: string) => {
+    setTokenState(newToken);
+  }, []);
+
+  const setOrgName = useCallback((newOrgName: string) => {
+    setOrgNameState(newOrgName);
+  }, []);
+
+  // Create a stable context value
+  const contextValue = useMemo(() => {
+    return { token, orgName, setToken, setOrgName };
+  }, [token, orgName, setToken, setOrgName]);
 
   return (
-    <TinybirdContext.Provider value={{ token, orgName, setToken, setOrgName }}>
+    <TinybirdContext.Provider value={contextValue}>
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>

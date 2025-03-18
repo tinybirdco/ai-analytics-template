@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { format, subDays, subHours, subMonths, parse, isValid } from 'date-fns';
@@ -24,13 +24,21 @@ interface DateRangeSelectorProps {
 export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelectorProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  
+  // Use refs for the popover triggers
+  const rangePopoverTriggerRef = useRef<HTMLButtonElement>(null);
+  const calendarPopoverTriggerRef = useRef<HTMLButtonElement>(null);
+  
+  // State for popover open/close
   const [isOpen, setIsOpen] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  
+  // Other state
   const [selectedRange, setSelectedRange] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
     start: null,
     end: null,
   });
-  const [calendarOpen, setCalendarOpen] = useState(false);
   const [isPredefinedRange, setIsPredefinedRange] = useState(true);
   
   // Time selection states
@@ -38,13 +46,16 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   const [startMinute, setStartMinute] = useState("00");
   const [endHour, setEndHour] = useState("23");
   const [endMinute, setEndMinute] = useState("59");
+  
+  // Track if we've already initialized from URL
+  const initializedRef = useRef(false);
 
   // Generate hours and minutes for dropdowns
-  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-  const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+  const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')), []);
+  const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')), []);
 
-  // Predefined date ranges
-  const dateRangeOptions: DateRangeOption[] = [
+  // Predefined date ranges - memoize to prevent recreation
+  const dateRangeOptions = useMemo<DateRangeOption[]>(() => [
     {
       label: 'Last Hour',
       getValue: () => ({
@@ -87,10 +98,25 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
         end: new Date(),
       }),
     },
-  ];
+  ], []);
 
-  // Initialize from URL params
+  // Helper function to parse date strings - memoize to prevent recreation
+  const parseDate = useCallback((dateStr: string): Date | null => {
+    const formats = ['yyyy-MM-dd HH:mm:ss', 'yyyy-MM-dd\'T\'HH:mm:ss', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd', 'MM/dd/yyyy', 'dd/MM/yyyy'];
+    
+    for (const fmt of formats) {
+      const date = parse(dateStr, fmt, new Date());
+      if (isValid(date)) return date;
+    }
+    
+    return null;
+  }, []);
+
+  // Initialize from URL params - add dependency array and use ref to prevent multiple runs
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+    
     const start_date = searchParams.get('start_date');
     const end_date = searchParams.get('end_date');
 
@@ -157,23 +183,10 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
         updateUrlParams(start, end);
       }
     }
-  });
+  }, [searchParams, dateRangeOptions, parseDate]);
 
-  // Helper function to parse date strings
-  const parseDate = (dateStr: string): Date | null => {
-    // Try different formats, with the primary format first
-    const formats = ['yyyy-MM-dd HH:mm:ss', 'yyyy-MM-dd\'T\'HH:mm:ss', 'yyyy-MM-dd HH:mm', 'yyyy-MM-dd', 'MM/dd/yyyy', 'dd/MM/yyyy'];
-    
-    for (const fmt of formats) {
-      const date = parse(dateStr, fmt, new Date());
-      if (isValid(date)) return date;
-    }
-    
-    return null;
-  };
-
-  // Update URL params when date range changes
-  const updateUrlParams = (start: Date | null, end: Date | null) => {
+  // Update URL params when date range changes - memoize to prevent recreation
+  const updateUrlParams = useCallback((start: Date | null, end: Date | null) => {
     if (!start || !end) return;
 
     // Format with time
@@ -207,10 +220,10 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     if (onDateRangeChange) {
       onDateRangeChange(startDateStr, endDateStr);
     }
-  };
+  }, [router, searchParams, isPredefinedRange, startHour, startMinute, endHour, endMinute, onDateRangeChange]);
 
-  // Handle predefined range selection
-  const handleRangeSelect = (option: DateRangeOption) => {
+  // Handle predefined range selection - memoize to prevent recreation
+  const handleRangeSelect = useCallback((option: DateRangeOption) => {
     const { start, end } = option.getValue();
     setDateRange({ start, end });
     setSelectedRange(option.label); // Use the predefined label (e.g., "Last 30 days")
@@ -224,10 +237,10 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     
     updateUrlParams(start, end);
     setIsOpen(false);
-  };
+  }, [updateUrlParams]);
 
-  // Handle calendar date selection
-  const handleCalendarSelect = (range: { from: Date | undefined; to?: Date | undefined }) => {
+  // Handle calendar date selection - memoize to prevent recreation
+  const handleCalendarSelect = useCallback((range: { from: Date | undefined; to?: Date | undefined }) => {
     if (!range.from) return;
     
     const start = range.from;
@@ -240,24 +253,34 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     
     // Don't close the calendar or update URL params yet
     // Wait for the Apply button to be clicked
-  };
+  }, []);
 
-  // Handle time change
-  const handleTimeChange = () => {
+  // Handle time change - memoize to prevent recreation
+  const handleTimeChange = useCallback(() => {
     if (!dateRange.start || !dateRange.end) return;
     
     updateUrlParams(dateRange.start, dateRange.end);
     setCalendarOpen(false); // Only close the calendar when Apply is clicked
-  };
+  }, [dateRange, updateUrlParams]);
+
+  // Memoize the open/close handlers to prevent recreation
+  const handleRangePopoverOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
+  }, []);
+
+  const handleCalendarPopoverOpenChange = useCallback((open: boolean) => {
+    setCalendarOpen(open);
+  }, []);
 
   return (
     <div className="flex items-center">
       {isPredefinedRange ? (
         // Predefined range layout - Text with chevron on left, calendar on right
         <>
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
+                ref={rangePopoverTriggerRef}
                 variant="outline" 
                 className={cn(
                   "flex items-center justify-between gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-md rounded-r-none px-3 py-2 h-10",
@@ -285,9 +308,10 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
             </PopoverContent>
           </Popover>
           
-          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
+                ref={calendarPopoverTriggerRef}
                 variant="outline" 
                 className={cn(
                   "flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-l-0 rounded-l-none rounded-r-md px-2 h-10",
@@ -382,11 +406,12 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
           </Popover>
         </>
       ) : (
-        // Custom range layout - Chevron on left, calendar on right
+        // Custom range layout - similar changes for this section
         <>
-          <Popover open={isOpen} onOpenChange={setIsOpen}>
+          <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
+                ref={rangePopoverTriggerRef}
                 variant="outline" 
                 className={cn(
                   "flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-md rounded-r-none px-2 h-10",
@@ -411,9 +436,10 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
             </PopoverContent>
           </Popover>
           
-          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
+                ref={calendarPopoverTriggerRef}
                 variant="outline" 
                 className={cn(
                   "flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-l-0 rounded-l-none rounded-r-md px-3 py-2 h-10",
@@ -421,7 +447,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
                 )}
               >
                 <span className="text-sm font-medium">
-                  {selectedRange || 'Select date range'}
+                  {selectedRange || 'Select dates'}
                 </span>
                 <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
               </Button>

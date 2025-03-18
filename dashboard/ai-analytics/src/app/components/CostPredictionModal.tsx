@@ -1,7 +1,7 @@
 // src/app/components/CostPredictionModal.tsx
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
@@ -230,16 +230,31 @@ export default function CostPredictionModal({
     }
   }, [isOpen]);
 
-  // Handle keyboard shortcuts
+  // Handle keyboard shortcuts and outside clicks
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && isOpen) {
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    // Add event listeners when the modal is open
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      
+      // Clean up when the modal closes or component unmounts
+      return () => {
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen, onClose]);
+
+  // Create a memoized handler for backdrop clicks
+  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+    // Ensure we're clicking the backdrop, not its children
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
   }, [onClose]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -678,15 +693,21 @@ export default function CostPredictionModal({
     <>
       {isOpen && (
         <>
-          {/* Modal backdrop */}
+          {/* Modal backdrop - updated to use the memoized handler */}
           <div 
             className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
-            onClick={onClose}
+            onClick={handleBackdropClick}
           />
           
           {/* Modal container */}
-          <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-            <div className="bg-gray-900 rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col">
+          <div 
+            className="fixed inset-0 flex items-center justify-center z-50 p-4"
+            onClick={handleBackdropClick} // Also handle clicks on the container outside the modal
+          >
+            <div 
+              className="bg-gray-900 rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col"
+              onClick={(e) => e.stopPropagation()} // Prevent clicks on the modal itself from closing it
+            >
               {/* Modal header */}
               <div className="flex items-center justify-between p-4 border-b border-gray-800">
                 <div className="flex items-center space-x-2">
