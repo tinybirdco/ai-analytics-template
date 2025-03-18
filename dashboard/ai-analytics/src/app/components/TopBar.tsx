@@ -6,8 +6,11 @@ import FilterChips from './FilterChips';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { Calculator } from 'lucide-react';
+import { Calculator, Settings } from 'lucide-react';
 import { useModal } from '../context/ModalContext';
+import { useApiKeyStore } from '@/stores/apiKeyStore';
+import ApiKeyInput from './ApiKeyInput';
+import { Dialog, DialogPanel } from '@tremor/react';
 
 interface Selection {
   dimension: string;
@@ -27,11 +30,19 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { openCostPrediction } = useModal();
+  const { openaiKey } = useApiKeyStore();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       const input = e.currentTarget.value;
       if (input.trim()) {
+        // Check if API key is available
+        if (!openaiKey) {
+          alert('Please provide your OpenAI API key in settings to use this feature.');
+          return;
+        }
+        
         setIsLoading(true);
         console.log('Searching for:', input);
         
@@ -41,7 +52,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ prompt: input }),
+            body: JSON.stringify({ prompt: input, apiKey: openaiKey }),
           });
           
           if (!response.ok) {
@@ -78,7 +89,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             inputRef.current.value = '';
           }
         } catch (error) {
-          console.error('Error during search:', error);
+          console.error('Search error:', error);
         } finally {
           setIsLoading(false);
         }
@@ -155,6 +166,13 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       </div>
       
       <div className="flex items-center space-x-4">
+        <button
+          onClick={() => setIsSettingsOpen(true)}
+          className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-sm"
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Settings
+        </button>
         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
           {orgName || 'Admin User'}
         </span>
@@ -174,6 +192,31 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
       </div>
+      
+      {/* Settings Modal */}
+      <Dialog
+        open={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        static={true}
+      >
+        <DialogPanel className="max-w-md">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-semibold">Settings</h3>
+              <button 
+                onClick={() => setIsSettingsOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+            
+            <ApiKeyInput />
+          </div>
+        </DialogPanel>
+      </Dialog>
     </div>
   );
 } 

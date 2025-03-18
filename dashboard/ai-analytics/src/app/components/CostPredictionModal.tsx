@@ -6,6 +6,7 @@ import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lu
 import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { fetchLLMUsage } from '@/services/tinybird';
+import { useApiKeyStore } from '@/stores/apiKeyStore';
 
 interface CostPredictionModalProps {
   isOpen: boolean;
@@ -76,6 +77,9 @@ export default function CostPredictionModal({
   
   const { token } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Get the API key from the store
+  const { openaiKey } = useApiKeyStore();
 
   // Example queries that users can select
   const exampleQueries = [
@@ -260,6 +264,13 @@ export default function CostPredictionModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
+    
+    // Check if API key is available
+    if (!openaiKey) {
+      // Show a message to the user that they need to provide an API key
+      alert('Please provide your OpenAI API key in settings to use this feature.');
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -281,7 +292,7 @@ export default function CostPredictionModal({
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify({ query, apiKey: openaiKey }),
       });
       
       if (!response.ok) {
@@ -946,11 +957,7 @@ export default function CostPredictionModal({
                                     {entry.name === 'actualCost' ? 'Actual' : 'Predicted'}:
                                   </span>
                                   <span className="text-white ml-1">
-                                    ${typeof entry.value === 'number' 
-                                      ? entry.value.toFixed(2) 
-                                      : Array.isArray(entry.value)
-                                        ? entry.value.join(', ')
-                                        : entry.value}
+                                    ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
                                   </span>
                                 </div>
                               ))}
@@ -981,11 +988,7 @@ export default function CostPredictionModal({
                                   />
                                   <span className="text-gray-400">{entry.name}:</span>
                                   <span className="text-white ml-1">
-                                    ${typeof entry.value === 'number' 
-                                      ? entry.value.toFixed(2) 
-                                      : Array.isArray(entry.value)
-                                        ? entry.value.join(', ')
-                                        : entry.value}
+                                    ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
                                   </span>
                                 </div>
                               ))}
@@ -1016,11 +1019,7 @@ export default function CostPredictionModal({
                                   />
                                   <span className="text-gray-400">Cost:</span>
                                   <span className="text-white ml-1">
-                                    ${typeof entry.value === 'number' 
-                                      ? entry.value.toFixed(2) 
-                                      : Array.isArray(entry.value)
-                                        ? entry.value.join(', ')
-                                        : entry.value}
+                                    ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
                                   </span>
                                 </div>
                               ))}

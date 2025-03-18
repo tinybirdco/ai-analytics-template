@@ -9,6 +9,7 @@ import { ModalProvider } from './context/ModalContext'
 import CostPredictionModal from './components/CostPredictionModal'
 import { useModal } from './context/ModalContext'
 import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut'
+import dynamic from 'next/dynamic'
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -17,32 +18,56 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    fetch(window.location.pathname)
-      .then(response => {
+    let isMounted = true
+    
+    const fetchToken = async () => {
+      try {
+        const response = await fetch(window.location.pathname)
+        if (!isMounted) return
+        
         const token = response.headers.get('x-tinybird-token')
         const orgName = response.headers.get('x-org-name')
+        
         if (token) {
           setToken(token)
           setOrgName(orgName || '')
-          setIsReady(true)
         }
-      })
-  }, [setToken, setOrgName])
+        
+        setIsReady(true)
+      } catch (error) {
+        console.error('Error fetching token:', error)
+        if (isMounted) setIsReady(true)
+      }
+    }
+    
+    fetchToken()
+    
+    return () => {
+      isMounted = false
+    }
+  }, []) // Empty dependency array to run only once
 
   if (!isReady) return <div>Loading...</div>
 
-  return children
+  return (
+    <>
+      {children}
+    </>
+  )
 }
 
-function ModalController({ filters }: { filters: Record<string, string | undefined> }) {
-  const { isCostPredictionOpen, openCostPrediction, closeCostPrediction } = useModal()
-  
-  // Setup Cmd+K shortcut
-  useKeyboardShortcut('k', openCostPrediction, true)
-  
+function ModalController({ filters }: { filters: Record<string, string> }) {
+  const { isCostPredictionOpen, closeCostPrediction } = useModal()
+
+  useKeyboardShortcut('c', () => {
+    if (!isCostPredictionOpen) {
+      window.dispatchEvent(new CustomEvent('open-cost-prediction'))
+    }
+  })
+
   return (
-    <CostPredictionModal 
-      isOpen={isCostPredictionOpen} 
+    <CostPredictionModal
+      isOpen={isCostPredictionOpen}
       onClose={closeCostPrediction}
       currentFilters={filters}
     />
