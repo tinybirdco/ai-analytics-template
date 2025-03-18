@@ -1,7 +1,7 @@
 // src/app/components/CostPredictionModal.tsx
 'use client';
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
@@ -47,8 +47,9 @@ interface CostParameters {
 
 interface DailyCost {
   date: string;
-  actualCost: number;
-  predictedCost: number;
+  actualCost?: number;
+  predictedCost?: number;
+  [category: string]: string | number | undefined; // Add index signature for dynamic properties
 }
 
 interface UsageDataItem {
@@ -82,8 +83,8 @@ export default function CostPredictionModal({
   } | null>(null);
   const [copiedExample, setCopiedExample] = useState<number | null>(null);
   const [showExamples, setShowExamples] = useState(false);
-  const [usageData, setUsageData] = useState<UsageDataItem[]>([]);
-  const [isLoadingUsage, setIsLoadingUsage] = useState(false);
+//   const [usageData, setUsageData] = useState<UsageDataItem[]>([]);
+//   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
   const [chartCategories, setChartCategories] = useState<string[]>(['actualCost', 'predictedCost']);
   const [isGroupedData, setIsGroupedData] = useState(false);
   
@@ -150,7 +151,7 @@ export default function CostPredictionModal({
         return;
       }
       
-      setIsLoadingUsage(true);
+    //   setIsLoadingUsage(true);
       console.log("Fetching usage data with parameters:", parameters);
       
       try {
@@ -167,17 +168,26 @@ export default function CostPredictionModal({
         
         // Add model filter if specified
         if (parameters.model) {
-          filters.model = normalizeModelName(parameters.model);
+          const normalizedModel = normalizeModelName(parameters.model);
+          if (normalizedModel) {
+            filters.model = normalizedModel;
+          }
         }
         
         // Add provider filter if specified
         if (parameters.provider) {
-          filters.provider = normalizeProviderName(parameters.provider);
+          const normalizedProvider = normalizeProviderName(parameters.provider);
+          if (normalizedProvider) {
+            filters.provider = normalizedProvider;
+          }
         }
         
         // Add environment filter if specified
         if (parameters.environment) {
-          filters.environment = normalizeEnvironmentName(parameters.environment);
+          const normalizedEnvironment = normalizeEnvironmentName(parameters.environment);
+          if (normalizedEnvironment) {
+            filters.environment = normalizedEnvironment;
+          }
         }
         
         // Add other filter parameters if specified
@@ -200,7 +210,7 @@ export default function CostPredictionModal({
         
         if (response && response.data && response.data.length > 0) {
           console.log("Data received, length:", response.data.length);
-          setUsageData(response.data);
+        //   setUsageData(response.data);
           calculateCosts(response.data, parameters);
         } else {
           console.log("No data received, using sample data");
@@ -208,7 +218,7 @@ export default function CostPredictionModal({
           const startDate = new Date(parameters.start_date);
           const endDate = new Date(parameters.end_date);
           const sampleData = generateSampleData(startDate, endDate, parameters.model);
-          setUsageData(sampleData);
+          // setUsageData(sampleData);
           calculateCosts(sampleData, parameters);
         }
       } catch (error) {
@@ -217,11 +227,12 @@ export default function CostPredictionModal({
         const startDate = new Date(parameters.start_date);
         const endDate = new Date(parameters.end_date);
         const sampleData = generateSampleData(startDate, endDate, parameters.model);
-        setUsageData(sampleData);
+        // setUsageData(sampleData);
         calculateCosts(sampleData, parameters);
-      } finally {
-        setIsLoadingUsage(false);
-      }
+      } 
+    //   finally {
+    //     setIsLoadingUsage(false);
+    //   }
     }
     
     fetchUsageData();
@@ -300,10 +311,10 @@ export default function CostPredictionModal({
     console.log("Parameters:", params);
     
     // Default costs if not specified
-    const promptCost = params.promptTokenCost ?? getDefaultPromptCost(params.model);
-    const completionCost = params.completionTokenCost ?? getDefaultCompletionCost(params.model);
-    const discount = params.discount / 100; // Convert percentage to decimal
-    const volumeMultiplier = 1 + (params.volumeChange / 100); // Convert percentage to multiplier
+    // const promptCost = params.promptTokenCost ?? getDefaultPromptCost(params.model);
+    // const completionCost = params.completionTokenCost ?? getDefaultCompletionCost(params.model);
+    // const discount = params.discount / 100; // Convert percentage to decimal
+    // const volumeMultiplier = 1 + (params.volumeChange / 100); // Convert percentage to multiplier
     
     // If no data is available, generate sample data for demonstration
     let processedData = usageData;
@@ -322,7 +333,7 @@ export default function CostPredictionModal({
     
     if (isGrouped) {
       // Handle grouped data visualization
-      processGroupedData(processedData, params);
+      processGroupedData(processedData);
     } else {
       // Handle regular data visualization (actual vs predicted)
       processRegularData(processedData, params);
@@ -330,7 +341,7 @@ export default function CostPredictionModal({
   };
 
   // New function to process grouped data
-  const processGroupedData = (data: UsageDataItem[], params: CostParameters) => {
+  const processGroupedData = (data: UsageDataItem[]) => {
     // Group data by date and category
     const groupedByDate = new Map<string, Map<string, { 
       prompt_tokens: number, 
@@ -364,7 +375,7 @@ export default function CostPredictionModal({
     });
     
     // Transform data for chart visualization
-    const chartData: any[] = [];
+    const chartData: DailyCost[] = [];
     const categories = new Set<string>();
     
     // Collect all categories
@@ -376,7 +387,7 @@ export default function CostPredictionModal({
     
     // Create chart data with all categories for each date
     Array.from(groupedByDate.entries()).forEach(([date, categoryMap]) => {
-      const dateObj: any = {
+      const dateObj: DailyCost = {
         date: new Date(date).toLocaleDateString('en-US', { 
           month: 'short', 
           day: '2-digit' 
@@ -408,18 +419,20 @@ export default function CostPredictionModal({
     setIsGroupedData(true);
     
     // Calculate summary statistics
-    const totalCost = chartData.reduce((sum, day) => {
+    const total = chartData.reduce((sum, day) => {
       let daySum = 0;
       Array.from(categories).forEach(category => {
-        daySum += day[category] || 0;
+        // Convert to number and use 0 as fallback
+        const value = typeof day[category] === 'number' ? day[category] as number : 0;
+        daySum += value;
       });
       return sum + daySum;
     }, 0);
     
     // For grouped data, we don't have a predicted vs actual comparison
     setSummary({
-      actualTotal: totalCost,
-      predictedTotal: totalCost,
+      actualTotal: total,
+      predictedTotal: total,
       difference: 0,
       percentChange: 0
     });
@@ -468,7 +481,7 @@ export default function CostPredictionModal({
     });
     
     // Calculate daily costs
-    const dailyCostData = Array.from(dateMap.entries()).map(([date, data]) => {
+    const dailyCostData: DailyCost[] = Array.from(dateMap.entries()).map(([date, data]) => {
       // Calculate actual cost from the data
       const actualCost = data.total_cost || 0;
       
@@ -515,8 +528,8 @@ export default function CostPredictionModal({
     setIsGroupedData(false);
     
     // Calculate summary statistics
-    const actualTotal = dailyCostData.reduce((sum, day) => sum + day.actualCost, 0);
-    const predictedTotal = dailyCostData.reduce((sum, day) => sum + day.predictedCost, 0);
+    const actualTotal = dailyCostData.reduce((sum, day) => sum + (day.actualCost || 0), 0);
+    const predictedTotal = dailyCostData.reduce((sum, day) => sum + (day.predictedCost || 0), 0);
     const difference = predictedTotal - actualTotal;
     const percentChange = actualTotal > 0 ? (difference / actualTotal) * 100 : 0;
     
@@ -615,32 +628,19 @@ export default function CostPredictionModal({
     return 0.0003; // Default if no match
   };
 
-  // Add this function to normalize model names
+  // Add a function to normalize model names
   const normalizeModelName = (modelName: string | null): string | null => {
     if (!modelName) return null;
     
     // Convert to lowercase
-    const normalized = modelName.toLowerCase()
-      // Replace spaces with hyphens
-      .replace(/\s+/g, '-')
-      // Remove any special characters
-      .replace(/[^\w-]/g, '');
+    const normalized = modelName.toLowerCase();
     
     // Map common variations to standard names
-    const modelMap: Record<string, string> = {
-      'claude3opus': 'claude-3-opus',
-      'claude3sonnet': 'claude-3-sonnet',
-      'claude3haiku': 'claude-3-haiku',
-      'gpt4': 'gpt-4',
-      'gpt35turbo': 'gpt-3.5-turbo'
-    };
-    
-    // Check if we need to map this model name
-    for (const [key, value] of Object.entries(modelMap)) {
-      if (normalized.includes(key)) {
-        return value;
-      }
-    }
+    if (normalized.includes('gpt-4')) return 'gpt-4';
+    if (normalized.includes('gpt-3.5')) return 'gpt-3.5-turbo';
+    if (normalized.includes('claude-3-opus')) return 'claude-3-opus';
+    if (normalized.includes('claude-3-sonnet')) return 'claude-3-sonnet';
+    if (normalized.includes('claude-3-haiku')) return 'claude-3-haiku';
     
     return normalized;
   };
@@ -784,190 +784,182 @@ export default function CostPredictionModal({
                 {summary && (
                   <div className="mt-6 space-y-4">
                     {/* Summary cards */}
-                    <div className="grid grid-cols-3 gap-4">
-                      {/* <div className="bg-gray-800 rounded-lg p-4">
-                        <div className="text-sm text-gray-400 mb-1">Current Cost</div>
-                        <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
-                      </div> */}
-                      
-                      {/* <div className="bg-gray-800 rounded-lg p-4">
-                        <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
-                        <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
-                      </div> */}
-                      
-                      {/* <div className={`rounded-lg p-4 ${
-                        summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
-                      }`}>
-                        <div className="text-sm text-gray-300 mb-1">Difference</div>
-                        <div className="text-xl font-semibold text-white">
-                          {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
-                        </div>
-                        <div className="text-sm text-gray-300">
-                          {summary.difference > 0 ? '+' : ''}
-                          {summary.percentChange.toFixed(1)}%
-                        </div>
-                      </div> */}
-                    </div>
+                    {/* <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-1">Current Cost</div>
+                      <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
+                    </div> */}
                     
-                    {/* Parameters and chart */}
-                    <div className="space-y-4">
-                      {/* Parameters */}
-                      {parameters && (
-                        <div className="bg-gray-800 rounded-lg p-4">
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                                <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
-                                <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
-                            </div>
-                          <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <div className="text-gray-400">Model</div>
-                            <div className="text-white">{parameters.model || 'Current models'}</div>
-                            
-                            <div className="text-gray-400">Prompt Token Cost</div>
-                            <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
-                            
-                            <div className="text-gray-400">Completion Token Cost</div>
-                            <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
-                            
-                            {parameters.discount > 0 && (
-                              <>
-                                <div className="text-gray-400">Discount</div>
-                                <div className="text-white">{parameters.discount}%</div>
-                              </>
-                            )}
-                            
-                            {parameters.volumeChange !== 0 && (
-                              <>
-                                <div className="text-gray-400">Volume Change</div>
-                                <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
-                              </>
-                            )}
-                            
-                            <div className="text-gray-400">Time Period</div>
-                            <div className="text-white">{parameters.timeframe}</div>
-                            
-                            <div className="text-gray-400">Date Range</div>
-                            <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
-                            
-                            {parameters.group_by && (
-                              <>
-                                <div className="text-gray-400">Grouped By</div>
-                                <div className="text-white">{parameters.group_by}</div>
-                              </>
-                            )}
-                            
-                            {/* Display filter parameters if specified */}
-                            {parameters.organization && (
-                              <>
-                                <div className="text-gray-400">Organization</div>
-                                <div className="text-white">{parameters.organization}</div>
-                              </>
-                            )}
-                            
-                            {parameters.project && (
-                              <>
-                                <div className="text-gray-400">Project</div>
-                                <div className="text-white">{parameters.project}</div>
-                              </>
-                            )}
-                            
-                            {parameters.environment && (
-                              <>
-                                <div className="text-gray-400">Environment</div>
-                                <div className="text-white">{parameters.environment}</div>
-                              </>
-                            )}
-                            
-                            {parameters.provider && (
-                              <>
-                                <div className="text-gray-400">Provider</div>
-                                <div className="text-white">{parameters.provider}</div>
-                              </>
-                            )}
-                            
-                            {parameters.user && (
-                              <>
-                                <div className="text-gray-400">User</div>
-                                <div className="text-white">{parameters.user}</div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Chart */}
-                      {dailyCosts.length > 0 && (
-                        <div className="bg-gray-800 rounded-lg p-4">
-                          <div className="text-sm text-gray-400 mb-2">
-                            {isGroupedData 
-                              ? `Cost Breakdown by ${parameters?.group_by || 'Category'}`
-                              : 'Cost Comparison Over Time'}
-                          </div>
-                          
-                          {isGroupedData ? (
-                            // Stacked bar chart for grouped data
-                            <BarChart
-                              className="h-64"
-                              data={dailyCosts}
-                              index="date"
-                              categories={chartCategories}
-                              stack={true}
-                              colors={["blue", "cyan", "amber", "green", "purple", "pink", "indigo", "rose"]}
-                              valueFormatter={(value) => `$${value.toFixed(2)}`}
-                              showLegend={true}
-                              showGridLines={false}
-                              showAnimation={true}
-                            />
-                          ) : (
-                            // Area chart for regular comparison
-                            <AreaChart
-                              className="h-64"
-                              data={dailyCosts}
-                              index="date"
-                              categories={chartCategories}
-                              colors={["gray", "blue"]}
-                              valueFormatter={(value) => `$${value.toFixed(2)}`}
-                              showLegend={true}
-                              showGridLines={false}
-                              showAnimation={true}
-                              customTooltip={(props) => (
-                                <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
-                                  <div className="font-medium text-white">{props.label}</div>
-                                  {props.payload?.map((category, idx) => {
-                                    // Cast the category to the correct type
-                                    const typedCategory = category as unknown as ChartTooltipPayload;
-                                    return (
-                                      <div key={idx} className="flex items-center mt-1">
-                                        <div 
-                                          className="w-3 h-3 rounded-full mr-1" 
-                                          style={{ backgroundColor: typedCategory.color }}
-                                        />
-                                        <span className="text-gray-300">
-                                          {typedCategory.dataKey === 'actualCost' ? 'Actual' : 'Predicted'}: 
-                                        </span>
-                                        <span className="ml-1 text-white font-medium">
-                                          ${Number(typedCategory.value).toFixed(2)}
-                                        </span>
-                                      </div>
-                                    );
-                                  })}
-                                </div>
-                              )}
-                            />
-                          )}
-                        </div>
-                      )}
-                    </div>
+                    {/* <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
+                      <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
+                    </div> */}
+                    
+                    {/* <div className={`rounded-lg p-4 ${
+                      summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
+                    }`}>
+                      <div className="text-sm text-gray-300 mb-1">Difference</div>
+                      <div className="text-xl font-semibold text-white">
+                        {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-300">
+                        {summary.difference > 0 ? '+' : ''}
+                        {summary.percentChange.toFixed(1)}%
+                      </div>
+                    </div> */}
                   </div>
                 )}
                 
-                {/* Loading indicator */}
-                {isLoadingUsage && (
-                  <div className="mt-4 p-3 bg-blue-900/20 text-blue-200 rounded-lg flex items-center">
-                    <div className="animate-spin mr-2 h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                    Fetching usage data...
-                  </div>
-                )}
+                {/* Parameters and chart */}
+                <div className="space-y-4">
+                  {/* Parameters */}
+                  {parameters && (
+                    <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
+                        <div className="text-xl font-semibold text-white">
+                          {summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
+                        </div>
+                      </div>
+                      <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div className="text-gray-400">Model</div>
+                        <div className="text-white">{parameters.model || 'Current models'}</div>
+                        
+                        <div className="text-gray-400">Prompt Token Cost</div>
+                        <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
+                        
+                        <div className="text-gray-400">Completion Token Cost</div>
+                        <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
+                        
+                        {parameters.discount > 0 && (
+                          <>
+                            <div className="text-gray-400">Discount</div>
+                            <div className="text-white">{parameters.discount}%</div>
+                          </>
+                        )}
+                        
+                        {parameters.volumeChange !== 0 && (
+                          <>
+                            <div className="text-gray-400">Volume Change</div>
+                            <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
+                          </>
+                        )}
+                        
+                        <div className="text-gray-400">Time Period</div>
+                        <div className="text-white">{parameters.timeframe}</div>
+                        
+                        <div className="text-gray-400">Date Range</div>
+                        <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
+                        
+                        {parameters.group_by && (
+                          <>
+                            <div className="text-gray-400">Grouped By</div>
+                            <div className="text-white">{parameters.group_by}</div>
+                          </>
+                        )}
+                        
+                        {/* Display filter parameters if specified */}
+                        {parameters.organization && (
+                          <>
+                            <div className="text-gray-400">Organization</div>
+                            <div className="text-white">{parameters.organization}</div>
+                          </>
+                        )}
+                        
+                        {parameters.project && (
+                          <>
+                            <div className="text-gray-400">Project</div>
+                            <div className="text-white">{parameters.project}</div>
+                          </>
+                        )}
+                        
+                        {parameters.environment && (
+                          <>
+                            <div className="text-gray-400">Environment</div>
+                            <div className="text-white">{parameters.environment}</div>
+                          </>
+                        )}
+                        
+                        {parameters.provider && (
+                          <>
+                            <div className="text-gray-400">Provider</div>
+                            <div className="text-white">{parameters.provider}</div>
+                          </>
+                        )}
+                        
+                        {parameters.user && (
+                          <>
+                            <div className="text-gray-400">User</div>
+                            <div className="text-white">{parameters.user}</div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Chart */}
+                  {dailyCosts.length > 0 && (
+                    <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-2">
+                        {isGroupedData 
+                          ? `Cost Breakdown by ${parameters?.group_by || 'Category'}`
+                          : 'Cost Comparison Over Time'}
+                      </div>
+                      
+                      {isGroupedData ? (
+                        // Stacked bar chart for grouped data
+                        <BarChart
+                          className="h-64"
+                          data={dailyCosts}
+                          index="date"
+                          categories={chartCategories}
+                          stack={true}
+                          colors={["blue", "cyan", "amber", "green", "purple", "pink", "indigo", "rose"]}
+                          valueFormatter={(value) => `$${value.toFixed(2)}`}
+                          showLegend={true}
+                          showGridLines={false}
+                          showAnimation={true}
+                        />
+                      ) : (
+                        // Area chart for regular comparison
+                        <AreaChart
+                          className="h-64"
+                          data={dailyCosts}
+                          index="date"
+                          categories={chartCategories}
+                          colors={["gray", "blue"]}
+                          valueFormatter={(value) => `$${value.toFixed(2)}`}
+                          showLegend={true}
+                          showGridLines={false}
+                          showAnimation={true}
+                          customTooltip={(props) => (
+                            <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
+                              <div className="font-medium text-white">{props.label}</div>
+                              {props.payload?.map((category, idx) => {
+                                // Cast the category to the correct type
+                                const typedCategory = category as unknown as ChartTooltipPayload;
+                                return (
+                                  <div key={idx} className="flex items-center mt-1">
+                                    <div 
+                                      className="w-3 h-3 rounded-full mr-1" 
+                                      style={{ backgroundColor: typedCategory.color }}
+                                    />
+                                    <span className="text-gray-300">
+                                      {typedCategory.dataKey === 'actualCost' ? 'Actual' : 'Predicted'}: 
+                                    </span>
+                                    <span className="ml-1 text-white font-medium">
+                                      ${Number(typedCategory.value).toFixed(2)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
