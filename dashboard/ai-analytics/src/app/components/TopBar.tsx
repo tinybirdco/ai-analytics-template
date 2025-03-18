@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SignInButton, SignUpButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { SignInButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
@@ -117,14 +117,18 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
       <div className="flex items-center space-x-4">
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          {orgName || 'Admin User'}
-        </span>
+        <button
+            onClick={openCostPrediction}
+            className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+          <Calculator className="w-4 h-4 mr-2" />
+          AI calculator
+        </button>
         <div className="relative">
           <input
             ref={inputRef}
             type="text"
-            placeholder="Ask AI..."
+            placeholder="Filter by..."
             className="px-4 py-2 text-sm border rounded-md dark:bg-gray-800 dark:border-gray-700"
             onKeyDown={handleSearch}
             disabled={isLoading}
@@ -157,24 +161,19 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               Sign In
             </button>
           </SignInButton>
-          <SignUpButton mode="modal">
+          {/* <SignUpButton mode="modal">
             <button className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900">
               Sign Up
             </button>
-          </SignUpButton>
+          </SignUpButton> */}
         </SignedOut>
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {orgName || 'Admin User'}
+        </span>
       </div>
-      
-      <button
-        onClick={openCostPrediction}
-        className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-      >
-        <Calculator className="w-4 h-4 mr-2" />
-        Ask AI
-      </button>
     </div>
   );
 } 

@@ -74,6 +74,23 @@ const fetchAvailableDimensions = async () => {
   }
 };
 
+// Format today's date with time in yyyy-MM-dd HH:mm:ss format
+const formatDate = (date: Date): string => {
+  const pad = (num: number): string => num.toString().padStart(2, '0');
+  
+  const year = date.getFullYear();
+  const month = pad(date.getMonth() + 1); // getMonth() is 0-indexed
+  const day = pad(date.getDate());
+  const hours = pad(date.getHours());
+  const minutes = pad(date.getMinutes());
+  const seconds = pad(date.getSeconds());
+  
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+const today = formatDate(new Date());
+const todayDateOnly = today.split(' ')[0]; // Just the date part: yyyy-MM-dd
+
 // Update the POST function to properly map meta with data
 export async function POST(req: Request) {
   try {
@@ -82,9 +99,6 @@ export async function POST(req: Request) {
     if (!query) {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 });
     }
-    
-    // Get today's date for the prompt
-    const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     
     // Fetch pipe definition and available dimensions in parallel
     const [pipeDefinition, availableDimensions] = await Promise.all([
@@ -114,20 +128,21 @@ export async function POST(req: Request) {
     
     console.log('Structured dimension values:', dimensionValues);
     
-    // Update system prompt to dynamically include all dimensions
+    // Update system prompt to include formatted timestamp
     const systemPromptText = `
       You are an LLM cost calculator parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
       
-      Today's date is ${today}.
+      Today's date and time is ${today}.
       
       Return values for these parameters:
+      - model: The AI model mentioned (e.g., "gpt-4", "claude-sonnet")
       - promptTokenCost: Cost per prompt token (in USD)
       - completionTokenCost: Cost per completion token (in USD)
       - discount: Any discount percentage mentioned (0-100)
       - timeframe: Time period for analysis (e.g., "last month", "last week", "last 3 months", "last year")
       - volumeChange: Any volume change percentage mentioned (can be positive or negative)
       - start_date: The start date in YYYY-MM-DD format based on the timeframe
-      - end_date: The end date in YYYY-MM-DD format (usually today: ${today})
+      - end_date: The end date in YYYY-MM-DD format (usually today: ${todayDateOnly})
       - group_by: If the user wants to group by a specific dimension (e.g., "model", "provider", "organization", "project", "environment", "user")
       
       Also extract filter parameters if mentioned:
@@ -246,7 +261,8 @@ function getDefaultStartDate(timeframe: string): string {
     startDate.setMonth(now.getMonth() - 1);
   }
   
-  return startDate.toISOString().split('T')[0];
+  // Format the date with the current time
+  return formatDate(startDate);
 }
 
 // Fetch the llm_usage pipe definition

@@ -87,6 +87,7 @@ export default function CostPredictionModal({
 //   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
   const [chartCategories, setChartCategories] = useState<string[]>(['actualCost', 'predictedCost']);
   const [isGroupedData, setIsGroupedData] = useState(false);
+  const [isPredictionQuery, setIsPredictionQuery] = useState(false);
   
   const { token } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -263,6 +264,16 @@ export default function CostPredictionModal({
     setIsLoading(true);
     try {
       console.log("Submitting query:", query);
+      
+      // Check if this is a prediction query
+      const queryLower = query.toLowerCase();
+      const isPrediction = queryLower.includes('predict') || 
+                           queryLower.includes('what if') || 
+                           queryLower.includes('would cost') ||
+                           queryLower.includes('change if') ||
+                           queryLower.includes('switch to');
+      
+      setIsPredictionQuery(isPrediction);
       
       // Extract parameters from natural language query
       const response = await fetch('/api/extract-cost-parameters', {
@@ -898,60 +909,103 @@ export default function CostPredictionModal({
                   
                   {/* Chart */}
                   {dailyCosts.length > 0 && (
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-2">
-                        {isGroupedData 
-                          ? `Cost Breakdown by ${parameters?.group_by || 'Category'}`
-                          : 'Cost Comparison Over Time'}
-                      </div>
+                    <div className="mt-4">
+                      <h3 className="text-lg font-medium text-gray-300 mb-2">
+                        {isPredictionQuery ? 'Cost Prediction' : 'Cost Analysis'}
+                      </h3>
                       
-                      {isGroupedData ? (
-                        // Stacked bar chart for grouped data
-                        <BarChart
-                          className="h-64"
+                      {isPredictionQuery ? (
+                        // Dual area chart for predictions
+                        <AreaChart
+                          className="h-72 mt-4"
                           data={dailyCosts}
                           index="date"
-                          categories={chartCategories}
-                          stack={true}
-                          colors={["blue", "cyan", "amber", "green", "purple", "pink", "indigo", "rose"]}
+                          categories={['actualCost', 'predictedCost']}
+                          colors={['blue', 'emerald']}
                           valueFormatter={(value) => `$${value.toFixed(2)}`}
                           showLegend={true}
                           showGridLines={false}
                           showAnimation={true}
+                          curveType="monotone"
+                          customTooltip={(props) => (
+                            <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
+                              <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
+                              {props.payload?.map((entry, index) => (
+                                <div key={index} className="flex items-center mt-1">
+                                  <div
+                                    className="w-3 h-3 rounded-full mr-2"
+                                    style={{ backgroundColor: entry.color }}
+                                  />
+                                  <span className="text-gray-400">
+                                    {entry.name === 'actualCost' ? 'Actual' : 'Predicted'}:
+                                  </span>
+                                  <span className="text-white ml-1">
+                                    ${entry.value?.toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         />
-                      ) : (
-                        // Area chart for regular comparison
-                        <AreaChart
-                          className="h-64"
+                      ) : isGroupedData ? (
+                        // Stacked bar chart for grouped data
+                        <BarChart
+                          className="h-72 mt-4"
                           data={dailyCosts}
                           index="date"
                           categories={chartCategories}
-                          colors={["gray", "blue"]}
+                          colors={['blue', 'emerald', 'amber', 'violet', 'rose', 'cyan', 'indigo']}
                           valueFormatter={(value) => `$${value.toFixed(2)}`}
+                          stack={true}
                           showLegend={true}
                           showGridLines={false}
                           showAnimation={true}
                           customTooltip={(props) => (
-                            <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
-                              <div className="font-medium text-white">{props.label}</div>
-                              {props.payload?.map((category, idx) => {
-                                // Cast the category to the correct type
-                                const typedCategory = category as unknown as ChartTooltipPayload;
-                                return (
-                                  <div key={idx} className="flex items-center mt-1">
-                                    <div 
-                                      className="w-3 h-3 rounded-full mr-1" 
-                                      style={{ backgroundColor: typedCategory.color }}
-                                    />
-                                    <span className="text-gray-300">
-                                      {typedCategory.dataKey === 'actualCost' ? 'Actual' : 'Predicted'}: 
-                                    </span>
-                                    <span className="ml-1 text-white font-medium">
-                                      ${Number(typedCategory.value).toFixed(2)}
-                                    </span>
-                                  </div>
-                                );
-                              })}
+                            <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
+                              <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
+                              {props.payload?.map((entry, index) => (
+                                <div key={index} className="flex items-center mt-1">
+                                  <div
+                                    className="w-3 h-3 rounded-full mr-2"
+                                    style={{ backgroundColor: entry.color }}
+                                  />
+                                  <span className="text-gray-400">{entry.name}:</span>
+                                  <span className="text-white ml-1">
+                                    ${entry.value?.toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        />
+                      ) : (
+                        // Single area chart for regular cost analysis
+                        <AreaChart
+                          className="h-72 mt-4"
+                          data={dailyCosts}
+                          index="date"
+                          categories={['actualCost']}
+                          colors={['blue']}
+                          valueFormatter={(value) => `$${value.toFixed(2)}`}
+                          showLegend={false}
+                          showGridLines={false}
+                          showAnimation={true}
+                          curveType="monotone"
+                          customTooltip={(props) => (
+                            <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
+                              <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
+                              {props.payload?.map((entry, index) => (
+                                <div key={index} className="flex items-center mt-1">
+                                  <div
+                                    className="w-3 h-3 rounded-full mr-2"
+                                    style={{ backgroundColor: entry.color }}
+                                  />
+                                  <span className="text-gray-400">Cost:</span>
+                                  <span className="text-white ml-1">
+                                    ${entry.value?.toFixed(2)}
+                                  </span>
+                                </div>
+                              ))}
                             </div>
                           )}
                         />

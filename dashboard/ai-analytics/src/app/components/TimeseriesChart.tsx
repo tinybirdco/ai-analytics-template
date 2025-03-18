@@ -154,6 +154,9 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     onFiltersChange?.(newFilters);
   };
 
+  // Determine the default index - use 'model' if no column_name is specified
+  const defaultIndex = tabs.findIndex(t => t.key === (searchParams.get('column_name') || 'model'));
+  
   return (
     <Card className="h-full p-0 rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
       <div className="flex h-full flex-col">
@@ -161,7 +164,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
           <TabGroup 
             className="h-full flex flex-col"
             onIndexChange={handleTabChange}
-            defaultIndex={tabs.findIndex(t => t.key === searchParams.get('column_name')) || 0}
+            defaultIndex={defaultIndex >= 0 ? defaultIndex : 0}
           >
             <div className="flex-none md:flex md:items-center md:justify-between">
               <TabList
