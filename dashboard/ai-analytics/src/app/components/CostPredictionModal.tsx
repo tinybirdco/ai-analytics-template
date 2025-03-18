@@ -925,7 +925,11 @@ export default function CostPredictionModal({
                                     {entry.name === 'actualCost' ? 'Actual' : 'Predicted'}:
                                   </span>
                                   <span className="text-white ml-1">
-                                    ${entry.value?.toFixed(2)}
+                                    ${typeof entry.value === 'number' 
+                                      ? entry.value.toFixed(2) 
+                                      : Array.isArray(entry.value)
+                                        ? entry.value.join(', ')
+                                        : entry.value}
                                   </span>
                                 </div>
                               ))}
@@ -956,7 +960,11 @@ export default function CostPredictionModal({
                                   />
                                   <span className="text-gray-400">{entry.name}:</span>
                                   <span className="text-white ml-1">
-                                    ${entry.value?.toFixed(2)}
+                                    ${typeof entry.value === 'number' 
+                                      ? entry.value.toFixed(2) 
+                                      : Array.isArray(entry.value)
+                                        ? entry.value.join(', ')
+                                        : entry.value}
                                   </span>
                                 </div>
                               ))}
@@ -987,7 +995,11 @@ export default function CostPredictionModal({
                                   />
                                   <span className="text-gray-400">Cost:</span>
                                   <span className="text-white ml-1">
-                                    ${entry.value?.toFixed(2)}
+                                    ${typeof entry.value === 'number' 
+                                      ? entry.value.toFixed(2) 
+                                      : Array.isArray(entry.value)
+                                        ? entry.value.join(', ')
+                                        : entry.value}
                                   </span>
                                 </div>
                               ))}
