@@ -9,7 +9,6 @@ import { ModalProvider } from './context/ModalContext'
 import CostPredictionModal from './components/CostPredictionModal'
 import { useModal } from './context/ModalContext'
 import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut'
-import dynamic from 'next/dynamic'
 
 const inter = Inter({ subsets: ["latin"] })
 
