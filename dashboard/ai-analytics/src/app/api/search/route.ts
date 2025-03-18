@@ -19,7 +19,11 @@ const DIMENSIONS = {
 };
 
 export async function POST(req: Request) {
-  const { prompt } = await req.json();
+  const { prompt, apiKey } = await req.json();
+  
+  if (!apiKey) {
+    return Response.json({ error: 'OpenAI API key is required' }, { status: 400 });
+  }
 
   try {
     // Create the schema outside the function call
@@ -36,16 +40,23 @@ export async function POST(req: Request) {
     Return only valid values from the provided dimensions.`;
 
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      model: openai('gpt-3.5-turbo', { apiKey } as any),
       schema: filterSchema,
       prompt,
       systemPrompt: systemPromptText,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } as any); // Using 'as any' to bypass TypeScript's type checking
+    } as any);
 
     return Response.json(result.object);
   } catch (error) {
-    console.error('Error generating object:', error);
-    return Response.json({ error: 'Failed to parse filters' }, { status: 500 });
+    console.error('Error processing search:', error);
+    
+    // Check if it's an API key error
+    if (error instanceof Error && error.message.includes('API key')) {
+      return Response.json({ error: 'Invalid OpenAI API key' }, { status: 401 });
+    }
+    
+    return Response.json({ error: 'Failed to process search query' }, { status: 500 });
   }
 }

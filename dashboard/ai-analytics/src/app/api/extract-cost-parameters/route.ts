@@ -94,10 +94,14 @@ const todayDateOnly = today.split(' ')[0]; // Just the date part: yyyy-MM-dd
 // Update the POST function to properly map meta with data
 export async function POST(req: Request) {
   try {
-    const { query } = await req.json();
+    const { query, apiKey } = await req.json();
     
     if (!query) {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 });
+    }
+    
+    if (!apiKey) {
+      return NextResponse.json({ error: 'OpenAI API key is required' }, { status: 400 });
     }
     
     // Fetch pipe definition and available dimensions in parallel
@@ -182,7 +186,8 @@ export async function POST(req: Request) {
     `;
 
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      model: openai('gpt-3.5-turbo', { apiKey } as any),
       schema: costParametersSchema,
       prompt: query,
       systemPrompt: systemPromptText,
@@ -231,6 +236,12 @@ export async function POST(req: Request) {
     return NextResponse.json(processedResult);
   } catch (error) {
     console.error('Error extracting parameters:', error);
+    
+    // Check if it's an API key error
+    if (error instanceof Error && error.message.includes('API key')) {
+      return NextResponse.json({ error: 'Invalid OpenAI API key' }, { status: 401 });
+    }
+    
     return NextResponse.json({ error: 'Failed to extract parameters' }, { status: 500 });
   }
 }
