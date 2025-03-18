@@ -64,13 +64,9 @@ SQL >
         {% end %}
         {% if defined(start_date) %}
         AND timestamp >= {{DateTime(start_date)}}
-        {% else %}
-        AND timestamp >= now() - interval 7 day
         {% end %}
         {% if defined(end_date) %}
         AND timestamp < {{DateTime(end_date)}}
-        {% else %}
-        AND timestamp < now()
         {% end %}
         {% if defined(embedding) %}
         AND cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) > {{ Float64(similarity_threshold, 0.3) }}
