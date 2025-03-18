@@ -25,7 +25,9 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [filters, setFilters] = useState<Record<string, string>>({
+    column_name: 'model'
+  });
   const [selections, setSelections] = useState<Selection[]>([]);
   const searchParams = useSearchParams();
   
@@ -36,7 +38,9 @@ function DashboardContent() {
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
     const newSelections: Selection[] = [];
-    const newFilters: Record<string, string> = {};
+    const newFilters: Record<string, string> = {
+      column_name: 'model'
+    };
 
     // Check each possible dimension from tabs
     tabs.forEach(tab => {
@@ -51,7 +55,7 @@ function DashboardContent() {
       }
     });
 
-    // Get column_name from URL if present
+    // Get column_name from URL if present (override default)
     const columnName = params.get('column_name');
     if (columnName) {
       newFilters.column_name = columnName;

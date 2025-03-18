@@ -157,7 +157,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
         updateUrlParams(start, end);
       }
     }
-  }, [searchParams]);
+  });
 
   // Helper function to parse date strings
   const parseDate = (dateStr: string): Date | null => {

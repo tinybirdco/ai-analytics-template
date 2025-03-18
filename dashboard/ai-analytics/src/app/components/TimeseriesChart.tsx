@@ -53,18 +53,10 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   const dates = [...new Set(data.data.map(d => d.date))].sort();
   const models = [...new Set(data.data.map(d => d.category))];
 
-  // Create consistent color mapping with divergent colors
-  const colorMap = {
-    'gpt-4': 'orange',
-    'gpt-3.5-turbo': 'cyan',
-    'gpt-4-turbo': 'amber',
-    'claude-2': 'teal',
-    // Add more models as needed
-  };
-
   // Default colors for unknown models
   const defaultColors = ['orange', 'cyan', 'amber', 'teal', 'lime', 'pink'];
 
+  // Use the same approach for all tabs - just use default colors in sequence
   const transformedData = dates.map(date => {
     const dayData = data.data.filter(d => d.date === date);
     return {
@@ -85,13 +77,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'model',
       data: transformedData,
       categories: models,
-      colors: models.map(model => colorMap[model as keyof typeof colorMap] || defaultColors[models.indexOf(model) % defaultColors.length]),
-      summary: models.map(model => ({
+      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${colorMap[model as keyof typeof colorMap] || defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
+        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
       })),
     },
     {
@@ -99,13 +91,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'provider',
       data: transformedData,
       categories: models,
-      colors: defaultColors,
-      summary: models.map(model => ({
+      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
+        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
       })),
     },
     {
@@ -113,13 +105,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'environment',
       data: transformedData,
       categories: models,
-      colors: defaultColors,
-      summary: models.map(model => ({
+      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
+        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
       })),
     }
   ];
@@ -130,13 +122,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'organization',
       data: transformedData,
       categories: models,
-      colors: defaultColors,
-      summary: models.map(model => ({
+      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[models.indexOf(model) % defaultColors.length]}-500`,
+        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
       })),
     })
   }
@@ -154,6 +146,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     onFiltersChange?.(newFilters);
   };
 
+  // Determine the default index - use 'model' if no column_name is specified
+  const defaultIndex = tabs.findIndex(t => t.key === (searchParams.get('column_name') || 'model'));
+  
+  // Add $ sign to the value formatter for costs
+  const costValueFormatter = (number: number) => 
+    `$${Intl.NumberFormat('us').format(number).toString()}`;
+  
   return (
     <Card className="h-full p-0 rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
       <div className="flex h-full flex-col">
@@ -161,7 +160,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
           <TabGroup 
             className="h-full flex flex-col"
             onIndexChange={handleTabChange}
-            defaultIndex={tabs.findIndex(t => t.key === searchParams.get('column_name')) || 0}
+            defaultIndex={defaultIndex >= 0 ? defaultIndex : 0}
           >
             <div className="flex-none md:flex md:items-center md:justify-between">
               <TabList
@@ -204,7 +203,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                             aria-hidden={true}
                           />
                           <p className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
-                            {valueFormatter(item.total)}
+                            ${valueFormatter(item.total)}
                           </p>
                         </div>
                         <p className="whitespace-nowrap text-tremor-default text-tremor-content dark:text-dark-tremor-content">
@@ -222,10 +221,10 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       stack={true}
                       showLegend={false}
                       yAxisWidth={45}
-                      valueFormatter={valueFormatter}
+                      valueFormatter={costValueFormatter}
                       className="h-[calc(100%-24px)] mt-10 hidden md:block"
                       showTooltip={true}
-                      showAnimation={true}
+                      showAnimation={false}
                       showXAxis={true}
                     />
                     <BarChart
@@ -236,10 +235,10 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       stack={true}
                       showLegend={false}
                       showYAxis={false}
-                      valueFormatter={valueFormatter}
+                      valueFormatter={costValueFormatter}
                       className="h-[calc(100%-24px)] mt-6 md:hidden"
                       showTooltip={true}
-                      showAnimation={true}
+                      showAnimation={false}
                       showXAxis={true}
                     />
                   </div>

@@ -8,17 +8,7 @@ import {
     AreaChart,
   } from '@tremor/react';
 
-  
-  // Create consistent color mapping with divergent colors
-  const colorMap = {
-    'gpt-4': 'orange',
-    'gpt-3.5-turbo': 'cyan',
-    'gpt-4-turbo': 'amber',
-    'claude-2': 'teal',
-    // Add more models as needed
-  };
-
-  // Default colors for unknown models
+  // Default colors for all categories
   const defaultColors = ['orange', 'cyan', 'amber', 'teal', 'lime', 'pink'];
 
   type ChartType = 'area' | 'line' | 'bar' | 'stacked-bar' | 'stacked-area';
@@ -52,10 +42,9 @@ import {
 
     const isStacked = chartType.startsWith('stacked-');
 
-    // Map colors consistently with TimeseriesChart
-    const colors = categories.map(category => 
-      colorMap[category as keyof typeof colorMap] || 
-      defaultColors[categories.indexOf(category) % defaultColors.length]
+    // Assign colors based on index in the categories array
+    const colors = categories.map((_, index) => 
+      defaultColors[index % defaultColors.length]
     );
 
     return (
@@ -78,7 +67,7 @@ import {
             showYAxis={true}
             showLegend={false}
             showGridLines={false}
-            showAnimation={true}
+            showAnimation={false}
             curveType="monotone"
             stack={isStacked}
           />
