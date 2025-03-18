@@ -173,7 +173,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
       >
         <Calculator className="w-4 h-4 mr-2" />
-        Predict Costs
+        Ask AI
       </button>
     </div>
   );

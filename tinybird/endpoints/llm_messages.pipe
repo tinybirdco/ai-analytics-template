@@ -74,6 +74,7 @@ SQL >
         {% end %}
         {% if defined(embedding) %}
         AND cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) > {{ Float64(similarity_threshold, 0.3) }}
+        and response_status != 'error'
         {% end %}
     {% if defined(embedding) %}
       ORDER BY similarity ASC

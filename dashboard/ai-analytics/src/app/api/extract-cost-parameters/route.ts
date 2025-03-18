@@ -25,6 +25,56 @@ const costParametersSchema = z.object({
 // Create a type from the schema
 type CostParameters = z.infer<typeof costParametersSchema>;
 
+// Add a new function to fetch available dimensions
+const fetchAvailableDimensions = async () => {
+  const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL || 'http://localhost:7181';
+  const TINYBIRD_API_KEY = process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
+  
+  if (!TINYBIRD_API_KEY) {
+    console.error('No Tinybird API key available');
+    return null;
+  }
+  
+  try {
+    // SQL query to get all unique values for each dimension
+    const query = `
+      SELECT
+        groupUniqArray(organization) as organizations,
+        groupUniqArray(project) as projects,
+        groupUniqArray(environment) as environments,
+        groupUniqArray(model) as models,
+        groupUniqArray(provider) as providers
+      FROM llm_events FORMAT JSON
+    `;
+    
+    // URL encode the query
+    const encodedQuery = encodeURIComponent(query);
+    const url = `${TINYBIRD_API_URL}/v0/sql?q=${encodedQuery}`;
+    
+    console.log('Fetching available dimensions from:', url);
+    
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${TINYBIRD_API_KEY}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Error fetching dimensions:', error);
+      throw new Error('Network response was not ok');
+    }
+    
+    const data = await response.json();
+    console.log('Available dimensions:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching dimensions:', error);
+    return null;
+  }
+};
+
+// Update the POST function to include the dimensions in the response
 export async function POST(req: Request) {
   try {
     const { query } = await req.json();
@@ -36,6 +86,22 @@ export async function POST(req: Request) {
     // Get today's date for the prompt
     const today = new Date().toISOString().split('T')[0]; // Format: YYYY-MM-DD
     
+    // Fetch pipe definition and available dimensions in parallel
+    const [pipeDefinition, availableDimensions] = await Promise.all([
+      fetchPipeDefinition(),
+      fetchAvailableDimensions()
+    ]);
+    
+    console.log('Pipe definition:', pipeDefinition);
+    console.log('Available dimensions:', availableDimensions);
+    
+    // Extract dimension values for the system prompt
+    let dimensionValues = {};
+    if (availableDimensions && availableDimensions.data && availableDimensions.data.length > 0) {
+      dimensionValues = availableDimensions.data[0];
+    }
+    
+    // Update system prompt with available dimension values
     const systemPromptText = `
       You are a cost prediction parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
       
@@ -59,6 +125,13 @@ export async function POST(req: Request) {
       - provider: Provider to filter by (e.g., "OpenAI", "Anthropic", "Cohere")
       - user: User to filter by (e.g., "john.doe", "api_user")
       
+      Available values in the database:
+      - Organizations: ${JSON.stringify(dimensionValues.organizations || [])}
+      - Projects: ${JSON.stringify(dimensionValues.projects || [])}
+      - Environments: ${JSON.stringify(dimensionValues.environments || [])}
+      - Models: ${JSON.stringify(dimensionValues.models || [])}
+      - Providers: ${JSON.stringify(dimensionValues.providers || [])}
+      
       For timeframes, calculate the appropriate start_date:
       - "last week" = 7 days before today
       - "last month" = 1 month before today
@@ -75,6 +148,7 @@ export async function POST(req: Request) {
       4. When a project or organization name is mentioned, set the appropriate filter
       5. When a username is mentioned, set the user filter
       6. Never use a model name as a provider name and vice-versa, model=anthropic is invalid, provider=anthropic is valid.
+      7. Only use values that exist in the database (see "Available values" above).
       
       Look for phrases like "filter by", "for", "in", "with", etc. to identify filter parameters.
       Examples:
@@ -127,7 +201,9 @@ export async function POST(req: Request) {
       project: extractedParams.project || null,
       environment: extractedParams.environment || null,
       provider: extractedParams.provider || null,
-      user: extractedParams.user || null
+      user: extractedParams.user || null,
+      pipeDefinition: pipeDefinition,
+      availableDimensions: dimensionValues
     };
     
     return NextResponse.json(processedResult);
@@ -165,3 +241,38 @@ function getDefaultStartDate(timeframe: string): string {
   
   return startDate.toISOString().split('T')[0];
 }
+
+// Fetch the llm_usage pipe definition
+const fetchPipeDefinition = async () => {
+  const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL || 'http://localhost:7181';
+  const TINYBIRD_API_KEY = process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
+  
+  if (!TINYBIRD_API_KEY) {
+    console.error('No Tinybird API key available');
+    return null;
+  }
+  
+  try {
+    const url = `${TINYBIRD_API_URL}/v0/pipes/llm_usage`;
+    console.log('Fetching pipe definition from:', url);
+    
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${TINYBIRD_API_KEY}`,
+      },
+    });
+    
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Error fetching pipe definition:', error);
+      throw new Error('Network response was not ok');
+    }
+    
+    const data = await response.json();
+    console.log('Pipe definition:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching pipe definition:', error);
+    return null;
+  }
+};
