@@ -40,8 +40,11 @@ export async function POST(req: Request) {
     Return only valid values from the provided dimensions.`;
 
     const result = await generateObject({
+      model: openai('gpt-3.5-turbo', { 
+        temperature: 0.2,
+        api_key: apiKey
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      model: openai('gpt-3.5-turbo', { apiKey } as any),
+      } as any),
       schema: filterSchema,
       prompt,
       systemPrompt: systemPromptText,
