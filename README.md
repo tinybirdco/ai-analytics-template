@@ -4,7 +4,7 @@ This is a template for a Logs Explorer web application. It is built with Next.js
 
 Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator. Fork it and make it your own!
 
-## Live Demo
+## Live Demo
 
 https://ai-analytics.tinybird.app
 
