@@ -224,7 +224,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       valueFormatter={costValueFormatter}
                       className="h-[calc(100%-24px)] mt-10 hidden md:block"
                       showTooltip={true}
-                      showAnimation={true}
+                      showAnimation={false}
                       showXAxis={true}
                     />
                     <BarChart
@@ -238,7 +238,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       valueFormatter={costValueFormatter}
                       className="h-[calc(100%-24px)] mt-6 md:hidden"
                       showTooltip={true}
-                      showAnimation={true}
+                      showAnimation={false}
                       showXAxis={true}
                     />
                   </div>

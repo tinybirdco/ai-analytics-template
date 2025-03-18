@@ -67,7 +67,7 @@ import {
             showYAxis={true}
             showLegend={false}
             showGridLines={false}
-            showAnimation={true}
+            showAnimation={false}
             curveType="monotone"
             stack={isStacked}
           />
