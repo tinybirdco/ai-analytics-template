@@ -118,9 +118,9 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
     <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
       <div className="flex items-center space-x-4">
         <button
-            onClick={openCostPrediction}
-            className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-          >
+          onClick={openCostPrediction}
+          className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+        >
           <Calculator className="w-4 h-4 mr-2" />
           AI calculator
         </button>
