@@ -62,20 +62,20 @@ export default function BarList({
   return (
     <>
       <Card className="h-full w-full rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
-        <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+        {/* <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
           Total
-        </p>
+        </p> */}
         <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
           {valueFormatter(totalValue)}
         </p>
-        <div className="mt-6 flex items-center justify-between">
+        {/* <div className="mt-6 flex items-center justify-between">
           <p className="text-tremor-default font-medium text-tremor-content-strong dark:text-dark-tremor-content-strong">
             
           </p>
           <p className="text-tremor-label font-medium uppercase text-tremor-content dark:text-dark-tremor-content">
-            Count
+            Cost
           </p>
-        </div>
+        </div> */}
         {renderBarList(data.slice(0, 5))}
         {hasMoreItems && (
           <div className="absolute inset-x-0 bottom-0 flex justify-center rounded-b-tremor-default bg-gradient-to-t from-tremor-background to-transparent py-7 dark:from-dark-tremor-background">
@@ -107,7 +107,7 @@ export default function BarList({
                   Name
                 </p>
                 <p className="text-tremor-label font-medium uppercase text-tremor-content dark:text-dark-tremor-content">
-                  Count
+                  Cost
                 </p>
               </div>
             </div>

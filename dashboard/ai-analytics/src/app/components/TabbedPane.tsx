@@ -79,7 +79,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const newData = data.data.map((item: any) => ({
         name: item.category || 'Unknown',
-        value: item.count
+        value: item.total_cost || 0 // Use total_cost instead of count
       }));
       setBarListData(newData);
     }
@@ -115,7 +115,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
           ) : (
             <BarList 
               data={barListData}
-              valueFormatter={(value: number) => value.toLocaleString()}
+              valueFormatter={(value: number) => `$${value.toLocaleString()}`} // Add $ sign for cost values
               onSelectionChange={handleSelectionChange}
             />
           )}

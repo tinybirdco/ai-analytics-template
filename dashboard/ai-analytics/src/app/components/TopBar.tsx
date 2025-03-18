@@ -119,7 +119,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       <div className="flex items-center space-x-4">
         <button
             onClick={openCostPrediction}
-            className="flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
           >
           <Calculator className="w-4 h-4 mr-2" />
           AI calculator
@@ -129,13 +129,13 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             ref={inputRef}
             type="text"
             placeholder="Filter by..."
-            className="px-4 py-2 text-sm border rounded-md dark:bg-gray-800 dark:border-gray-700"
+            className="px-4 py-2 text-sm border rounded-md dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
             onKeyDown={handleSearch}
             disabled={isLoading}
           />
           {isLoading && (
             <div className="absolute right-3 top-2">
-              <div className="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
+              <div className="animate-spin h-4 w-4 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
             </div>
           )}
         </div>
@@ -155,9 +155,12 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       </div>
       
       <div className="flex items-center space-x-4">
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+          {orgName || 'Admin User'}
+        </span>
         <SignedOut>
           <SignInButton mode="modal">
-            <button className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+            <button className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
               Sign In
             </button>
           </SignInButton>
@@ -170,9 +173,6 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
         </SignedIn>
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          {orgName || 'Admin User'}
-        </span>
       </div>
     </div>
   );
