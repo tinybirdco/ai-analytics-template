@@ -38,6 +38,6 @@ SQL >
         AND model in {{Array(model)}}
     {% end %}
     GROUP BY {{column(dimension, 'organization')}}
-    ORDER BY count DESC, {{column(dimension, 'organization')}}
+    ORDER BY total_cost DESC, {{column(dimension, 'organization')}}
 
 TYPE endpoint
