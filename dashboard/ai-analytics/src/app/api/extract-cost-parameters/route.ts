@@ -186,11 +186,13 @@ export async function POST(req: Request) {
     `;
 
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo', { apiKey }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      model: openai('gpt-3.5-turbo', { apiKey } as any),
       schema: costParametersSchema,
       prompt: query,
       systemPrompt: systemPromptText,
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     // Type assertion to handle the result object
     const extractedParams = result.object as CostParameters;

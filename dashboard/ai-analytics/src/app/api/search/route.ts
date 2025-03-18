@@ -40,11 +40,13 @@ export async function POST(req: Request) {
     Return only valid values from the provided dimensions.`;
 
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo', { apiKey }),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      model: openai('gpt-3.5-turbo', { apiKey } as any),
       schema: filterSchema,
       prompt,
       systemPrompt: systemPromptText,
-    });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } as any);
 
     return Response.json(result.object);
   } catch (error) {
