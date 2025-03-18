@@ -15,7 +15,6 @@ interface SparkChartData {
 }
 
 interface SparkChartContainerProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: SparkChartData;
   isLoading: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

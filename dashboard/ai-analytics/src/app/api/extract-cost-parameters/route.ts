@@ -110,7 +110,7 @@ export async function POST(req: Request) {
     console.log('Available dimensions:', availableDimensions);
     
     // Extract dimension values for the system prompt
-    let dimensionValues: Record<string, { type: string, values: string[] }> = {};
+    const dimensionValues: Record<string, { type: string, values: string[] }> = {};
     
     // Map meta with data for a more structured representation
     if (availableDimensions && availableDimensions.meta && availableDimensions.data && availableDimensions.data.length > 0) {

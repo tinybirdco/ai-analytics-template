@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { RiSearchLine } from '@remixicon/react';
 import { BarList as TremorBarList, Card, Dialog, DialogPanel, TextInput } from '@tremor/react';
-import { LucideIcon } from 'lucide-react';
 
 interface BarListItem {
   name: string;
@@ -28,8 +27,7 @@ const defaultFormatter = (number: number) =>
 export default function BarList({ 
   data, 
   valueFormatter = defaultFormatter,
-  onSelectionChange,
-  categoryType
+  onSelectionChange
 }: BarListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

@@ -62,7 +62,7 @@ export default function CustomBarList({
             key={item.name} 
             className={`flex flex-col cursor-pointer p-2 rounded-lg transition-all duration-200 ${
               isSelected 
-                ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-500' 
+                ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-600' 
                 : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent'
             }`}
             onClick={() => handleBarClick(item.name)}
@@ -75,13 +75,13 @@ export default function CustomBarList({
                   </div>
                 )}
                 <p className={`truncate text-sm font-medium ${
-                  isSelected ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-700 dark:text-gray-300'
+                  isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'
                 }`}>
                   {item.name}
                 </p>
               </div>
               <p className={`ml-2 flex-shrink-0 text-right text-sm font-semibold ${
-                isSelected ? 'text-indigo-700 dark:text-indigo-300' : 'text-gray-900 dark:text-gray-100'
+                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-gray-100'
               }`}>
                 {valueFormatter(item.value)}
               </p>
@@ -89,7 +89,7 @@ export default function CustomBarList({
             <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
               <div 
                 className={`h-full rounded-full ${
-                  isSelected ? 'bg-indigo-500' : 'bg-indigo-400'
+                  isSelected ? 'bg-indigo-600' : 'bg-indigo-400'
                 }`}
                 style={{ width: `${percentage}%` }}
               />
@@ -102,7 +102,10 @@ export default function CustomBarList({
 
   return (
     <>
-      <Card className="h-full w-full rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm">
+      <Card 
+        className="h-full w-full rounded-lg shadow-none" 
+        style={{ boxShadow: 'none' }}
+      >
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cost Breakdown</h3>
           <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
@@ -115,7 +118,7 @@ export default function CustomBarList({
         {hasMoreItems && (
           <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex justify-center">
             <button
-              className="px-4 py-2 text-sm font-medium text-indigo-600 bg-indigo-50 rounded-md hover:bg-indigo-100 dark:text-indigo-400 dark:bg-indigo-900/20 dark:hover:bg-indigo-900/30 transition-colors"
+              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
               onClick={() => setIsOpen(true)}
             >
               View All ({data.length})
@@ -160,7 +163,7 @@ export default function CustomBarList({
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  <p className="text-gray-500 dark:text-gray-400">No results found for "{searchQuery}"</p>
+                  <p className="text-gray-500 dark:text-gray-400">No results found for &quot;{searchQuery}&quot;</p>
                   <button 
                     onClick={() => setSearchQuery('')}
                     className="mt-3 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"

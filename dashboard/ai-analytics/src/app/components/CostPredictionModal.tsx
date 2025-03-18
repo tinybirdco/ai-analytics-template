@@ -7,21 +7,6 @@ import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { fetchLLMUsage } from '@/services/tinybird';
 
-// Define the type for chart tooltip payload
-interface ChartTooltipPayload {
-  color: string;
-  dataKey: string;
-  fill: string;
-  name: string;
-  stroke: string;
-  value: number;
-  payload: {
-    date: string;
-    actualCost: number;
-    predictedCost: number;
-  };
-}
-
 interface CostPredictionModalProps {
   isOpen: boolean;
   onClose: () => void;
