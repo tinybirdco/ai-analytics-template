@@ -3,8 +3,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
-import { AreaChart } from '@tremor/react';
-import { useLLMUsage } from '@/hooks/useTinybirdData';
+import { AreaChart, BarChart } from '@tremor/react';
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
+import { fetchLLMUsage } from '@/services/tinybird';
 
 // Define the type for chart tooltip payload
 interface ChartTooltipPayload {
@@ -36,12 +37,19 @@ interface CostParameters {
   volumeChange: number;
   start_date: string;
   end_date: string;
+  group_by?: string;
+  organization?: string | null;
+  project?: string | null;
+  environment?: string | null;
+  provider?: string | null;
+  user?: string | null;
 }
 
 interface DailyCost {
   date: string;
-  actualCost: number;
-  predictedCost: number;
+  actualCost?: number;
+  predictedCost?: number;
+  [category: string]: string | number | undefined; // Add index signature for dynamic properties
 }
 
 interface UsageDataItem {
@@ -49,6 +57,7 @@ interface UsageDataItem {
   total_prompt_tokens: number;
   total_completion_tokens: number;
   total_cost: number;
+  category?: string;
 }
 
 interface DateAggregatedData {
@@ -74,17 +83,27 @@ export default function CostPredictionModal({
   } | null>(null);
   const [copiedExample, setCopiedExample] = useState<number | null>(null);
   const [showExamples, setShowExamples] = useState(false);
+//   const [usageData, setUsageData] = useState<UsageDataItem[]>([]);
+//   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
+  const [chartCategories, setChartCategories] = useState<string[]>(['actualCost', 'predictedCost']);
+  const [isGroupedData, setIsGroupedData] = useState(false);
   
+  const { token } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Example queries that users can select
   const exampleQueries = [
-    "What if we switch to Claude 3 Sonnet with a 10% volume increase?",
-    "Predict costs if we get a 15% discount on GPT-4 for the next month",
-    "How would costs change if we use Claude 3 Opus at $0.00003 per prompt token and $0.00015 per completion token?",
-    "What if our usage increases by 25% next month?",
-    "Compare current costs with GPT-4 Turbo for the last week"
+    "Show me cost predictions for Anthropic models grouped by project",
+    "What would be our costs in production environment if we switch to GPT-4?",
+    "Filter by organization quantum_systems and show costs for last 3 months",
+    "Cost for OpenAI models in production environment in last month",
+    "How would costs change if we use Claude 3 Opus at $0.00003 per prompt token and $0.00015 per completion token?"
   ];
+
+  // Add debugging for token
+  useEffect(() => {
+    console.log("Token available:", !!token);
+  }, [token]);
 
   // Format date to YYYY-MM-DD HH:MM:SS format for Tinybird API
   const formatDateForTinybird = (dateStr: string): string => {
@@ -117,17 +136,107 @@ export default function CostPredictionModal({
     };
   }, [isOpen]);
 
-  // Prepare filters for LLM usage query with properly formatted dates
-  const usageFilters = parameters ? {
-    ...currentFilters,
-    ...(parameters.model ? { model: parameters.model } : {}),
-    start_date: formatDateForTinybird(parameters.start_date),
-    end_date: formatDateForTinybird(parameters.end_date),
-    column_name: 'model' // Group by model for detailed analysis
-  } : {};
-
-  // Use the existing LLM usage hook
-  const llmUsageQuery = useLLMUsage(usageFilters as Record<string, string>);
+  // Fetch usage data directly when parameters change
+  useEffect(() => {
+    console.log("Parameters changed:", parameters);
+    
+    async function fetchUsageData() {
+      if (!parameters) {
+        console.log("No parameters available, skipping fetch");
+        return;
+      }
+      
+      if (!token) {
+        console.log("No token available, skipping fetch");
+        return;
+      }
+      
+    //   setIsLoadingUsage(true);
+      console.log("Fetching usage data with parameters:", parameters);
+      
+      try {
+        // Use the group_by parameter for column_name if available
+        const columnName = parameters.group_by || 'model';
+        
+        // Build filters object with all possible filter parameters
+        const filters: Record<string, string> = {
+          ...currentFilters,
+          start_date: formatDateForTinybird(parameters.start_date),
+          end_date: formatDateForTinybird(parameters.end_date),
+          column_name: columnName
+        };
+        
+        // Add model filter if specified
+        if (parameters.model) {
+          const normalizedModel = normalizeModelName(parameters.model);
+          if (normalizedModel) {
+            filters.model = normalizedModel;
+          }
+        }
+        
+        // Add provider filter if specified
+        if (parameters.provider) {
+          const normalizedProvider = normalizeProviderName(parameters.provider);
+          if (normalizedProvider) {
+            filters.provider = normalizedProvider;
+          }
+        }
+        
+        // Add environment filter if specified
+        if (parameters.environment) {
+          const normalizedEnvironment = normalizeEnvironmentName(parameters.environment);
+          if (normalizedEnvironment) {
+            filters.environment = normalizedEnvironment;
+          }
+        }
+        
+        // Add other filter parameters if specified
+        const otherFilterParams = ['organization', 'project', 'user'];
+        otherFilterParams.forEach(param => {
+          const value = parameters[param as keyof CostParameters];
+          if (value) {
+            filters[param] = value as string;
+          }
+        });
+        
+        console.log("Fetching with filters:", filters);
+        console.log("Token available for fetch:", !!token);
+        console.log("Grouping by:", columnName);
+        
+        // Directly call the fetch function
+        console.log("About to call fetchLLMUsage");
+        const response = await fetchLLMUsage(token, filters);
+        console.log("Fetch completed, response:", response);
+        
+        if (response && response.data && response.data.length > 0) {
+          console.log("Data received, length:", response.data.length);
+        //   setUsageData(response.data);
+          calculateCosts(response.data, parameters);
+        } else {
+          console.log("No data received, using sample data");
+          // Generate sample data if no real data is available
+          const startDate = new Date(parameters.start_date);
+          const endDate = new Date(parameters.end_date);
+          const sampleData = generateSampleData(startDate, endDate, parameters.model);
+          // setUsageData(sampleData);
+          calculateCosts(sampleData, parameters);
+        }
+      } catch (error) {
+        console.error("Error fetching usage data:", error);
+        // Generate sample data on error
+        const startDate = new Date(parameters.start_date);
+        const endDate = new Date(parameters.end_date);
+        const sampleData = generateSampleData(startDate, endDate, parameters.model);
+        // setUsageData(sampleData);
+        calculateCosts(sampleData, parameters);
+      } 
+    //   finally {
+    //     setIsLoadingUsage(false);
+    //   }
+    }
+    
+    fetchUsageData();
+  }, [parameters, token, currentFilters]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -148,19 +257,14 @@ export default function CostPredictionModal({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  // Calculate costs when LLM usage data changes
-  useEffect(() => {
-    if (parameters && llmUsageQuery.data?.data) {
-      calculateCosts(llmUsageQuery.data.data, parameters);
-    }
-  }, [parameters, llmUsageQuery.data]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!query.trim()) return;
 
     setIsLoading(true);
     try {
+      console.log("Submitting query:", query);
+      
       // Extract parameters from natural language query
       const response = await fetch('/api/extract-cost-parameters', {
         method: 'POST',
@@ -175,9 +279,12 @@ export default function CostPredictionModal({
       }
       
       const extractedParams = await response.json();
-      setParameters(extractedParams);
+      console.log("Extracted parameters:", extractedParams);
       
-      // LLM usage data will be fetched automatically via the useEffect
+      // Set parameters - this should trigger the useEffect
+      setParameters(extractedParams);
+      console.log("Parameters set in state");
+      
     } catch (error) {
       console.error('Error generating prediction:', error);
     } finally {
@@ -204,10 +311,10 @@ export default function CostPredictionModal({
     console.log("Parameters:", params);
     
     // Default costs if not specified
-    const promptCost = params.promptTokenCost ?? getDefaultPromptCost(params.model);
-    const completionCost = params.completionTokenCost ?? getDefaultCompletionCost(params.model);
-    const discount = params.discount / 100; // Convert percentage to decimal
-    const volumeMultiplier = 1 + (params.volumeChange / 100); // Convert percentage to multiplier
+    // const promptCost = params.promptTokenCost ?? getDefaultPromptCost(params.model);
+    // const completionCost = params.completionTokenCost ?? getDefaultCompletionCost(params.model);
+    // const discount = params.discount / 100; // Convert percentage to decimal
+    // const volumeMultiplier = 1 + (params.volumeChange / 100); // Convert percentage to multiplier
     
     // If no data is available, generate sample data for demonstration
     let processedData = usageData;
@@ -221,15 +328,133 @@ export default function CostPredictionModal({
       console.log("Generated sample data:", processedData);
     }
     
+    // Check if we're grouping by any dimension (including model)
+    const isGrouped = !!params.group_by;
+    
+    if (isGrouped) {
+      // Handle grouped data visualization
+      processGroupedData(processedData);
+    } else {
+      // Handle regular data visualization (actual vs predicted)
+      processRegularData(processedData, params);
+    }
+  };
+
+  // New function to process grouped data
+  const processGroupedData = (data: UsageDataItem[]) => {
+    // Group data by date and category
+    const groupedByDate = new Map<string, Map<string, { 
+      prompt_tokens: number, 
+      completion_tokens: number, 
+      cost: number 
+    }>>();
+    
+    // Process each data point
+    data.forEach(item => {
+      const date = item.date;
+      const category = item.category || 'unknown';
+      
+      if (!groupedByDate.has(date)) {
+        groupedByDate.set(date, new Map());
+      }
+      
+      const dateMap = groupedByDate.get(date)!;
+      
+      if (!dateMap.has(category)) {
+        dateMap.set(category, {
+          prompt_tokens: 0,
+          completion_tokens: 0,
+          cost: 0
+        });
+      }
+      
+      const categoryData = dateMap.get(category)!;
+      categoryData.prompt_tokens += item.total_prompt_tokens || 0;
+      categoryData.completion_tokens += item.total_completion_tokens || 0;
+      categoryData.cost += item.total_cost || 0;
+    });
+    
+    // Transform data for chart visualization
+    const chartData: DailyCost[] = [];
+    const categories = new Set<string>();
+    
+    // Collect all categories
+    data.forEach(item => {
+      if (item.category) {
+        categories.add(item.category);
+      }
+    });
+    
+    // Create chart data with all categories for each date
+    Array.from(groupedByDate.entries()).forEach(([date, categoryMap]) => {
+      const dateObj: DailyCost = {
+        date: new Date(date).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: '2-digit' 
+        })
+      };
+      
+      // Add data for each category
+      Array.from(categories).forEach(category => {
+        const categoryData = categoryMap.get(category);
+        dateObj[category] = categoryData ? categoryData.cost : 0;
+      });
+      
+      chartData.push(dateObj);
+    });
+    
+    // Sort by date
+    chartData.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return dateA.getTime() - dateB.getTime();
+    });
+    
+    console.log("Grouped chart data:", chartData);
+    console.log("Categories:", Array.from(categories));
+    
+    // Set state for chart rendering
+    setDailyCosts(chartData);
+    setChartCategories(Array.from(categories));
+    setIsGroupedData(true);
+    
+    // Calculate summary statistics
+    const total = chartData.reduce((sum, day) => {
+      let daySum = 0;
+      Array.from(categories).forEach(category => {
+        // Convert to number and use 0 as fallback
+        const value = typeof day[category] === 'number' ? day[category] as number : 0;
+        daySum += value;
+      });
+      return sum + daySum;
+    }, 0);
+    
+    // For grouped data, we don't have a predicted vs actual comparison
+    setSummary({
+      actualTotal: total,
+      predictedTotal: total,
+      difference: 0,
+      percentChange: 0
+    });
+  };
+
+  // Rename the existing calculation logic to processRegularData
+  const processRegularData = (data: UsageDataItem[], params: CostParameters) => {
     // Group data by date
     const dateMap = new Map<string, DateAggregatedData>();
     
+    // Get cost parameters
+    const promptCost = params.promptTokenCost ?? getDefaultPromptCost(params.model);
+    const completionCost = params.completionTokenCost ?? getDefaultCompletionCost(params.model);
+    const discount = params.discount / 100; // Convert percentage to decimal
+    const volumeMultiplier = 1 + (params.volumeChange / 100); // Define volumeMultiplier here
+    
     // Log the structure of the first item to understand the data format
-    if (processedData.length > 0) {
-      console.log("Sample data item:", processedData[0]);
+    if (data.length > 0) {
+      console.log("Sample data item:", data[0]);
     }
     
-    processedData.forEach(day => {
+    data.forEach(day => {
       // Ensure we have a valid date
       if (!day.date) {
         console.warn("Missing date in data item:", day);
@@ -256,7 +481,7 @@ export default function CostPredictionModal({
     });
     
     // Calculate daily costs
-    const dailyCostData = Array.from(dateMap.entries()).map(([date, data]) => {
+    const dailyCostData: DailyCost[] = Array.from(dateMap.entries()).map(([date, data]) => {
       // Calculate actual cost from the data
       const actualCost = data.total_cost || 0;
       
@@ -299,10 +524,12 @@ export default function CostPredictionModal({
     console.log("Final daily cost data:", dailyCostData);
     
     setDailyCosts(dailyCostData);
+    setChartCategories(['actualCost', 'predictedCost']);
+    setIsGroupedData(false);
     
     // Calculate summary statistics
-    const actualTotal = dailyCostData.reduce((sum, day) => sum + day.actualCost, 0);
-    const predictedTotal = dailyCostData.reduce((sum, day) => sum + day.predictedCost, 0);
+    const actualTotal = dailyCostData.reduce((sum, day) => sum + (day.actualCost || 0), 0);
+    const predictedTotal = dailyCostData.reduce((sum, day) => sum + (day.predictedCost || 0), 0);
     const difference = predictedTotal - actualTotal;
     const percentChange = actualTotal > 0 ? (difference / actualTotal) * 100 : 0;
     
@@ -401,6 +628,57 @@ export default function CostPredictionModal({
     return 0.0003; // Default if no match
   };
 
+  // Add a function to normalize model names
+  const normalizeModelName = (modelName: string | null): string | null => {
+    if (!modelName) return null;
+    
+    // Convert to lowercase
+    const normalized = modelName.toLowerCase();
+    
+    // Map common variations to standard names
+    if (normalized.includes('gpt-4')) return 'gpt-4';
+    if (normalized.includes('gpt-3.5')) return 'gpt-3.5-turbo';
+    if (normalized.includes('claude-3-opus')) return 'claude-3-opus';
+    if (normalized.includes('claude-3-sonnet')) return 'claude-3-sonnet';
+    if (normalized.includes('claude-3-haiku')) return 'claude-3-haiku';
+    
+    return normalized;
+  };
+
+  // Add a function to normalize provider names
+  const normalizeProviderName = (providerName: string | null): string | null => {
+    if (!providerName) return null;
+    
+    // Convert to lowercase
+    const normalized = providerName.toLowerCase();
+    
+    // Map common variations to standard names
+    if (normalized.includes('openai')) return 'openai';
+    if (normalized.includes('anthropic')) return 'anthropic';
+    if (normalized.includes('cohere')) return 'cohere';
+    if (normalized.includes('mistral')) return 'mistral';
+    if (normalized.includes('google')) return 'google';
+    if (normalized.includes('meta')) return 'meta';
+    
+    return normalized;
+  };
+
+  // Add a function to normalize environment names
+  const normalizeEnvironmentName = (envName: string | null): string | null => {
+    if (!envName) return null;
+    
+    // Convert to lowercase
+    const normalized = envName.toLowerCase();
+    
+    // Map common variations to standard names
+    if (normalized.includes('prod')) return 'production';
+    if (normalized.includes('dev')) return 'development';
+    if (normalized.includes('stag')) return 'staging';
+    if (normalized.includes('test')) return 'testing';
+    
+    return normalized;
+  };
+
   return (
     <>
       {isOpen && (
@@ -418,7 +696,7 @@ export default function CostPredictionModal({
               <div className="flex items-center justify-between p-4 border-b border-gray-800">
                 <div className="flex items-center space-x-2">
                   <Calculator className="h-5 w-5 text-blue-400" />
-                  <h2 className="text-lg font-medium text-white">Cost Prediction</h2>
+                  <h2 className="text-lg font-medium text-white">Cost Calculator</h2>
                 </div>
                 <button 
                   onClick={onClose}
@@ -498,7 +776,7 @@ export default function CostPredictionModal({
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    {isLoading ? 'Calculating...' : 'Calculate Prediction'}
+                    {isLoading ? 'Calculating...' : 'Calculate Cost'}
                   </button>
                 </form>
                 
@@ -506,119 +784,182 @@ export default function CostPredictionModal({
                 {summary && (
                   <div className="mt-6 space-y-4">
                     {/* Summary cards */}
-                    <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-gray-800 rounded-lg p-4">
-                        <div className="text-sm text-gray-400 mb-1">Current Cost</div>
-                        <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
-                      </div>
-                      
-                      <div className="bg-gray-800 rounded-lg p-4">
-                        <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
-                        <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
-                      </div>
-                      
-                      <div className={`rounded-lg p-4 ${
-                        summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
-                      }`}>
-                        <div className="text-sm text-gray-300 mb-1">Difference</div>
-                        <div className="text-xl font-semibold text-white">
-                          {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
-                        </div>
-                        <div className="text-sm text-gray-300">
-                          {summary.difference > 0 ? '+' : ''}
-                          {summary.percentChange.toFixed(1)}%
-                        </div>
-                      </div>
-                    </div>
+                    {/* <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-1">Current Cost</div>
+                      <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
+                    </div> */}
                     
-                    {/* Parameters and chart */}
-                    <div className="space-y-4">
-                      {/* Parameters */}
-                      {parameters && (
-                        <div className="bg-gray-800 rounded-lg p-4">
-                          <h4 className="text-sm font-medium text-gray-300 mb-2">Prediction Parameters</h4>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <div className="text-gray-400">Model</div>
-                            <div className="text-white">{parameters.model || 'Current models'}</div>
-                            
-                            <div className="text-gray-400">Prompt Token Cost</div>
-                            <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
-                            
-                            <div className="text-gray-400">Completion Token Cost</div>
-                            <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
-                            
-                            {parameters.discount > 0 && (
-                              <>
-                                <div className="text-gray-400">Discount</div>
-                                <div className="text-white">{parameters.discount}%</div>
-                              </>
-                            )}
-                            
-                            {parameters.volumeChange !== 0 && (
-                              <>
-                                <div className="text-gray-400">Volume Change</div>
-                                <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
-                              </>
-                            )}
-                            
-                            <div className="text-gray-400">Time Period</div>
-                            <div className="text-white">{parameters.timeframe}</div>
-                            
-                            <div className="text-gray-400">Date Range</div>
-                            <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
-                          </div>
-                        </div>
-                      )}
-                      
-                      {/* Chart */}
-                      {dailyCosts.length > 0 && (
-                        <div className="bg-gray-800 rounded-lg p-4">
-                          <div className="text-sm text-gray-400 mb-2">Cost Comparison Over Time</div>
-                          <AreaChart
-                            className="h-64"
-                            data={dailyCosts}
-                            index="date"
-                            categories={["actualCost", "predictedCost"]}
-                            colors={["gray", "blue"]}
-                            valueFormatter={(value) => `$${value.toFixed(2)}`}
-                            showLegend={true}
-                            showGridLines={false}
-                            showAnimation={true}
-                            customTooltip={(props) => (
-                              <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
-                                <div className="font-medium text-white">{props.label}</div>
-                                {props.payload?.map((category, idx) => {
-                                  // Cast the category to the correct type
-                                  const typedCategory = category as unknown as ChartTooltipPayload;
-                                  return (
-                                    <div key={idx} className="flex items-center mt-1">
-                                      <div 
-                                        className="w-3 h-3 rounded-full mr-1" 
-                                        style={{ backgroundColor: typedCategory.color }}
-                                      />
-                                      <span className="text-gray-300">
-                                        {typedCategory.dataKey === 'actualCost' ? 'Actual' : 'Predicted'}: 
-                                      </span>
-                                      <span className="ml-1 text-white font-medium">
-                                        ${Number(typedCategory.value).toFixed(2)}
-                                      </span>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            )}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    {/* <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
+                      <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
+                    </div> */}
+                    
+                    {/* <div className={`rounded-lg p-4 ${
+                      summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
+                    }`}>
+                      <div className="text-sm text-gray-300 mb-1">Difference</div>
+                      <div className="text-xl font-semibold text-white">
+                        {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-300">
+                        {summary.difference > 0 ? '+' : ''}
+                        {summary.percentChange.toFixed(1)}%
+                      </div>
+                    </div> */}
                   </div>
                 )}
                 
-                {llmUsageQuery.isError && (
-                  <div className="mt-4 p-3 bg-red-900/50 text-red-200 rounded-lg">
-                    Error fetching usage data. Please try again.
-                  </div>
-                )}
+                {/* Parameters and chart */}
+                <div className="space-y-4">
+                  {/* Parameters */}
+                  {parameters && (
+                    <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
+                        <div className="text-xl font-semibold text-white">
+                          {summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
+                        </div>
+                      </div>
+                      <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
+                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                        <div className="text-gray-400">Model</div>
+                        <div className="text-white">{parameters.model || 'Current models'}</div>
+                        
+                        <div className="text-gray-400">Prompt Token Cost</div>
+                        <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
+                        
+                        <div className="text-gray-400">Completion Token Cost</div>
+                        <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
+                        
+                        {parameters.discount > 0 && (
+                          <>
+                            <div className="text-gray-400">Discount</div>
+                            <div className="text-white">{parameters.discount}%</div>
+                          </>
+                        )}
+                        
+                        {parameters.volumeChange !== 0 && (
+                          <>
+                            <div className="text-gray-400">Volume Change</div>
+                            <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
+                          </>
+                        )}
+                        
+                        <div className="text-gray-400">Time Period</div>
+                        <div className="text-white">{parameters.timeframe}</div>
+                        
+                        <div className="text-gray-400">Date Range</div>
+                        <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
+                        
+                        {parameters.group_by && (
+                          <>
+                            <div className="text-gray-400">Grouped By</div>
+                            <div className="text-white">{parameters.group_by}</div>
+                          </>
+                        )}
+                        
+                        {/* Display filter parameters if specified */}
+                        {parameters.organization && (
+                          <>
+                            <div className="text-gray-400">Organization</div>
+                            <div className="text-white">{parameters.organization}</div>
+                          </>
+                        )}
+                        
+                        {parameters.project && (
+                          <>
+                            <div className="text-gray-400">Project</div>
+                            <div className="text-white">{parameters.project}</div>
+                          </>
+                        )}
+                        
+                        {parameters.environment && (
+                          <>
+                            <div className="text-gray-400">Environment</div>
+                            <div className="text-white">{parameters.environment}</div>
+                          </>
+                        )}
+                        
+                        {parameters.provider && (
+                          <>
+                            <div className="text-gray-400">Provider</div>
+                            <div className="text-white">{parameters.provider}</div>
+                          </>
+                        )}
+                        
+                        {parameters.user && (
+                          <>
+                            <div className="text-gray-400">User</div>
+                            <div className="text-white">{parameters.user}</div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Chart */}
+                  {dailyCosts.length > 0 && (
+                    <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-2">
+                        {isGroupedData 
+                          ? `Cost Breakdown by ${parameters?.group_by || 'Category'}`
+                          : 'Cost Comparison Over Time'}
+                      </div>
+                      
+                      {isGroupedData ? (
+                        // Stacked bar chart for grouped data
+                        <BarChart
+                          className="h-64"
+                          data={dailyCosts}
+                          index="date"
+                          categories={chartCategories}
+                          stack={true}
+                          colors={["blue", "cyan", "amber", "green", "purple", "pink", "indigo", "rose"]}
+                          valueFormatter={(value) => `$${value.toFixed(2)}`}
+                          showLegend={true}
+                          showGridLines={false}
+                          showAnimation={true}
+                        />
+                      ) : (
+                        // Area chart for regular comparison
+                        <AreaChart
+                          className="h-64"
+                          data={dailyCosts}
+                          index="date"
+                          categories={chartCategories}
+                          colors={["gray", "blue"]}
+                          valueFormatter={(value) => `$${value.toFixed(2)}`}
+                          showLegend={true}
+                          showGridLines={false}
+                          showAnimation={true}
+                          customTooltip={(props) => (
+                            <div className="bg-gray-900 p-2 rounded shadow-lg text-xs">
+                              <div className="font-medium text-white">{props.label}</div>
+                              {props.payload?.map((category, idx) => {
+                                // Cast the category to the correct type
+                                const typedCategory = category as unknown as ChartTooltipPayload;
+                                return (
+                                  <div key={idx} className="flex items-center mt-1">
+                                    <div 
+                                      className="w-3 h-3 rounded-full mr-1" 
+                                      style={{ backgroundColor: typedCategory.color }}
+                                    />
+                                    <span className="text-gray-300">
+                                      {typedCategory.dataKey === 'actualCost' ? 'Actual' : 'Predicted'}: 
+                                    </span>
+                                    <span className="ml-1 text-white font-medium">
+                                      ${Number(typedCategory.value).toFixed(2)}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
