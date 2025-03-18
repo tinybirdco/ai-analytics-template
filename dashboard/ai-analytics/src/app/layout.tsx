@@ -56,13 +56,14 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 function ModalController({ filters }: { filters: Record<string, string> }) {
-  const { isCostPredictionOpen, closeCostPrediction } = useModal()
+  const { isCostPredictionOpen, openCostPrediction, closeCostPrediction } = useModal()
 
-  useKeyboardShortcut('c', () => {
+  // Use 'k' with modifier key (Cmd/Ctrl)
+  useKeyboardShortcut('k', () => {
     if (!isCostPredictionOpen) {
-      window.dispatchEvent(new CustomEvent('open-cost-prediction'))
+      openCostPrediction();
     }
-  })
+  }, true)
 
   return (
     <CostPredictionModal
