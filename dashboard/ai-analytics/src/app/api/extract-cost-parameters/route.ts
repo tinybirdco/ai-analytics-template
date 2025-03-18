@@ -74,7 +74,7 @@ const fetchAvailableDimensions = async () => {
   }
 };
 
-// Update the POST function to include the dimensions in the response
+// Update the POST function to properly map meta with data
 export async function POST(req: Request) {
   try {
     const { query } = await req.json();
@@ -96,19 +96,31 @@ export async function POST(req: Request) {
     console.log('Available dimensions:', availableDimensions);
     
     // Extract dimension values for the system prompt
-    let dimensionValues = {};
-    if (availableDimensions && availableDimensions.data && availableDimensions.data.length > 0) {
-      dimensionValues = availableDimensions.data[0];
+    let dimensionValues: Record<string, { type: string, values: string[] }> = {};
+    
+    // Map meta with data for a more structured representation
+    if (availableDimensions && availableDimensions.meta && availableDimensions.data && availableDimensions.data.length > 0) {
+      const metaInfo = availableDimensions.meta;
+      const dataValues = availableDimensions.data[0];
+      
+      // Create a structured object with meta information and data values
+      metaInfo.forEach((meta: { name: string, type: string }) => {
+        dimensionValues[meta.name] = {
+          type: meta.type,
+          values: dataValues[meta.name] || []
+        };
+      });
     }
     
-    // Update system prompt with available dimension values
+    console.log('Structured dimension values:', dimensionValues);
+    
+    // Update system prompt to dynamically include all dimensions
     const systemPromptText = `
-      You are a cost prediction parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
+      You are an LLM cost calculator parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
       
       Today's date is ${today}.
       
       Return values for these parameters:
-      - model: The AI model mentioned (e.g., "gpt-4", "claude-sonnet")
       - promptTokenCost: Cost per prompt token (in USD)
       - completionTokenCost: Cost per completion token (in USD)
       - discount: Any discount percentage mentioned (0-100)
@@ -118,19 +130,20 @@ export async function POST(req: Request) {
       - end_date: The end date in YYYY-MM-DD format (usually today: ${today})
       - group_by: If the user wants to group by a specific dimension (e.g., "model", "provider", "organization", "project", "environment", "user")
       
-      Filter parameters (extract if mentioned):
-      - organization: Organization name to filter by (e.g., "quantum_systems", "acme_corp")
-      - project: Project name to filter by (e.g., "chatbot", "recommendation_engine")
-      - environment: Environment to filter by (e.g., "production", "staging", "development")
-      - provider: Provider to filter by (e.g., "OpenAI", "Anthropic", "Cohere")
-      - user: User to filter by (e.g., "john.doe", "api_user")
+      Also extract filter parameters if mentioned:
+      ${availableDimensions?.meta?.map((meta: { name: string, type: string }) => {
+        const name = meta.name;
+        // Convert to singular form for the parameter name (remove trailing 's')
+        const paramName = name.endsWith('s') ? name.slice(0, -1) : name;
+        return `- ${paramName}: ${name.charAt(0).toUpperCase() + name.slice(1)} to filter by`;
+      }).join('\n  ') || ''}
       
-      Available values in the database:
-      - Organizations: ${JSON.stringify(dimensionValues.organizations || [])}
-      - Projects: ${JSON.stringify(dimensionValues.projects || [])}
-      - Environments: ${JSON.stringify(dimensionValues.environments || [])}
-      - Models: ${JSON.stringify(dimensionValues.models || [])}
-      - Providers: ${JSON.stringify(dimensionValues.providers || [])}
+      These are the available values in the database, extract them if mentioned no matter if the parameter name is provided or not:
+      ${availableDimensions?.meta?.map((meta: { name: string, type: string }) => {
+        const name = meta.name;
+        const values = dimensionValues[name]?.values || [];
+        return `- ${name.charAt(0).toUpperCase() + name.slice(1)}: ${JSON.stringify(values)}`;
+      }).join('\n  ') || ''}
       
       For timeframes, calculate the appropriate start_date:
       - "last week" = 7 days before today
@@ -142,13 +155,7 @@ export async function POST(req: Request) {
       Always include start_date and end_date based on the timeframe (default to "last month" if not specified).
       
       Context-based filter extraction rules:
-      1. When a model name is mentioned (e.g., "gpt-4", "claude-3-opus"), set model filter to that value
-      2. When a provider name is mentioned (e.g., "OpenAI", "Anthropic"), set provider filter to that value.
-      3. When an environment is mentioned (e.g., "production", "staging", "development"), set environment filter
-      4. When a project or organization name is mentioned, set the appropriate filter
-      5. When a username is mentioned, set the user filter
-      6. Never use a model name as a provider name and vice-versa, model=anthropic is invalid, provider=anthropic is valid.
-      7. Only use values that exist in the database (see "Available values" above).
+        - Only use values that exist in the database (see "Available values" above).
       
       Look for phrases like "filter by", "for", "in", "with", etc. to identify filter parameters.
       Examples:

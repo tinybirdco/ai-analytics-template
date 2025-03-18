@@ -93,10 +93,9 @@ export default function CostPredictionModal({
 
   // Example queries that users can select
   const exampleQueries = [
-    "Show me cost predictions for Anthropic models grouped by project",
-    "What would be our costs in production environment if we switch to GPT-4?",
+    "Show me cost for Anthropic grouped by project",
     "Filter by organization quantum_systems and show costs for last 3 months",
-    "Cost for OpenAI models in production environment in last month",
+    "Cost for OpenAI provider in production environment in last month",
     "How would costs change if we use Claude 3 Opus at $0.00003 per prompt token and $0.00015 per completion token?"
   ];
 
