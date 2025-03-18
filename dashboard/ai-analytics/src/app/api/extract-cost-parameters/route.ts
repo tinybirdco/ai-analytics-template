@@ -1,5 +1,5 @@
 // src/app/api/extract-cost-parameters/route.ts
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
@@ -185,12 +185,10 @@ export async function POST(req: Request) {
       - "Compare Anthropic models with OpenAI" → provider: "Anthropic" (for the primary analysis)
     `;
 
+    const openai = createOpenAI({ apiKey: apiKey })
+
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo', { 
-        temperature: 0.2,
-        api_key: apiKey
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any),
+      model: openai('gpt-3.5-turbo'),
       schema: costParametersSchema,
       prompt: query,
       systemPrompt: systemPromptText,

@@ -1,4 +1,4 @@
-import { openai } from '@ai-sdk/openai';
+import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
@@ -39,12 +39,9 @@ export async function POST(req: Request) {
     Common values: ${JSON.stringify(DIMENSIONS, null, 2)}.
     Return only valid values from the provided dimensions.`;
 
+    const openai = createOpenAI({ apiKey: apiKey })
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo', { 
-        temperature: 0.2,
-        api_key: apiKey
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } as any),
+      model: openai('gpt-3.5-turbo'),
       schema: filterSchema,
       prompt,
       systemPrompt: systemPromptText,
