@@ -68,11 +68,21 @@ export async function POST(req: Request) {
       If a parameter is not specified in the query, omit it from your response.
       Always include start_date and end_date based on the timeframe (default to "last month" if not specified).
       
+      Context-based filter extraction rules:
+      1. When a model name is mentioned (e.g., "gpt-4", "claude-3-opus"), set model filter to that value
+      2. When a provider name is mentioned (e.g., "OpenAI", "Anthropic"), set provider filter to that value.
+      3. When an environment is mentioned (e.g., "production", "staging", "development"), set environment filter
+      4. When a project or organization name is mentioned, set the appropriate filter
+      5. When a username is mentioned, set the user filter
+      6. Never use a model name as a provider name and vice-versa, model=anthropic is invalid, provider=anthropic is valid.
+      
       Look for phrases like "filter by", "for", "in", "with", etc. to identify filter parameters.
       Examples:
       - "Show costs for organization quantum_systems" → organization: "quantum_systems"
       - "Predict costs for OpenAI models in production" → provider: "OpenAI", environment: "production"
       - "What if we switch to Claude with a 10% discount for the chatbot project" → model: "Claude", discount: 10, project: "chatbot"
+      - "How much would GPT-4 cost us next month?" → model: "gpt-4"
+      - "Compare Anthropic models with OpenAI" → provider: "Anthropic" (for the primary analysis)
     `;
 
     const result = await generateObject({

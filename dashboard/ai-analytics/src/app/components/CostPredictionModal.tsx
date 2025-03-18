@@ -92,16 +92,11 @@ export default function CostPredictionModal({
 
   // Example queries that users can select
   const exampleQueries = [
-    "What if we switch to Claude 3 Sonnet with a 10% volume increase?",
-    "Predict costs if we get a 15% discount on GPT-4 for the next month",
-    "How would costs change if we use Claude 3 Opus at $0.00003 per prompt token and $0.00015 per completion token?",
-    "What if our usage increases by 25% next month?",
-    "Compare current costs with GPT-4 for the last week",
-    "Show me cost predictions grouped by provider for last month",
-    "What would be our costs grouped by project if we switch to GPT-4?",
+    "Show me cost predictions for Anthropic models grouped by project",
+    "What would be our costs in production environment if we switch to GPT-4?",
     "Filter by organization quantum_systems and show costs for last 3 months",
-    "Predict costs for provider OpenAI in production environment",
-    "What if we increase usage by 20% for the chatbot project?"
+    "Cost for OpenAI models in production environment in last month",
+    "How would costs change if we use Claude 3 Opus at $0.00003 per prompt token and $0.00015 per completion token?"
   ];
 
   // Add debugging for token
@@ -175,9 +170,19 @@ export default function CostPredictionModal({
           filters.model = normalizeModelName(parameters.model);
         }
         
+        // Add provider filter if specified
+        if (parameters.provider) {
+          filters.provider = normalizeProviderName(parameters.provider);
+        }
+        
+        // Add environment filter if specified
+        if (parameters.environment) {
+          filters.environment = normalizeEnvironmentName(parameters.environment);
+        }
+        
         // Add other filter parameters if specified
-        const filterParams = ['organization', 'project', 'environment', 'provider', 'user'];
-        filterParams.forEach(param => {
+        const otherFilterParams = ['organization', 'project', 'user'];
+        otherFilterParams.forEach(param => {
           const value = parameters[param as keyof CostParameters];
           if (value) {
             filters[param] = value as string;
@@ -312,8 +317,8 @@ export default function CostPredictionModal({
       console.log("Generated sample data:", processedData);
     }
     
-    // Check if we're grouping by a dimension
-    const isGrouped = !!params.group_by && params.group_by !== 'model';
+    // Check if we're grouping by any dimension (including model)
+    const isGrouped = !!params.group_by;
     
     if (isGrouped) {
       // Handle grouped data visualization
@@ -424,6 +429,12 @@ export default function CostPredictionModal({
   const processRegularData = (data: UsageDataItem[], params: CostParameters) => {
     // Group data by date
     const dateMap = new Map<string, DateAggregatedData>();
+    
+    // Get cost parameters
+    const promptCost = params.promptTokenCost ?? getDefaultPromptCost(params.model);
+    const completionCost = params.completionTokenCost ?? getDefaultCompletionCost(params.model);
+    const discount = params.discount / 100; // Convert percentage to decimal
+    const volumeMultiplier = 1 + (params.volumeChange / 100); // Define volumeMultiplier here
     
     // Log the structure of the first item to understand the data format
     if (data.length > 0) {
@@ -634,6 +645,40 @@ export default function CostPredictionModal({
     return normalized;
   };
 
+  // Add a function to normalize provider names
+  const normalizeProviderName = (providerName: string | null): string | null => {
+    if (!providerName) return null;
+    
+    // Convert to lowercase
+    const normalized = providerName.toLowerCase();
+    
+    // Map common variations to standard names
+    if (normalized.includes('openai')) return 'openai';
+    if (normalized.includes('anthropic')) return 'anthropic';
+    if (normalized.includes('cohere')) return 'cohere';
+    if (normalized.includes('mistral')) return 'mistral';
+    if (normalized.includes('google')) return 'google';
+    if (normalized.includes('meta')) return 'meta';
+    
+    return normalized;
+  };
+
+  // Add a function to normalize environment names
+  const normalizeEnvironmentName = (envName: string | null): string | null => {
+    if (!envName) return null;
+    
+    // Convert to lowercase
+    const normalized = envName.toLowerCase();
+    
+    // Map common variations to standard names
+    if (normalized.includes('prod')) return 'production';
+    if (normalized.includes('dev')) return 'development';
+    if (normalized.includes('stag')) return 'staging';
+    if (normalized.includes('test')) return 'testing';
+    
+    return normalized;
+  };
+
   return (
     <>
       {isOpen && (
@@ -651,7 +696,7 @@ export default function CostPredictionModal({
               <div className="flex items-center justify-between p-4 border-b border-gray-800">
                 <div className="flex items-center space-x-2">
                   <Calculator className="h-5 w-5 text-blue-400" />
-                  <h2 className="text-lg font-medium text-white">Cost Prediction</h2>
+                  <h2 className="text-lg font-medium text-white">Cost Calculator</h2>
                 </div>
                 <button 
                   onClick={onClose}
@@ -731,7 +776,7 @@ export default function CostPredictionModal({
                         : 'bg-blue-600 text-white hover:bg-blue-700'
                     }`}
                   >
-                    {isLoading ? 'Calculating...' : 'Calculate Prediction'}
+                    {isLoading ? 'Calculating...' : 'Calculate Cost'}
                   </button>
                 </form>
                 
@@ -740,17 +785,17 @@ export default function CostPredictionModal({
                   <div className="mt-6 space-y-4">
                     {/* Summary cards */}
                     <div className="grid grid-cols-3 gap-4">
-                      <div className="bg-gray-800 rounded-lg p-4">
+                      {/* <div className="bg-gray-800 rounded-lg p-4">
                         <div className="text-sm text-gray-400 mb-1">Current Cost</div>
                         <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
-                      </div>
+                      </div> */}
                       
-                      <div className="bg-gray-800 rounded-lg p-4">
+                      {/* <div className="bg-gray-800 rounded-lg p-4">
                         <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
                         <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
-                      </div>
+                      </div> */}
                       
-                      <div className={`rounded-lg p-4 ${
+                      {/* <div className={`rounded-lg p-4 ${
                         summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
                       }`}>
                         <div className="text-sm text-gray-300 mb-1">Difference</div>
@@ -761,7 +806,7 @@ export default function CostPredictionModal({
                           {summary.difference > 0 ? '+' : ''}
                           {summary.percentChange.toFixed(1)}%
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                     
                     {/* Parameters and chart */}
@@ -769,7 +814,11 @@ export default function CostPredictionModal({
                       {/* Parameters */}
                       {parameters && (
                         <div className="bg-gray-800 rounded-lg p-4">
-                          <h4 className="text-sm font-medium text-gray-300 mb-2">Prediction Parameters</h4>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                                <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
+                                <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
+                            </div>
+                          <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
                           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                             <div className="text-gray-400">Model</div>
                             <div className="text-white">{parameters.model || 'Current models'}</div>
