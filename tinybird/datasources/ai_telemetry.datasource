@@ -1,0 +1,25 @@
+DESCRIPTION >
+    Stores AI SDK telemetry data for monitoring and analysis
+
+SCHEMA >
+    `traceId` String `json:$.traceId`,
+    `spanId` String `json:$.spanId`,
+    `parentSpanId` Nullable(String) `json:$.parentSpanId`,
+    `name` String `json:$.name`,
+    `kind` String `json:$.kind`,
+    `startTime` DateTime64(3) `json:$.startTime`,
+    `endTime` DateTime64(3) `json:$.endTime`,
+    `model` String `json:$.model`,
+    `provider` String `json:$.provider`,
+    `operation` String `json:$.operation`,
+    `promptTokens` Int32 `json:$.promptTokens`,
+    `completionTokens` Int32 `json:$.completionTokens`,
+    `totalTokens` Int32 `json:$.totalTokens`,
+    `duration` Int32 `json:$.duration`,
+    `attributesJson` String `json:$.attributesJson`,
+    `eventsJson` String `json:$.eventsJson`,
+    `timestamp` DateTime `json:$.timestamp`
+
+ENGINE "MergeTree"
+ENGINE_PARTITION_KEY "toYYYYMM(timestamp)"
+ENGINE_SORTING_KEY "timestamp, provider, model, operation"

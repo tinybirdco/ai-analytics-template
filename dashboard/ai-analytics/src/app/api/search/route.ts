@@ -1,6 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
+import { getTracerProvider } from '@/lib/telemetry';
 
 const DIMENSIONS = {
   model: ['gpt-4', 'gpt-3.5-turbo', 'claude-2'],
@@ -40,11 +41,24 @@ export async function POST(req: Request) {
     Return only valid values from the provided dimensions.`;
 
     const openai = createOpenAI({ apiKey: apiKey })
+
+    // Create a Tinybird tracer provider
+    const tracerProvider = getTracerProvider();
+
     const result = await generateObject({
       model: openai('gpt-3.5-turbo'),
       schema: filterSchema,
       prompt,
       systemPrompt: systemPromptText,
+      experimental_telemetry: {
+        isEnabled: true,
+        functionId: 'search',
+        tracer: tracerProvider.getTracer('ai'),
+        metadata: {
+          endpoint: '/api/search',
+          userQuery: prompt
+        }
+      }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
