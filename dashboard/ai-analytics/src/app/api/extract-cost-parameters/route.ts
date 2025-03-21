@@ -3,6 +3,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
+import { getTracerProvider } from '@/lib/telemetry';
 
 // Define the schema for cost parameters
 const costParametersSchema = z.object({
@@ -186,12 +187,22 @@ export async function POST(req: Request) {
     `;
 
     const openai = createOpenAI({ apiKey: apiKey })
-
+    const tracerProvider = getTracerProvider();
+        
     const result = await generateObject({
       model: openai('gpt-3.5-turbo'),
       schema: costParametersSchema,
       prompt: query,
       systemPrompt: systemPromptText,
+      experimental_telemetry: {
+        isEnabled: true,
+        functionId: 'extract-cost-parameters',
+        tracer: tracerProvider.getTracer('ai'),
+        metadata: {
+          endpoint: '/api/extract-cost-parameters',
+          userQuery: query
+        }
+      }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
 
