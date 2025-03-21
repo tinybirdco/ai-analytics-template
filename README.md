@@ -124,7 +124,7 @@ Check how to instrument your LLM usage with the following libraries:
 - [LiteLLM (python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
 - [Vercel AI SDK (typescript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
 
-## Mock data
+## Mock Data
 
 For local testing, generate mock data with the following commands:
 
