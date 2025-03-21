@@ -119,10 +119,10 @@ The process is:
 
 ## Instrumentation
 
-Check the examples folder for instrumentation examples for:
+Check how to instrument your LLM usage with the following libraries:
 
-- LiteLLM (python)
-- Vercel AI SDK (typescript)
+- [LiteLLM (python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
+- [Vercel AI SDK (typescript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
 
 ## Mock data
 
