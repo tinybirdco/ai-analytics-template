@@ -1,6 +1,7 @@
 import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
+import { wrapModelWithTinybird } from '@/lib/tinybird-wrapper';
 
 const DIMENSIONS = {
   model: ['gpt-4', 'gpt-3.5-turbo', 'claude-2'],
@@ -26,6 +27,19 @@ export async function POST(req: Request) {
   }
 
   try {
+    const openai = createOpenAI({ apiKey: apiKey });
+    const wrappedOpenAI = wrapModelWithTinybird(
+      openai('gpt-3.5-turbo'),
+      process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
+      process.env.TINYBIRD_JWT_SECRET!,
+      {
+        event: 'search_filter',
+        environment: process.env.NODE_ENV,
+        project: 'ai-analytics',
+        organization: 'your-org',
+      }
+    );
+
     // Create the schema outside the function call
     const filterSchema = z.object({
       model: z.enum(DIMENSIONS.model as [string, ...string[]]).optional(),
@@ -39,9 +53,8 @@ export async function POST(req: Request) {
     Common values: ${JSON.stringify(DIMENSIONS, null, 2)}.
     Return only valid values from the provided dimensions.`;
 
-    const openai = createOpenAI({ apiKey: apiKey })
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      model: wrappedOpenAI,
       schema: filterSchema,
       prompt,
       systemPrompt: systemPromptText,
