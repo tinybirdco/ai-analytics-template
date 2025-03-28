@@ -135,7 +135,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <span className="font-roboto text-base font-normal">
             AI Cost Calculator
           </span>
-          <CalculatorIcon />
+          <FilterIcon fill="#0a0a0a" />
         </button>
         <div className="filter-input-wrapper mr-2">
           <input
