@@ -189,3 +189,33 @@ body {
   background: rgba(53, 53, 53, 0.9);
 }
 
+/* Tremor Tab styles override */
+[data-headlessui-state="selected"].tremor-Tab-selected {
+  background-color: #262626 !important;
+  border-bottom: 2px solid #27F795 !important;
+  color: #F4F4F4 !important;
+}
+
+.tremor-Tab-root {
+  min-width: 91.5px !important;
+  width: auto !important;
+  height: 32px !important;
+  padding: 16px 16px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  color: #C6C6C6 !important;
+  white-space: nowrap !important;
+}
+
+.tremor-Tab-root:hover {
+  color: #F4F4F4 !important;
+}
+
+.tremor-TabList-root {
+  border: none !important;
+  background: transparent !important;
+}
+

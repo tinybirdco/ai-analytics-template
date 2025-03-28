@@ -162,27 +162,22 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       }}
     >
       <div className="flex h-full flex-col">
-        <div className="flex-1 overflow-hidden">  {/* Removed p-6 padding */}
+        <div className="flex-1 overflow-hidden">
           <TabGroup 
             className="h-full flex flex-col"
             onIndexChange={handleTabChange}
             defaultIndex={defaultIndex >= 0 ? defaultIndex : 0}
           >
             <div className="flex-none md:flex md:items-center md:justify-between pl-4">
-              <TabList
-                variant="solid"
-                className="w-full rounded-tremor-small md:w-[400px]"
-              >
+              <TabList className="w-auto border-none">
                 {tabs.map((tab) => (
                   <Tab
-                    key={tab.name}
-                    className="w-full whitespace-nowrap px-3 justify-center ui-selected:text-tremor-content-strong ui-selected:dark:text-dark-tremor-content-strong"
-                  >
+                    key={tab.name}>
                     {tab.name}
                   </Tab>
                 ))}
               </TabList>
-              <div className="hidden md:flex md:items-center md:space-x-2">
+              <div className="hidden md:flex md:items-center">
                 <span
                   className="shrink-0 animate-pulse rounded-tremor-full bg-emerald-500/30 p-1"
                   aria-hidden={true}
