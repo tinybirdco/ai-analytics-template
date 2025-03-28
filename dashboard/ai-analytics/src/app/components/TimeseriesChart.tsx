@@ -54,7 +54,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   const models = [...new Set(data.data.map(d => d.category))];
 
   // Default colors for unknown models
-  const defaultColors = ['orange', 'cyan', 'amber', 'teal', 'lime', 'pink'];
+  const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
 
   // Use the same approach for all tabs - just use default colors in sequence
   const transformedData = dates.map(date => {
@@ -77,13 +77,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'model',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
       })),
     },
     {
@@ -91,13 +91,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'provider',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
       })),
     },
     {
@@ -105,13 +105,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'environment',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
       })),
     }
   ];
@@ -122,13 +122,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'organization',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
       })),
     })
   }
@@ -179,10 +179,10 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
               </TabList>
               <div className="hidden md:flex md:items-center px-4">
                 <span
-                  className="shrink-0 animate-pulse rounded-tremor-full bg-emerald-500/30 p-1"
+                  className="shrink-0 animate-pulse rounded-tremor-full bg-[var(--accent)]/30 p-1"
                   aria-hidden={true}
                 >
-                  <span className="block size-2 rounded-tremor-full bg-emerald-500" />
+                  <span className="block size-2 rounded-tremor-full bg-[var(--accent)]" />
                 </span>
                 <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content ml-2">
                   Updated just now
