@@ -78,6 +78,7 @@ body {
   padding: 14px 16px;
   gap: 8px;
   
+  width: 288px;
   height: 48px;
   
   background: var(--date-range-bg);
@@ -88,23 +89,21 @@ body {
   flex-grow: 0;
 }
 
-/* Override the default button styles when used within date range selector */
+.date-range-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
 .date-range-selector button {
   background: transparent !important;
   border: none !important;
-  height: 100% !important;
-  padding: 0 !important;
   color: var(--date-range-text) !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 8px !important;
 }
 
-.date-range-selector button:hover {
-  background: transparent !important;
-}
-
-/* Style for the text within the date range selector */
 .date-range-text {
   font-family: var(--font-family-base);
   font-style: normal;
