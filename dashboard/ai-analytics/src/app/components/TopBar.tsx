@@ -6,7 +6,7 @@ import FilterChips from './FilterChips';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { Calculator, Settings } from 'lucide-react';
+import { CalculatorIcon } from './icons';
 import { useModal } from '../context/ModalContext';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
@@ -130,10 +130,12 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       <div className="flex items-center space-x-4">
         <button
           onClick={openCostPrediction}
-          className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
+          className="ai-calculator-button"
         >
-          <Calculator className="w-4 h-4 mr-2" />
-          AI calculator
+          <span className="font-roboto text-base leading-6 font-normal">
+            AI Cost Calculator
+          </span>
+          <CalculatorIcon />
         </button>
         <div className="relative">
           <input
@@ -170,7 +172,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           onClick={() => setIsSettingsOpen(true)}
           className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-sm"
         >
-          <Settings className="w-4 h-4 mr-2" />
+          <CalculatorIcon />
           Settings
         </button>
         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">

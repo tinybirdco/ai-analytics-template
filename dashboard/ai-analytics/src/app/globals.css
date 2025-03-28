@@ -3,8 +3,10 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --main-button-text-color: var(--background);
+  --accent: #27F795;
 }
 
 @theme inline {
@@ -14,15 +16,40 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.ai-calculator-button {
+  /* Auto layout */
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 12px 24px;
+  gap: 8px;
+
+  height: 48px;
+  
+  background: var(--accent);
+  color: var(--main-button-text-color);
+  white-space: nowrap;
+  
+  /* Text styles */
+  font-family: 'Roboto', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  transition: background-color 0.2s;
+}
+
+.ai-calculator-button:hover {
+  background: rgba(39, 247, 149, 0.9);
 }
