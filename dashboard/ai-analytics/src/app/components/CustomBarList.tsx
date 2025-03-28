@@ -50,7 +50,7 @@ export default function CustomBarList({
 
   // Custom bar rendering with icons and improved styling
   const renderCustomBarList = (items: BarListItem[]) => (
-    <div className="mt-4 space-y-3">
+    <div className="mt-4">
       {items.map((item) => {
         // Calculate percentage for bar width (max 92% to leave room for text)
         const maxValue = Math.max(...items.map(i => i.value));
@@ -60,36 +60,34 @@ export default function CustomBarList({
         return (
           <div 
             key={item.name} 
-            className={`flex flex-col cursor-pointer p-2 rounded-lg transition-all duration-200 ${
+            className={`flex flex-col cursor-pointer py-2 transition-all duration-200 ${
               isSelected 
                 ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-600' 
-                : 'hover:bg-gray-50 dark:hover:bg-gray-800 border-l-4 border-transparent'
+                : 'hover:bg-tremor-brand-subtle dark:hover:bg-dark-tremor-brand-subtle border-l-4 border-transparent'
             }`}
             onClick={() => handleBarClick(item.name)}
           >
-            <div className="flex items-center w-full mb-1.5">
+            <div className="flex items-center w-full py-1">
               <div className="flex items-center min-w-0 flex-1">
                 {item.icon && (
                   <div className="mr-2.5 flex-shrink-0">
                     {item.icon}
                   </div>
                 )}
-                <p className={`truncate text-sm font-medium ${
-                  isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-700 dark:text-gray-300'
-                }`}>
+                <p className="truncate text-sm text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>
                   {item.name}
                 </p>
               </div>
-              <p className={`ml-2 flex-shrink-0 text-right text-sm font-semibold ${
-                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-900 dark:text-gray-100'
+              <p className={`flex-shrink-0 text-right text-sm ${
+                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-tremor-default dark:text-dark-tremor-default text-tremor-content dark:text-dark-tremor-content'
               }`}>
                 {valueFormatter(item.value)}
               </p>
             </div>
-            <div className="w-full h-1.5 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+            <div className="w-full h-1.5 bg-tremor-brand-emphasis dark:bg-dark-tremor-brand-emphasis overflow-hidden">
               <div 
-                className={`h-full rounded-full ${
-                  isSelected ? 'bg-indigo-600' : 'bg-indigo-400'
+                className={`h-full ${
+                  isSelected ? 'bg-indigo-600' : 'bg-[var(--accent)]'
                 }`}
                 style={{ width: `${percentage}%` }}
               />

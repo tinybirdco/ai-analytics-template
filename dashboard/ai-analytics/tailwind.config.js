@@ -15,16 +15,16 @@ module.exports = {
           brand: {
             faint: '#0B1229', // custom
             muted: '#172554', // blue-950
-            subtle: '#1e40af', // blue-800
+            subtle: '#262626',
             DEFAULT: '#27F795',
-            emphasis: '#60a5fa', // blue-400
+            emphasis: '#353535',
             inverted: '#030712', // gray-950
           },
           background: {
             muted: '#131A2B', // custom
             subtle: '#1f2937', // gray-800
             DEFAULT: '#0A0A0A',
-            emphasis: '#d1d5db', // gray-300
+            emphasis: '#353535',
           },
           border: {
             DEFAULT: '#1f2937', // gray-800
