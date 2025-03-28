@@ -154,9 +154,15 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     `$${Intl.NumberFormat('us').format(number).toString()}`;
   
   return (
-    <Card className="h-full p-0 rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
+    <Card 
+      className="h-full p-0 rounded-none border-0" 
+      style={{ 
+        background: 'var(--background)',  // Match page background
+        boxShadow: 'none'  // Remove shadow
+      }}
+    >
       <div className="flex h-full flex-col">
-        <div className="flex-1 border-t border-tremor-border p-6 dark:border-dark-tremor-border overflow-hidden">
+        <div className="flex-1 p-6 overflow-hidden">  {/* Removed border-t and border-tremor-border */}
           <TabGroup 
             className="h-full flex flex-col"
             onIndexChange={handleTabChange}

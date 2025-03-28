@@ -121,7 +121,7 @@ function DashboardContent() {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-900 text-white">
+    <div className="h-screen flex flex-col text-white">
       <TopBar
         selections={selections}
         onRemoveFilter={handleRemoveFilter}

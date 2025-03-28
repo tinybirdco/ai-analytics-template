@@ -126,7 +126,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   // };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+    <div className="flex items-center justify-between p-4 pb-6">
       <div className="flex items-center gap-2">
         <button
           onClick={openCostPrediction}
@@ -141,7 +141,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <input
             ref={inputRef}
             type="text"
-            placeholder="Filter by..."
+            placeholder="Filter with AI..."
             className="filter-input"
             onKeyDown={handleSearch}
             disabled={isLoading}
@@ -183,11 +183,6 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               <SignInIcon />
             </button>
           </SignInButton>
-          {/* <SignUpButton mode="modal">
-            <button className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900">
-              Sign Up
-            </button>
-          </SignUpButton> */}
         </SignedOut>
         <SignedIn>
           <UserButton afterSignOutUrl="/" />
