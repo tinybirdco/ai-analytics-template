@@ -4,7 +4,8 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { format, subDays, subHours, subMonths, parse, isValid } from 'date-fns';
-import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
+import { CalendarIcon } from './icons';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
@@ -273,22 +274,18 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   }, []);
 
   return (
-    <div className="flex items-center">
+    <div className="date-range-selector">
       {isPredefinedRange ? (
-        // Predefined range layout - Text with chevron on left, calendar on right
         <>
           <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
                 ref={rangePopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center justify-between gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-md rounded-r-none px-3 py-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
+                variant="ghost" 
+                className="flex items-center justify-between gap-2"
               >
-                <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium">
+                <ChevronDown className="h-4 w-4" />
+                <span className="date-range-text">
                   {selectedRange || 'Select date range'}
                 </span>
               </Button>
@@ -308,17 +305,16 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
             </PopoverContent>
           </Popover>
           
+          <div className="date-range-selector-divider" />
+          
           <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
                 ref={calendarPopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-l-0 rounded-l-none rounded-r-md px-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
+                variant="ghost" 
+                className="flex items-center"
               >
-                <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <CalendarIcon className="h-[16px] w-[16px]" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
@@ -406,19 +402,15 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
           </Popover>
         </>
       ) : (
-        // Custom range layout - similar changes for this section
         <>
           <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
                 ref={rangePopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-md rounded-r-none px-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
+                variant="ghost" 
+                className="flex items-center"
               >
-                <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <ChevronDown className="h-4 w-4" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
@@ -436,20 +428,19 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
             </PopoverContent>
           </Popover>
           
+          <div className="date-range-selector-divider" />
+          
           <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
             <PopoverTrigger asChild>
               <Button 
                 ref={calendarPopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-l-0 rounded-l-none rounded-r-md px-3 py-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
+                variant="ghost" 
+                className="flex items-center gap-2"
               >
-                <span className="text-sm font-medium">
+                <span className="date-range-text">
                   {selectedRange || 'Select dates'}
                 </span>
-                <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+                <CalendarIcon className="h-[16px] w-[16px]" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
