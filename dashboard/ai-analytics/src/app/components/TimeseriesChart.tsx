@@ -179,7 +179,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
               </TabList>
               <div className="hidden md:flex md:items-center px-4">
                 <span
-                  className="shrink-0 animate-pulse rounded-tremor-full bg-[var(--accent)]/30 p-1"
+                  className="shrink-0 animate-pulse rounded-tremor-full bg-[#27F795]/30 p-1"
                   aria-hidden={true}
                 >
                   <span className="block size-2 rounded-tremor-full bg-[var(--accent)]" />
@@ -219,7 +219,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       index="date"
                       categories={tab.categories}
                       colors={tab.colors}
-                      stack={true}
+                      stack={false}
                       showLegend={false}
                       yAxisWidth={45}
                       valueFormatter={costValueFormatter}
@@ -233,7 +233,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       index="date"
                       categories={tab.categories}
                       colors={tab.colors}
-                      stack={true}
+                      stack={false}
                       showLegend={false}
                       showYAxis={false}
                       valueFormatter={costValueFormatter}
