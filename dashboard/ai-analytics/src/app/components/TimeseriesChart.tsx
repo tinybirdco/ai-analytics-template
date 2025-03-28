@@ -189,25 +189,25 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                 </p>
               </div>
             </div>
-            <TabPanels className="flex-1 min-h-0 overflow-hidden px-6">  {/* Added px-6 for content padding */}
+            <TabPanels className="flex-1 min-h-0 overflow-hidden px-6 pt-8">
               {tabs.map((tab) => (
                 <TabPanel key={tab.name} className="h-full flex flex-col">
-                  <ul className="flex-none mt-2 flex flex-wrap gap-x-20 gap-y-10">  {/* Reduced mt-6 to mt-2 */}
+                  <ul className="flex-none mt-2 flex flex-wrap gap-8">
                     {tab.summary.map((item) => (
                       <li key={item.name}>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
                           <span
                             className={classNames(
                               item.color,
-                              'size-3 shrink-0 rounded-sm',
+                              'w-4 h-4 shrink-0',
                             )}
                             aria-hidden={true}
                           />
-                          <p className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                          <p className="text-[24px] leading-5 text-[#F4F4F4] font-semibold">
                             ${valueFormatter(item.total)}
                           </p>
                         </div>
-                        <p className="whitespace-nowrap text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                        <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-1 ml-6">
                           {item.name}
                         </p>
                       </li>
