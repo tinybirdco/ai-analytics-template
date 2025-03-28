@@ -6,7 +6,7 @@ import FilterChips from './FilterChips';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { CalculatorIcon } from './icons';
+import { CalculatorIcon, FilterIcon } from './icons';
 import { useModal } from '../context/ModalContext';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
@@ -127,33 +127,33 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
 
   return (
     <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-2">
         <button
           onClick={openCostPrediction}
           className="ai-calculator-button"
         >
-          <span className="font-roboto text-base leading-6 font-normal">
+          <span className="font-roboto text-base font-normal">
             AI Cost Calculator
           </span>
           <CalculatorIcon />
         </button>
-        <div className="relative">
+        <div className="filter-input-wrapper mr-2">
           <input
             ref={inputRef}
             type="text"
             placeholder="Filter by..."
-            className="px-4 py-2 text-sm border rounded-md dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
+            className="filter-input"
             onKeyDown={handleSearch}
             disabled={isLoading}
           />
-          {isLoading && (
-            <div className="absolute right-3 top-2">
-              <div className="animate-spin h-4 w-4 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
-            </div>
+          {isLoading ? (
+            <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+          ) : (
+            <FilterIcon />
           )}
         </div>
         <DateRangeSelector />
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap">
           {selections.map((selection) => (
             selection.values.map((value) => (
               <FilterChips
@@ -167,7 +167,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         </div>
       </div>
       
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center gap-4">
         <button
           onClick={() => setIsSettingsOpen(true)}
           className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-sm"

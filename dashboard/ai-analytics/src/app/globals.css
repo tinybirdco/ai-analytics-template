@@ -46,7 +46,6 @@ body {
   align-items: center;
   padding: 12px 24px;
   gap: 8px;
-
   height: 48px;
   
   background: var(--accent);
@@ -85,7 +84,7 @@ body {
   
   /* Inside auto layout */
   flex: none;
-  order: 1;
+  order: 2;
   flex-grow: 0;
 }
 
@@ -124,4 +123,48 @@ body {
   width: 1px;
   height: 24px;
   background: var(--date-range-divider);
+}
+
+/* Filter input styles - matching date range selector */
+.filter-input-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 8px;
+  
+  width: 288px;
+  height: 48px;
+  
+  background: #353535;
+  
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+.filter-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #F4F4F4;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 0;
+}
+
+.filter-input::placeholder {
+  color: #F4F4F4;
+  opacity: 0.5;
+}
+
+.filter-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.filter-input:disabled {
+  opacity: 0.5;
 }
