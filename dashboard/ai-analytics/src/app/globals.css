@@ -217,6 +217,7 @@ body {
   font-size: 14px !important;
   color: #C6C6C6 !important;
   white-space: nowrap !important;
+  font-family: 'Roboto', sans-serif !important;
 }
 
 .tremor-Tab-root:hover {

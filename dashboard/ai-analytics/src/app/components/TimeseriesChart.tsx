@@ -192,7 +192,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
             <TabPanels className="flex-1 min-h-0 overflow-hidden px-6 pt-8">
               {tabs.map((tab) => (
                 <TabPanel key={tab.name} className="h-full flex flex-col">
-                  <ul className="flex-none mt-2 flex flex-wrap gap-8">
+                  <ul className="flex-none flex flex-wrap gap-8">
                     {tab.summary.map((item) => (
                       <li key={item.name}>
                         <div className="flex items-center gap-2">
@@ -207,7 +207,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                             ${valueFormatter(item.total)}
                           </p>
                         </div>
-                        <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-1 ml-6">
+                        <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
                           {item.name}
                         </p>
                       </li>
