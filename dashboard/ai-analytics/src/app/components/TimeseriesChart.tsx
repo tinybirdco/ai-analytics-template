@@ -177,14 +177,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                   </Tab>
                 ))}
               </TabList>
-              <div className="hidden md:flex md:items-center">
+              <div className="hidden md:flex md:items-center p-4">
                 <span
                   className="shrink-0 animate-pulse rounded-tremor-full bg-emerald-500/30 p-1"
                   aria-hidden={true}
                 >
                   <span className="block size-2 rounded-tremor-full bg-emerald-500" />
                 </span>
-                <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content ml-2">
                   Updated just now
                 </p>
               </div>
