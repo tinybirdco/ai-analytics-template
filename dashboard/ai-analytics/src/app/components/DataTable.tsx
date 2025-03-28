@@ -273,7 +273,7 @@ export default function DataTable({
       {/* Content container with conditional blur */}
       <div className={`flex-1 overflow-auto min-h-0 transition-all duration-300 ${selectedMessage ? 'blur-sm' : ''}`}>
         <div className="min-w-[1024px]">
-          <Table>
+          <Table className="font-['Roboto']">
             <TableHead className="sticky top-0 bg-gray-900 z-10">
               <TableRow>
                 <TableHeaderCell>Timestamp</TableHeaderCell>

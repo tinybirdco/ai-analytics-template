@@ -74,13 +74,13 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
             <input
               type="text"
               placeholder="Search conversations semantically..."
-              className="w-full px-4 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm"
+              className="w-full px-4 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#C6C6C6]"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
             <button
               type="submit"
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white"
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white"
             >
               <Search className="w-5 h-5" />
             </button>
