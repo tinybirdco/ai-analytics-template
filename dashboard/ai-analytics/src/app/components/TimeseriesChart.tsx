@@ -162,13 +162,13 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       }}
     >
       <div className="flex h-full flex-col">
-        <div className="flex-1 p-6 overflow-hidden">  {/* Removed border-t and border-tremor-border */}
+        <div className="flex-1 overflow-hidden">  {/* Removed p-6 padding */}
           <TabGroup 
             className="h-full flex flex-col"
             onIndexChange={handleTabChange}
             defaultIndex={defaultIndex >= 0 ? defaultIndex : 0}
           >
-            <div className="flex-none md:flex md:items-center md:justify-between">
+            <div className="flex-none md:flex md:items-center md:justify-between pl-4">
               <TabList
                 variant="solid"
                 className="w-full rounded-tremor-small md:w-[400px]"
@@ -189,15 +189,15 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                 >
                   <span className="block size-2 rounded-tremor-full bg-emerald-500" />
                 </span>
-                <p className="mt-4 text-tremor-default text-tremor-content dark:text-dark-tremor-content md:mt-0">
+                <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
                   Updated just now
                 </p>
               </div>
             </div>
-            <TabPanels className="flex-1 min-h-0 overflow-hidden">
+            <TabPanels className="flex-1 min-h-0 overflow-hidden px-6">  {/* Added px-6 for content padding */}
               {tabs.map((tab) => (
                 <TabPanel key={tab.name} className="h-full flex flex-col">
-                  <ul className="flex-none mt-6 flex flex-wrap gap-x-20 gap-y-10">
+                  <ul className="flex-none mt-2 flex flex-wrap gap-x-20 gap-y-10">  {/* Reduced mt-6 to mt-2 */}
                     {tab.summary.map((item) => (
                       <li key={item.name}>
                         <div className="flex items-center space-x-2">
