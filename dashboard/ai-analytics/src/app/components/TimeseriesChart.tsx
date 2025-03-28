@@ -227,9 +227,25 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showTooltip={true}
                       showAnimation={false}
                       showXAxis={true}
-                      customTooltip={undefined}
-                      startEndOnly={false}
-                      tickGap={5}
+                      customTooltip={(props) => (
+                        <div className="bg-[#262626] p-4 shadow-lg">
+                          <div className="text-[#F4F4F4] font-['Roboto'] text-sm mb-2">
+                            {props.payload?.[0]?.payload.date}
+                          </div>
+                          {props.payload?.map((entry, index) => (
+                            <div key={index} className="flex items-center gap-2 py-1">
+                              <div
+                                className="w-2 h-2 rounded-full"
+                                style={{ backgroundColor: entry.color }}
+                              />
+                              <span className="text-[#C6C6C6] font-['Roboto'] text-sm">{entry.name}:</span>
+                              <span className="text-[#F4F4F4] font-['Roboto'] text-sm">
+                                ${typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     />
                     <BarChart
                       data={tab.data}
