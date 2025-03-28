@@ -9,7 +9,7 @@ import {
   } from '@tremor/react';
 
   // Default colors for all categories
-  const defaultColors = ['orange', 'cyan', 'amber', 'teal', 'lime', 'pink'];
+  const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
 
   type ChartType = 'area' | 'line' | 'bar' | 'stacked-bar' | 'stacked-area';
 
@@ -49,13 +49,13 @@ import {
 
     return (
       <Card className="h-full w-full rounded-none" style={{ boxShadow: 'none' }}>
-        <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+        <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>
           {title}
         </p>
-        <p className="text-tremor-metric font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+        <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong pt-[6px]">
           {value}
         </p>
-        <div className="mt-6">
+        <div className="mt-[20px]">
           <ChartComponent
             data={data}
             index="date"
@@ -66,7 +66,7 @@ import {
             showXAxis={true}
             showYAxis={true}
             showLegend={false}
-            showGridLines={false}
+            showGridLines={true}
             showAnimation={false}
             curveType="monotone"
             stack={isStacked}

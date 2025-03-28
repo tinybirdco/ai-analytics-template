@@ -203,7 +203,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                             )}
                             aria-hidden={true}
                           />
-                          <p className="text-[24px] leading-5 text-[#F4F4F4]" style={{ fontFamily: 'var(--font-family-mono)' }}>
+                          <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong" style={{ fontFamily: 'var(--font-family-mono)' }}>
                             ${valueFormatter(item.total)}
                           </p>
                         </div>
@@ -227,6 +227,9 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showTooltip={true}
                       showAnimation={false}
                       showXAxis={true}
+                      customTooltip={undefined}
+                      startEndOnly={false}
+                      tickGap={5}
                     />
                     <BarChart
                       data={tab.data}
