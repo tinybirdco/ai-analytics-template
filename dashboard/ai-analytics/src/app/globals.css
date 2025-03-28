@@ -168,3 +168,25 @@ body {
 .filter-input:disabled {
   opacity: 0.5;
 }
+
+.settings-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 8px;
+  
+  height: 48px;
+  
+  background: #353535;
+  
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.settings-button:hover {
+  background: rgba(53, 53, 53, 0.9);
+}
+
