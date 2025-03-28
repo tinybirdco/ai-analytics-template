@@ -151,7 +151,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   
   // Add $ sign to the value formatter for costs
   const costValueFormatter = (number: number) => 
-    `$${Intl.NumberFormat('us').format(number).toString()}`;
+    `$${valueFormatter(number)}`;
   
   return (
     <Card 
@@ -177,7 +177,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                   </Tab>
                 ))}
               </TabList>
-              <div className="hidden md:flex md:items-center p-4">
+              <div className="hidden md:flex md:items-center px-4">
                 <span
                   className="shrink-0 animate-pulse rounded-tremor-full bg-emerald-500/30 p-1"
                   aria-hidden={true}
@@ -203,7 +203,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                             )}
                             aria-hidden={true}
                           />
-                          <p className="text-[24px] leading-5 text-[#F4F4F4] font-semibold">
+                          <p className="text-[24px] leading-5 text-[#F4F4F4]" style={{ fontFamily: 'var(--font-family-mono)' }}>
                             ${valueFormatter(item.total)}
                           </p>
                         </div>
