@@ -273,22 +273,22 @@ export default function DataTable({
       {/* Content container with conditional blur */}
       <div className={`flex-1 overflow-auto min-h-0 transition-all duration-300 ${selectedMessage ? 'blur-sm' : ''}`}>
         <div className="min-w-[1024px]">
-          <Table className="font-['Roboto']">
-            <TableHead className="sticky top-0 bg-gray-900 z-10">
+          <Table className="font-['Roboto'] text-[#F4F4F4]">
+            <TableHead className="sticky top-0 z-10">
               <TableRow>
-                <TableHeaderCell>Timestamp</TableHeaderCell>
-                <TableHeaderCell>Model</TableHeaderCell>
-                <TableHeaderCell>Provider</TableHeaderCell>
-                <TableHeaderCell>Organization</TableHeaderCell>
-                <TableHeaderCell>Project</TableHeaderCell>
-                <TableHeaderCell>User</TableHeaderCell>
-                <TableHeaderCell>Prompt Tokens</TableHeaderCell>
-                <TableHeaderCell>Completion Tokens</TableHeaderCell>
-                <TableHeaderCell>Total Tokens</TableHeaderCell>
-                <TableHeaderCell>Duration (s)</TableHeaderCell>
-                <TableHeaderCell>Cost</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                {searchHighlight && <TableHeaderCell>Relevance</TableHeaderCell>}
+                <TableHeaderCell className="text-[#F4F4F4]">Timestamp</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Model</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Provider</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Organization</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Project</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">User</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Prompt Tokens</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Completion Tokens</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Total Tokens</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Duration (s)</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Cost</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Status</TableHeaderCell>
+                {searchHighlight && <TableHeaderCell className="text-[#F4F4F4]">Relevance</TableHeaderCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -297,7 +297,7 @@ export default function DataTable({
                   <TableRow 
                     key={idx}
                     onClick={() => handleRowClick(item)}
-                    className="cursor-pointer hover:bg-gray-800 transition-colors"
+                    className="cursor-pointer hover:bg-tremor-brand-emphasis dark:hover:bg-dark-tremor-brand-emphasis text-[#F4F4F4] transition-colors"
                   >
                     <TableCell>{format(new Date(item.timestamp), 'MMM d, yyyy HH:mm:ss')}</TableCell>
                     <TableCell>{item.model}</TableCell>

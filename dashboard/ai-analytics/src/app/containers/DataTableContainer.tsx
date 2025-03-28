@@ -68,13 +68,13 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
   
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-grow">
             <input
               type="text"
               placeholder="Search conversations semantically..."
-              className="w-full px-4 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#C6C6C6]"
+              className="w-full h-[48px] px-4 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#C6C6C6]"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />
