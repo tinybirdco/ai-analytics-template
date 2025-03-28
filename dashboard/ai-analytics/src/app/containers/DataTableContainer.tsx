@@ -74,7 +74,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
             <input
               type="text"
               placeholder="Search conversations semantically..."
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
             />

@@ -22,7 +22,7 @@ module.exports = {
           },
           background: {
             muted: '#131A2B', // custom
-            subtle: '#1f2937', // gray-800
+            subtle: '#353535',
             DEFAULT: '#0A0A0A',
             emphasis: '#353535',
           },
