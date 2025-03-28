@@ -204,7 +204,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
             </Tab>
           ))}
         </TabList>
-        <div className="mt-4">
+        <div>
           {isLoading ? (
             <div>Loading...</div>
           ) : error ? (

@@ -103,12 +103,12 @@ export default function CustomBarList({
   return (
     <>
       <Card 
-        className="h-full w-full rounded-lg shadow-none" 
+        className="h-full w-full rounded-lg shadow-none p-4" 
         style={{ boxShadow: 'none' }}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Cost Breakdown</h3>
-          <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
+          <h3 className="text-sm text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
+          <p className="text-tremor-metric">
             {valueFormatter(totalValue)}
           </p>
         </div>

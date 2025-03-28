@@ -23,6 +23,7 @@ import {
     chartType?: ChartType;
     title: string;
     value: string;
+    className?: string;
   }
 
   export default function SparkChart({ 
@@ -30,7 +31,8 @@ import {
     categories,
     chartType = 'line',
     title,
-    value
+    value,
+    className
   }: SparkChartProps) {
     const ChartComponent = {
       'stacked-bar': BarChart,
@@ -48,7 +50,7 @@ import {
     );
 
     return (
-      <Card className="h-full w-full rounded-none" style={{ boxShadow: 'none' }}>
+      <Card className={`h-full w-full rounded-none p-4 pb-5 ${className}`} style={{ boxShadow: 'none' }}>
         <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>
           {title}
         </p>

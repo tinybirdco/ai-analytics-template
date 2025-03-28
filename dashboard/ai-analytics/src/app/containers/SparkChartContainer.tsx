@@ -21,6 +21,7 @@ interface SparkChartContainerProps {
   chartType?: any;
   metric: 'avg_duration' | 'total_requests' | 'total_tokens';
   title: string;
+  className?: string;
 }
 
 export default function SparkChartContainer({ 
@@ -29,6 +30,7 @@ export default function SparkChartContainer({
   chartType = 'area',
   metric,
   title,
+  className
 }: SparkChartContainerProps) {
   if (isLoading) return <div>Loading...</div>;
 
@@ -66,6 +68,7 @@ export default function SparkChartContainer({
       title={title}
       value={formattedValue}
       chartType={chartType}
+      className={className}
     />
   );
 } 
