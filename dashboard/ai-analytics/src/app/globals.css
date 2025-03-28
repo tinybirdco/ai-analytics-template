@@ -190,10 +190,19 @@ body {
 }
 
 /* Tremor Tab styles override */
-[data-headlessui-state="selected"].tremor-Tab-selected {
+.tremor-TabList-root [aria-selected="true"],
+.tremor-TabList-root [data-headlessui-state*="selected"],
+.tremor-Tab-root[aria-selected="true"],
+.tremor-Tab-root[data-headlessui-state*="selected"] {
   background-color: #262626 !important;
   border-bottom: 2px solid #27F795 !important;
   color: #F4F4F4 !important;
+}
+
+/* Add this to ensure no other styles are overriding */
+.tremor-Tab-root[aria-selected="true"]::after,
+.tremor-Tab-root[data-headlessui-state*="selected"]::after {
+  display: none !important;
 }
 
 .tremor-Tab-root {
