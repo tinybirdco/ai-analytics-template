@@ -786,118 +786,112 @@ export default function CostPredictionModal({
 
                   {/* Parameters and chart */}
                 <div className="space-y-4 font-['Roboto']">
-                  {/* Collapsible header */}
-                  <button
-                    onClick={() => setShowDetails(!showDetails)}
-                    className={`w-full flex items-center justify-between text-gray-300 ${
-                      showDetails ? 'text-[var(--accent)]' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-2 pt-6 pb-2">
-                      {showDetails ? (
-                        <X className="h-4 w-4 text-[var(--accent)]" />
-                      ) : (
-                        <Info className="h-4 w-4" />
-                      )}
-                      <span className="text-sm">{showDetails ? 'Hide details' : 'Show details'}</span>
-                    </div>
-                  </button>
+                  {parameters && (
+                    <>
+                      {/* Collapsible header and parameters */}
+                      <button
+                        onClick={() => setShowDetails(!showDetails)}
+                        className={`w-full flex items-center justify-between text-gray-300 ${
+                          showDetails ? 'text-[var(--accent)]' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 pt-6 pb-2">
+                          {showDetails ? (
+                            <X className="h-4 w-4 text-[var(--accent)]" />
+                          ) : (
+                            <Info className="h-4 w-4" />
+                          )}
+                          <span className="text-sm">{showDetails ? 'Hide details' : 'Show details'}</span>
+                        </div>
+                      </button>
 
-                  {/* Collapsible content */}
-                  {showDetails && (
-                    <div className="py-8">
-                      {/* Parameters */}
-                      {parameters && (
-                        <div className="p-4">
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
-                            <div className="text-xl font-semibold text-white">
-                              {summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
+                      {/* Parameters (collapsible) */}
+                      {showDetails && (
+                        <div>
+                          <div className="p-4">
+                            <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                              <div className="text-gray-400">Model</div>
+                              <div className="text-white">{parameters.model || 'Current models'}</div>
+                              
+                              <div className="text-gray-400">Prompt Token Cost</div>
+                              <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
+                              
+                              <div className="text-gray-400">Completion Token Cost</div>
+                              <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
+                              
+                              {parameters.discount > 0 && (
+                                <>
+                                  <div className="text-gray-400">Discount</div>
+                                  <div className="text-white">{parameters.discount}%</div>
+                                </>
+                              )}
+                              
+                              {parameters.volumeChange !== 0 && (
+                                <>
+                                  <div className="text-gray-400">Volume Change</div>
+                                  <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
+                                </>
+                              )}
+                              
+                              <div className="text-gray-400">Time Period</div>
+                              <div className="text-white">{parameters.timeframe}</div>
+                              
+                              <div className="text-gray-400">Date Range</div>
+                              <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
+                              
+                              {parameters.group_by && (
+                                <>
+                                  <div className="text-gray-400">Grouped By</div>
+                                  <div className="text-white">{parameters.group_by}</div>
+                                </>
+                              )}
+                              
+                              {/* Display filter parameters if specified */}
+                              {parameters.organization && (
+                                <>
+                                  <div className="text-gray-400">Organization</div>
+                                  <div className="text-white">{parameters.organization}</div>
+                                </>
+                              )}
+                              
+                              {parameters.project && (
+                                <>
+                                  <div className="text-gray-400">Project</div>
+                                  <div className="text-white">{parameters.project}</div>
+                                </>
+                              )}
+                              
+                              {parameters.environment && (
+                                <>
+                                  <div className="text-gray-400">Environment</div>
+                                  <div className="text-white">{parameters.environment}</div>
+                                </>
+                              )}
+                              
+                              {parameters.provider && (
+                                <>
+                                  <div className="text-gray-400">Provider</div>
+                                  <div className="text-white">{parameters.provider}</div>
+                                </>
+                              )}
+                              
+                              {parameters.user && (
+                                <>
+                                  <div className="text-gray-400">User</div>
+                                  <div className="text-white">{parameters.user}</div>
+                                </>
+                              )}
                             </div>
-                          </div>
-                          <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
-                          <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                            <div className="text-gray-400">Model</div>
-                            <div className="text-white">{parameters.model || 'Current models'}</div>
-                            
-                            <div className="text-gray-400">Prompt Token Cost</div>
-                            <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
-                            
-                            <div className="text-gray-400">Completion Token Cost</div>
-                            <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
-                            
-                            {parameters.discount > 0 && (
-                              <>
-                                <div className="text-gray-400">Discount</div>
-                                <div className="text-white">{parameters.discount}%</div>
-                              </>
-                            )}
-                            
-                            {parameters.volumeChange !== 0 && (
-                              <>
-                                <div className="text-gray-400">Volume Change</div>
-                                <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
-                              </>
-                            )}
-                            
-                            <div className="text-gray-400">Time Period</div>
-                            <div className="text-white">{parameters.timeframe}</div>
-                            
-                            <div className="text-gray-400">Date Range</div>
-                            <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
-                            
-                            {parameters.group_by && (
-                              <>
-                                <div className="text-gray-400">Grouped By</div>
-                                <div className="text-white">{parameters.group_by}</div>
-                              </>
-                            )}
-                            
-                            {/* Display filter parameters if specified */}
-                            {parameters.organization && (
-                              <>
-                                <div className="text-gray-400">Organization</div>
-                                <div className="text-white">{parameters.organization}</div>
-                              </>
-                            )}
-                            
-                            {parameters.project && (
-                              <>
-                                <div className="text-gray-400">Project</div>
-                                <div className="text-white">{parameters.project}</div>
-                              </>
-                            )}
-                            
-                            {parameters.environment && (
-                              <>
-                                <div className="text-gray-400">Environment</div>
-                                <div className="text-white">{parameters.environment}</div>
-                              </>
-                            )}
-                            
-                            {parameters.provider && (
-                              <>
-                                <div className="text-gray-400">Provider</div>
-                                <div className="text-white">{parameters.provider}</div>
-                              </>
-                            )}
-                            
-                            {parameters.user && (
-                              <>
-                                <div className="text-gray-400">User</div>
-                                <div className="text-white">{parameters.user}</div>
-                              </>
-                            )}
                           </div>
                         </div>
                       )}
-                      
-                      {/* Chart */}
+
+                      {/* Chart (always visible when parameters exist) */}
                       {dailyCosts.length > 0 && (
                         <div className="mt-4">
-                          <h3 className="text-lg font-medium text-gray-300 mb-2">
-                            {isPredictionQuery ? 'Cost Prediction' : 'Cost Analysis'}
-                          </h3>
+                          <h2 className="text-tremor-metric">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
+                          </h2>
                           
                           {isPredictionQuery ? (
                             // Dual area chart for predictions
@@ -997,7 +991,7 @@ export default function CostPredictionModal({
                           )}
                         </div>
                       )}
-                    </div>
+                    </>
                   )}
                 </div>
                   
