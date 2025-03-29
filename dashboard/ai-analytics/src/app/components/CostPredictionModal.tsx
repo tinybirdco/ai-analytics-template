@@ -782,56 +782,12 @@ export default function CostPredictionModal({
                       </div>
                     )}
                   </div>
-                  
-                  <div className="-mx-4 pt-4"> {/* Negative margins to counter parent padding */}
-                    <button
-                      type="submit"
-                      disabled={isLoading || !query.trim()}
-                      className={`w-full py-4 transition-colors ${
-                        isLoading || !query.trim()
-                          ? 'bg-[var(--accent)] button-font cursor-not-allowed'
-                          : 'bg-[var(--accent)] button-font text-white hover:bg-[var(--accent)]'
-                      }`}
-                    >
-                      {isLoading ? 'Calculating...' : 'Calculate Cost'}
-                    </button>
-                  </div>
-                </form>
-                
-                {/* Results section */}
-                {summary && (
-                  <div className="mt-6 space-y-4">
-                    {/* Summary cards */}
-                    {/* <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">Current Cost</div>
-                      <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
-                    </div> */}
-                    
-                    {/* <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
-                      <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
-                    </div> */}
-                    
-                    {/* <div className={`rounded-lg p-4 ${
-                      summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
-                    }`}>
-                      <div className="text-sm text-gray-300 mb-1">Difference</div>
-                      <div className="text-xl font-semibold text-white">
-                        {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
-                      </div>
-                      <div className="text-sm text-gray-300">
-                        {summary.difference > 0 ? '+' : ''}
-                        {summary.percentChange.toFixed(1)}%
-                      </div>
-                    </div> */}
-                  </div>
-                )}
-                
-                {/* Parameters and chart */}
-                <div className="space-y-4">
+
+                  {/* Parameters and chart */}
+                <div className="space-y-4 font-['Roboto']">
                   {/* Parameters */}
                   {parameters && (
-                    <div className="bg-gray-800 rounded-lg p-4">
+                    <div className="p-4">
                       <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
                         <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
                         <div className="text-xl font-semibold text-white">
@@ -1021,6 +977,50 @@ export default function CostPredictionModal({
                     </div>
                   )}
                 </div>
+                  
+                  <div className="-mx-4 pt-4"> {/* Negative margins to counter parent padding */}
+                    <button
+                      type="submit"
+                      disabled={isLoading || !query.trim()}
+                      className={`w-full py-4 transition-colors ${
+                        isLoading || !query.trim()
+                          ? 'bg-[var(--accent)] button-font cursor-not-allowed'
+                          : 'bg-[var(--accent)] button-font text-white hover:bg-[var(--accent)]'
+                      }`}
+                    >
+                      {isLoading ? 'Calculating...' : 'Calculate Cost'}
+                    </button>
+                  </div>
+                </form>
+                
+                {/* Results section */}
+                {summary && (
+                  <div className="mt-6 space-y-4">
+                    {/* Summary cards */}
+                    {/* <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-1">Current Cost</div>
+                      <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
+                    </div> */}
+                    
+                    {/* <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
+                      <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
+                    </div> */}
+                    
+                    {/* <div className={`rounded-lg p-4 ${
+                      summary.difference > 0 ? 'bg-red-900/50' : 'bg-green-900/50'
+                    }`}>
+                      <div className="text-sm text-gray-300 mb-1">Difference</div>
+                      <div className="text-xl font-semibold text-white">
+                        {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
+                      </div>
+                      <div className="text-sm text-gray-300">
+                        {summary.difference > 0 ? '+' : ''}
+                        {summary.percentChange.toFixed(1)}%
+                      </div>
+                    </div> */}
+                  </div>
+                )}
               </div>
             </div>
           </div>
