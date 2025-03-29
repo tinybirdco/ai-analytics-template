@@ -8,6 +8,7 @@
   --background: #0a0a0a;
   --foreground: #ededed;
   --text-color: #F4F4F4;
+  --text-color-secondary: #C6C6C6;
   --accent: #27F795;
   --main-button-text-color: var(--background);
   
@@ -20,11 +21,13 @@
   --font-family-base: 'Roboto', sans-serif;
   --font-family-mono: 'Roboto Mono', monospace;
   --font-weight-normal: 400;
+  --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-base: 16px;
   --font-size-title: 24px;
   --line-height-sm: 20px;
   --line-height-base: 24px;
+  --line-height-xs: 16px;
   --letter-spacing: 0.16px;
 }
 
@@ -55,6 +58,12 @@ body {
   line-height: var(--line-height-sm);
 }
 
+.small-font {
+  font-family: var(--font-family-base);
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+}
 /* Component Styles - keeping original implementation */
 .ai-calculator-button {
   /* Auto layout */

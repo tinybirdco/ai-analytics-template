@@ -706,7 +706,7 @@ export default function CostPredictionModal({
         <>
           {/* Modal backdrop - updated to use the memoized handler */}
           <div 
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 font-['Roboto']"
             onClick={handleBackdropClick}
           />
           
@@ -716,20 +716,19 @@ export default function CostPredictionModal({
             onClick={handleBackdropClick} // Also handle clicks on the container outside the modal
           >
             <div 
-              className="bg-gray-900 rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col"
+              className="bg-[#262626] w-full max-w-3xl max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()} // Prevent clicks on the modal itself from closing it
             >
               {/* Modal header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <div className="flex items-center justify-between p-4 pb-0">
                 <div className="flex items-center space-x-2">
-                  <Calculator className="h-5 w-5 text-blue-400" />
-                  <h2 className="text-lg font-medium text-white">Cost Calculator</h2>
+                  <h2 className="title-font">Cost Calculator</h2>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="settings-button"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4 text-white" />
                 </button>
               </div>
               
@@ -737,27 +736,29 @@ export default function CostPredictionModal({
               <div className="p-4 overflow-y-auto flex-grow">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <Sparkles className="h-4 w-4 text-blue-400" />
-                    </div>
                     <input
-                      ref={inputRef}
                       type="text"
+                      placeholder="Ask AI..."
+                      className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#C6C6C6]"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Ask about cost calculations..."
-                      className="w-full bg-gray-800 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
+                    <button
+                      type="submit"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white"
+                    >
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </button>
                   </div>
                   
                   {/* Examples dropdown */}
-                  <div className="bg-gray-800/50 rounded-lg">
+                  <div className="bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle ">
                     <button
                       type="button"
                       onClick={() => setShowExamples(!showExamples)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:text-white"
+                      className="w-full flex items-center justify-between px-4 py-2 pt-4 text-sm text-gray-300 hover:text-white"
                     >
-                      <span>Example queries</span>
+                      <span className="small-font">Example queries</span>
                       {showExamples ? (
                         <ChevronUp className="h-4 w-4" />
                       ) : (
@@ -766,27 +767,15 @@ export default function CostPredictionModal({
                     </button>
                     
                     {showExamples && (
-                      <div className="px-4 pb-3 space-y-2">
+                      <div className="px-4 pb-4 space-y-2">
                         {exampleQueries.map((example, index) => (
                           <div key={index} className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => handleExampleClick(example)}
-                              className="flex-grow text-left text-sm text-blue-400 hover:text-blue-300 truncate"
+                              className="flex-grow text-left default-font hover:text-[var(--accent)] truncate"
                             >
                               {example}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => copyExample(index, example)}
-                              className="flex-shrink-0 text-gray-400 hover:text-white"
-                              title="Copy to clipboard"
-                            >
-                              {copiedExample === index ? (
-                                <Check className="h-4 w-4 text-green-400" />
-                              ) : (
-                                <Copy className="h-4 w-4" />
-                              )}
                             </button>
                           </div>
                         ))}
@@ -797,7 +786,7 @@ export default function CostPredictionModal({
                   <button
                     type="submit"
                     disabled={isLoading || !query.trim()}
-                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
+                    className={`w-full py-2 px-4 font-medium transition-colors ${
                       isLoading || !query.trim()
                         ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
                         : 'bg-blue-600 text-white hover:bg-blue-700'
