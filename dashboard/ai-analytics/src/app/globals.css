@@ -64,6 +64,13 @@ body {
   font-size: var(--font-size-xs);
   line-height: var(--line-height-xs);
 }
+
+.button-font {
+  font-family: var(--font-family-base);
+  color: var(--background);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
+}
 /* Component Styles - keeping original implementation */
 .ai-calculator-button {
   /* Auto layout */

@@ -68,7 +68,7 @@ export default function CostPredictionModal({
     percentChange: number;
   } | null>(null);
   const [copiedExample, setCopiedExample] = useState<number | null>(null);
-  const [showExamples, setShowExamples] = useState(false);
+  const [showExamples, setShowExamples] = useState(true);
 //   const [usageData, setUsageData] = useState<UsageDataItem[]>([]);
 //   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
   const [chartCategories, setChartCategories] = useState<string[]>(['actualCost', 'predictedCost']);
@@ -733,7 +733,7 @@ export default function CostPredictionModal({
               </div>
               
               {/* Modal content */}
-              <div className="p-4 overflow-y-auto flex-grow">
+              <div className="p-4 overflow-y-auto flex-grow pb-0">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="relative">
                     <input
@@ -745,14 +745,14 @@ export default function CostPredictionModal({
                     />
                     <button
                       type="submit"
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white pr-4"
                     >
                       <Sparkles className="h-4 w-4 text-white" />
                     </button>
                   </div>
                   
                   {/* Examples dropdown */}
-                  <div className="bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle ">
+                  <div className="bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle pb-2">
                     <button
                       type="button"
                       onClick={() => setShowExamples(!showExamples)}
@@ -783,17 +783,19 @@ export default function CostPredictionModal({
                     )}
                   </div>
                   
-                  <button
-                    type="submit"
-                    disabled={isLoading || !query.trim()}
-                    className={`w-full py-2 px-4 font-medium transition-colors ${
-                      isLoading || !query.trim()
-                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
-                  >
-                    {isLoading ? 'Calculating...' : 'Calculate Cost'}
-                  </button>
+                  <div className="-mx-4 pt-4"> {/* Negative margins to counter parent padding */}
+                    <button
+                      type="submit"
+                      disabled={isLoading || !query.trim()}
+                      className={`w-full py-4 transition-colors ${
+                        isLoading || !query.trim()
+                          ? 'bg-[var(--accent)] button-font cursor-not-allowed'
+                          : 'bg-[var(--accent)] button-font text-white hover:bg-[var(--accent)]'
+                      }`}
+                    >
+                      {isLoading ? 'Calculating...' : 'Calculate Cost'}
+                    </button>
+                  </div>
                 </form>
                 
                 {/* Results section */}
