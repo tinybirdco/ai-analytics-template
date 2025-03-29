@@ -262,3 +262,12 @@ body {
   background: transparent !important;
 }
 
+::selection {
+  background-color: var(--accent); /* Your accent color */
+  color: var(--background);
+}
+
+::-moz-selection {
+  background-color: var(--accent); /* Your accent color */
+  color: var(--background);
+}
