@@ -107,50 +107,57 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-1/3 bg-gray-800 shadow-xl z-50 overflow-auto transition-transform duration-300 transform translate-x-0">
-      <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-white">Conversation Details</h2>
+    <div className="fixed inset-y-0 right-0 w-1/3 bg-[#262626] z-50 overflow-auto transition-transform duration-300 transform translate-x-0 font-['Roboto']">
+      <div className="p-4 flex justify-between items-center sticky top-0 bg-[#262626] z-10">
+        <h2 className="title-font">Conversation Details</h2>
         <button 
           onClick={onClose}
-          className="p-1 rounded-full hover:bg-gray-700 transition-colors"
+          className="settings-button"
         >
-          <X className="h-6 w-6 text-gray-400" />
+          <X className="h-4 w-4 text-white" />
         </button>
       </div>
       
-      <div className="p-4">
-        <div className="mb-6 bg-gray-900 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-white mb-2">Message Info</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="text-gray-400">Model</div>
-            <div className="text-white">{message.model}</div>
+      <div className="p-4 space-y-4 default-font">
+          <div>Message Info</div>
+          <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
+            <div className=" text-left truncate">Model</div>
+            <div className=" text-right truncate">{message.model}</div>
             
-            <div className="text-gray-400">Provider</div>
-            <div className="text-white">{message.provider}</div>
+            <div className=" text-left truncate">Provider</div>
+            <div className=" text-right truncate">{message.provider}</div>
             
-            <div className="text-gray-400">Organization</div>
-            <div className="text-white">{message.organization}</div>
+            <div className=" text-left truncate">Organization</div>
+            <div className=" text-right truncate">{message.organization}</div>
             
-            <div className="text-gray-400">Project</div>
-            <div className="text-white">{message.project}</div>
+            <div className=" text-left truncate">Project</div>
+            <div className=" text-right truncate">{message.project}</div>
             
-            <div className="text-gray-400">User</div>
-            <div className="text-white">{message.user}</div>
+            <div className=" text-left truncate">User</div>
+            <div className=" text-right truncate">{message.user}</div>
             
-            <div className="text-gray-400">Timestamp</div>
-            <div className="text-white">{format(new Date(message.timestamp), 'MMM d, yyyy HH:mm:ss')}</div>
+            <div className=" text-left truncate">Timestamp</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {format(new Date(message.timestamp), 'MMM d, yyyy HH:mm:ss')}
+            </div>
             
-            <div className="text-gray-400">Total Tokens</div>
-            <div className="text-white">{message.total_tokens.toLocaleString()}</div>
+            <div className=" text-left truncate">Total Tokens</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.total_tokens.toLocaleString()}
+            </div>
             
-            <div className="text-gray-400">Duration</div>
-            <div className="text-white">{message.duration.toFixed(2)}s</div>
+            <div className=" text-left truncate">Duration</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.duration.toFixed(2)}s
+            </div>
             
-            <div className="text-gray-400">Cost</div>
-            <div className="text-white">${message.cost.toFixed(4)}</div>
+            <div className=" text-left truncate">Cost</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              ${message.cost.toFixed(4)}
+            </div>
             
-            <div className="text-gray-400">Status</div>
-            <div className="text-white">
+            <div className=" text-left truncate">Status</div>
+            <div className=" text-right">
               <span className={`px-2 py-1 rounded-full text-xs ${
                 message.response_status === 'success' 
                   ? 'bg-green-100 text-green-800' 
@@ -160,86 +167,75 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
               </span>
             </div>
             
-            {/* Add similarity score when available */}
             {message.similarity !== undefined && (
               <>
-                <div className="text-gray-400">Similarity</div>
-                <div className="text-white">
-                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                <div className=" text-left truncate">Similarity</div>
+                <div className=" text-right">
+                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-['Roboto_Mono']">
                     {(message.similarity * 100).toFixed(0)}%
                   </span>
                 </div>
               </>
             )}
           </div>
-        </div>
         
-        <h3 className="text-lg font-medium text-white mb-2">Conversation</h3>
-        
-        {isLoading ? (
-          <div className="text-center py-4 text-gray-400">Loading conversation...</div>
-        ) : (
-          <div className="space-y-4">
-            {chatData?.data && chatData.data.length > 0 ? (
-              chatData.data.map((msg: LLMMessage, idx: number) => {
-                const messages = parseMessages(msg);
-                
-                // If we have structured messages, render those
-                if (messages && messages.length > 0) {
-                  return (
-                    <div key={idx} className="space-y-2">
-                      {messages.map((chatMsg: { role: string; content: string }, msgIdx: number) => (
-                        <div key={`${idx}-${msgIdx}`} className={`rounded-lg p-3 text-white ${
-                          chatMsg.role === 'user' ? 'bg-gray-700' : 
-                          chatMsg.role === 'assistant' ? 'bg-blue-900' : 
-                          'bg-purple-900'
-                        }`}>
-                          <div className="text-xs text-gray-400 mb-1 capitalize">{chatMsg.role}</div>
-                          <div className="whitespace-pre-wrap">{chatMsg.content}</div>
-                        </div>
-                      ))}
-                      
-                      {/* Show alternative responses if available */}
-                      {msg.response_status === 'success' && (
-                        <>
-                          {parseResponseChoices(msg).length > 1 && (
-                            <div className="mt-4">
-                              <div className="text-sm text-gray-400 mb-2">Alternative Responses:</div>
-                              <div className="space-y-2">
-                                {parseResponseChoices(msg).slice(1).map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
-                                  <div key={`choice-${choiceIdx}`} className="bg-gray-700 rounded-lg p-3 text-white opacity-75">
-                                    <div className="text-xs text-gray-400 mb-1">Alternative {choiceIdx + 1}</div>
-                                    <div className="whitespace-pre-wrap">
-                                      {choice.message?.content || choice.content || JSON.stringify(choice)}
-                                    </div>
+        <div className="pt-12">
+          <h2 className="title-font pb-6">Conversation</h2>
+          
+          {isLoading ? (
+            <div className="text-center py-8 ">Loading conversation...</div>
+          ) : (
+            <div className="space-y-4">
+              {chatData?.data && chatData.data.length > 0 ? (
+                chatData.data.map((msg: LLMMessage, idx: number) => {
+                  const messages = parseMessages(msg);
+                  
+                  if (messages && messages.length > 0) {
+                    return (
+                      <div key={idx} className="space-y-3">
+                        {messages.map((chatMsg: { role: string; content: string }, msgIdx: number) => (
+                          <div key={`${idx}-${msgIdx}`}>
+                            <div className="text-xs  mb-1.5 capitalize">{chatMsg.role}</div>
+                            <div className=" whitespace-pre-wrap">{chatMsg.content}</div>
+                          </div>
+                        ))}
+                        
+                        {msg.response_status === 'success' && parseResponseChoices(msg).length > 1 && (
+                          <div className="mt-4 space-y-3">
+                            <div className="text-sm ">Alternative Responses:</div>
+                            <div className="space-y-3">
+                              {parseResponseChoices(msg).slice(1).map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
+                                <div key={`choice-${choiceIdx}`} className="bg-gray-700 rounded-lg p-3">
+                                  <div className="text-xs  mb-1.5">Alternative {choiceIdx + 1}</div>
+                                  <div className=" whitespace-pre-wrap">
+                                    {choice.message?.content || choice.content || JSON.stringify(choice)}
                                   </div>
-                                ))}
-                              </div>
+                                </div>
+                              ))}
                             </div>
-                          )}
-                        </>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div key={idx}>
+                      {msg.response_status !== 'success' && msg.exception && (
+                        <div className="bg-red-900 rounded-lg p-3">
+                          <div className="text-xs text-red-400 mb-1.5">Error</div>
+                          <div className="text-red-200 whitespace-pre-wrap">{msg.exception}</div>
+                        </div>
                       )}
                     </div>
                   );
-                }
-                
-                // Fallback
-                return (
-                  <div key={idx} className="space-y-2">
-                    {msg.response_status !== 'success' && msg.exception && (
-                      <div className="bg-red-900 rounded-lg p-3 text-white">
-                        <div className="text-xs text-gray-400 mb-1">Error</div>
-                        <div className="whitespace-pre-wrap">{msg.exception}</div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-center py-4 text-gray-400">No conversation data available</div>
-            )}
-          </div>
-        )}
+                })
+              ) : (
+                <div className="text-center py-8 ">No conversation data available</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

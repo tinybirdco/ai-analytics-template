@@ -7,6 +7,7 @@
   /* Colors */
   --background: #0a0a0a;
   --foreground: #ededed;
+  --text-color: #F4F4F4;
   --accent: #27F795;
   --main-button-text-color: var(--background);
   
@@ -21,6 +22,7 @@
   --font-weight-normal: 400;
   --font-size-sm: 14px;
   --font-size-base: 16px;
+  --font-size-title: 24px;
   --line-height-sm: 20px;
   --line-height-base: 24px;
   --letter-spacing: 0.16px;
@@ -37,6 +39,20 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.title-font {
+  font-family: var(--font-family-base);
+  color: var(--text-color);
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-sm);
+}
+
+.default-font {
+  font-family: var(--font-family-base);
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
 }
 
 /* Component Styles - keeping original implementation */
