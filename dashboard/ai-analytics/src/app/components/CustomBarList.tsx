@@ -165,12 +165,25 @@ export default function CustomBarList({
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      // The search is already handled by the filteredItems logic
+                      // No need for additional action
+                    }
+                  }}
                   placeholder="Search items..."
                   className="w-full h-[48px] px-4 pr-12 py-2 bg-[#353535] focus:outline-none focus:ring-1 focus:ring-white placeholder:text-[#8D8D8D] text-[#F4F4F4] placeholder:text-sm font-['Roboto']"
                 />
-                <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                  <RiSearchLine className="h-4 w-4 text-[#C6C6C6]" />
-                </div>
+                <button 
+                  onClick={() => {
+                    // The search is already handled by the filteredItems logic
+                    // No need for additional action
+                  }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#C6C6C6] hover:text-white transition-colors"
+                >
+                  <RiSearchLine className="h-4 w-4" />
+                </button>
               </div>
 
               <div className="mt-4 h-[400px] overflow-y-auto">
