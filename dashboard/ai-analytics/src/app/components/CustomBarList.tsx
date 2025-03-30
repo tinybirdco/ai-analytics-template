@@ -150,6 +150,13 @@ export default function CustomBarList({
                 className="rounded-md"
                 value={searchQuery}
                 onValueChange={setSearchQuery}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    // The search is already handled by the filteredItems logic
+                    // No need for additional action
+                  }
+                }}
               />
             </div>
             

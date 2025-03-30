@@ -76,6 +76,12 @@ export default function ApiKeyInput({ isOpen, onClose }: ApiKeyInputProps) {
                   type="password"
                   value={inputKey}
                   onChange={(e) => setInputKey(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && inputKey.trim()) {
+                      e.preventDefault();
+                      handleSave();
+                    }
+                  }}
                   placeholder="Introduce your OpenAI API Key"
                   className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-[#C6C6C6] text-[#F4F4F4] placeholder:text-sm font-['Roboto']"
                 />
