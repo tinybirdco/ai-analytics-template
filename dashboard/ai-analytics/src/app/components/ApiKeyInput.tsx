@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
-import { X, ArrowRight } from 'lucide-react';
+import { X, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
 export default function ApiKeyInput() {
   const { openaiKey, setOpenaiKey, clearOpenaiKey } = useApiKeyStore();
@@ -33,23 +33,34 @@ export default function ApiKeyInput() {
         <div className="p-4 pt-8 pb-0">
           {openaiKey ? (
             <div>
-              <div className="flex items-center mb-2">
-                <span className="text-sm text-[#C6C6C6]">
-                  {isVisible ? openaiKey : '••••••••••••••••••••••' + openaiKey.slice(-5)}
-                </span>
-                <button 
-                  onClick={() => setIsVisible(!isVisible)} 
-                  className="ml-2 text-xs text-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+              <div className="relative w-full mb-8">
+                <input
+                  type={isVisible ? "text" : "password"}
+                  value={openaiKey}
+                  readOnly
+                  className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white text-[#F4F4F4] text-sm font-['Roboto']"
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <button 
+                    onClick={() => setIsVisible(!isVisible)}
+                    className="text-[#C6C6C6] hover:text-white transition-colors"
+                  >
+                    {isVisible ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+              </div>
+              <div className="-mx-4">
+                <button
+                  onClick={clearOpenaiKey}
+                  className="w-full py-4 transition-colors button-font bg-[var(--accent)] hover:bg-[var(--accent)]"
                 >
-                  {isVisible ? 'Hide' : 'Show'}
+                  Remove Key
                 </button>
               </div>
-              <button
-                onClick={clearOpenaiKey}
-                className="text-sm text-red-500 hover:text-red-400 transition-colors"
-              >
-                Remove Key
-              </button>
             </div>
           ) : (
             <div>
