@@ -288,7 +288,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[288px] p-0 bg-[#353535] default-font border-0 rounded-none" align="start" sideOffset={22} alignOffset={-16}>
-            <div className="py-2">
+            <div>
               <Calendar
                 mode="range"
                 selected={{
