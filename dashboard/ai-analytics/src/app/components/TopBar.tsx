@@ -1,12 +1,11 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SignInButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { CalculatorIcon, FilterIcon, SettingsIcon, SignInIcon } from './icons';
+import { FilterIcon, SettingsIcon, SignInIcon } from './icons';
 import { useModal } from '../context/ModalContext';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
@@ -28,7 +27,6 @@ interface TopBarProps {
 export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { orgName } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { openCostPrediction } = useModal();
@@ -154,6 +152,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               {isLoading ? (
                 <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
               ) : (
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 <button type="submit" onClick={() => handleSearch({ key: 'Enter' } as any)}>
                   <Sparkles className="h-4 w-4" />
                 </button>

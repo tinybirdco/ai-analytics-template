@@ -9,9 +9,6 @@ import { CalendarIcon } from './icons';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 interface DateRangeOption {
   label: string;
@@ -50,10 +47,6 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   
   // Track if we've already initialized from URL
   const initializedRef = useRef(false);
-
-  // Generate hours and minutes for dropdowns
-  const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')), []);
-  const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')), []);
 
   // Predefined date ranges - memoize to prevent recreation
   const dateRangeOptions = useMemo<DateRangeOption[]>(() => [
@@ -252,17 +245,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     setSelectedRange(`${format(start, 'MMM d')} - ${format(end, 'MMM d')}`);
     setIsPredefinedRange(false);
     
-    // Don't close the calendar or update URL params yet
-    // Wait for the Apply button to be clicked
   }, []);
-
-  // Handle time change - memoize to prevent recreation
-  const handleTimeChange = useCallback(() => {
-    if (!dateRange.start || !dateRange.end) return;
-    
-    updateUrlParams(dateRange.start, dateRange.end);
-    setCalendarOpen(false); // Only close the calendar when Apply is clicked
-  }, [dateRange, updateUrlParams]);
 
   // Memoize the open/close handlers to prevent recreation
   const handleRangePopoverOpenChange = useCallback((open: boolean) => {

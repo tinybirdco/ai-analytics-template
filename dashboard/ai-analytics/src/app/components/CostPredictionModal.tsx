@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp, Info } from 'lucide-react';
+import { X, Sparkles, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { fetchLLMUsage } from '@/services/tinybird';
@@ -67,7 +67,6 @@ export default function CostPredictionModal({
     difference: number;
     percentChange: number;
   } | null>(null);
-  const [copiedExample, setCopiedExample] = useState<number | null>(null);
   const [showExamples, setShowExamples] = useState(true);
 //   const [usageData, setUsageData] = useState<UsageDataItem[]>([]);
 //   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
@@ -319,12 +318,6 @@ export default function CostPredictionModal({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  };
-
-  const copyExample = (index: number, example: string) => {
-    navigator.clipboard.writeText(example);
-    setCopiedExample(index);
-    setTimeout(() => setCopiedExample(null), 2000);
   };
 
   const calculateCosts = (usageData: UsageDataItem[], params: CostParameters) => {

@@ -1,12 +1,11 @@
 import { headers } from 'next/headers';
-import { Inter, Roboto, Roboto_Mono } from "next/font/google";
+import { Roboto, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { TinybirdProvider } from '@/providers/TinybirdProvider';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ModalProvider } from './context/ModalContext';
 import { RootLayoutContent } from './components/RootLayoutContent';
 
-const inter = Inter({ subsets: ["latin"] });
 const roboto = Roboto({
   weight: ['400'],
   subsets: ['latin'],
