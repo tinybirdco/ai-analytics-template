@@ -56,7 +56,7 @@ export default function ApiKeyInput() {
               <div className="-mx-4">
                 <button
                   onClick={clearOpenaiKey}
-                  className="w-full py-4 transition-colors button-font bg-[var(--accent)] hover:bg-[var(--accent)]"
+                  className="w-full py-4 transition-colors button-font bg-[var(--accent)] hover:bg-[var(--hover-accent)] hover:text-white"
                 >
                   Remove Key
                 </button>
@@ -76,7 +76,7 @@ export default function ApiKeyInput() {
                   <button 
                     onClick={handleSave}
                     disabled={!inputKey.trim()}
-                    className="text-[#C6C6C6] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="text-[#C6C6C6] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--hover-accent)]"
                   >
                     <ArrowRight className="h-4 w-4" />
                   </button>
@@ -97,7 +97,7 @@ export default function ApiKeyInput() {
                 className={`w-full py-4 transition-colors button-font ${
                   !inputKey.trim()
                     ? 'bg-[var(--accent)] opacity-50 cursor-not-allowed'
-                    : 'bg-[var(--accent)] hover:bg-[var(--accent)]'
+                    : 'bg-[var(--accent)] hover:bg-[var(--hover-accent)] hover:text-white'
                 }`}
               >
                 Save

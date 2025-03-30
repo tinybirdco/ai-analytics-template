@@ -1002,7 +1002,7 @@ export default function CostPredictionModal({
                       className={`w-full py-4 transition-colors ${
                         isLoading || !query.trim()
                           ? 'bg-[var(--accent)] button-font cursor-not-allowed'
-                          : 'bg-[var(--accent)] button-font text-white hover:bg-[var(--accent)]'
+                          : 'bg-[var(--accent)] button-font text-white hover:bg-[var(--hover-accent)] hover:text-white'
                       }`}
                     >
                       {isLoading ? 'Calculating...' : 'Calculate Cost'}

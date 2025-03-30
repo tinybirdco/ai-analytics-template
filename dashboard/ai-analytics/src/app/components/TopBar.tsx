@@ -132,12 +132,12 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={openCostPrediction}
-            className="ai-calculator-button"
+            className="ai-calculator-button hover:bg-[var(--hover-accent)] hover:text-white group"
           >
             <span className="font-roboto text-base font-normal">
               AI Cost Calculator
             </span>
-            <FilterIcon fill="#0a0a0a" />
+            <FilterIcon fill="currentColor" />
           </button>
           <div className="relative w-[288px]">
             <input
