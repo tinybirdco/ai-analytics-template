@@ -18,9 +18,9 @@ export default function ApiKeyInput() {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" />
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm" />
       
-      <div className="bg-[#262626] w-full max-w-md flex flex-col relative z-10">
+      <div style={{ width: '575px', minWidth: '575px' }} className="bg-[#262626] flex flex-col relative z-10">
         {/* Header */}
         <div className="flex items-center justify-between p-4 pb-0">
           <h2 className="title-font">Settings</h2>
@@ -69,7 +69,7 @@ export default function ApiKeyInput() {
                   type="password"
                   value={inputKey}
                   onChange={(e) => setInputKey(e.target.value)}
-                  placeholder="Introduce your Api Key"
+                  placeholder="Introduce your OpenAI API Key"
                   className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-[#C6C6C6] text-[#F4F4F4] placeholder:text-sm font-['Roboto']"
                 />
                 <div className="absolute right-4 top-1/2 -translate-y-1/2">

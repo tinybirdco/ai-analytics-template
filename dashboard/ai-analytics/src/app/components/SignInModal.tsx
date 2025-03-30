@@ -39,17 +39,18 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   return (
     <>
       <div 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50"
         onClick={onClose}
       />
       
       <div className="fixed inset-0 flex items-center justify-center z-50 p-4">
         <div 
+          style={{ width: '575px', minWidth: '575px' }} 
           className="bg-[#262626] w-full max-w-md flex flex-col relative"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-4 pb-0">
+          <div className="flex items-center justify-between p-4">
             <h2 className="title-font">Sign In to Tinybird AI Analytics</h2>
             <button 
               onClick={onClose}
@@ -60,27 +61,19 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
           </div>
 
           {/* Content */}
-          <div className="p-4 space-y-6">
+          <div className="p-4 space-y-8">
             {/* Sign In Buttons Row */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2">
               {/* Google Sign In */}
               <button
                 onClick={handleGoogleSignIn}
-                className="group flex items-center justify-center gap-2 py-4 px-6 bg-[#353535] hover:bg-[var(--accent)] transition-colors text-white border border-white"
+                className="group flex h-[48px] items-center justify-center gap-2 py-[14px] px-4 hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors text-white border border-white default-font"
               >
-                {/* Default Icon */}
-                <svg className="block group-hover:hidden" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13.5325 8.13815C13.5325 7.73028 13.5007 7.32021 13.433 6.91895H8V9.22941H11.1112C10.9821 9.97461 10.5673 10.6338 9.95987 11.0527V12.5519H11.816C12.906 11.5069 13.5325 9.96361 13.5325 8.13815Z" fill="#58554E"/>
-                  <path d="M7.99979 14.0007C9.55333 14.0007 10.8634 13.4693 11.818 12.5522L9.96177 11.053C9.44536 11.419 8.77867 11.6262 8.00197 11.6262C6.49925 11.6262 5.22511 10.5702 4.76795 9.15039H2.85254V10.6959C3.83035 12.7219 5.82196 14.0007 7.99979 14.0007Z" fill="#636679"/>
-                  <path d="M4.76625 9.15032C4.52498 8.40519 4.52498 7.59826 4.76625 6.85306V5.30762H2.85296C2.03599 7.00299 2.03599 9.00046 2.85296 10.6958L4.76625 9.15032Z" fill="white"/>
-                  <path d="M7.99979 4.37483C8.82104 4.3616 9.6147 4.68348 10.2095 5.27433L11.8539 3.5613C10.8126 2.54275 9.43057 1.98276 7.99979 2.0004C5.82196 2.0004 3.83035 3.27911 2.85254 5.3074L4.76584 6.85286C5.22088 5.43086 6.49713 4.37483 7.99979 4.37483Z" fill="#A8A8A8"/>
-                </svg>
-                {/* Hover Icon */}
-                <svg className="hidden group-hover:block" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M13.5325 8.13815C13.5325 7.73028 13.5007 7.32021 13.433 6.91895H8V9.22941H11.1112C10.9821 9.97461 10.5673 10.6338 9.95987 11.0527V12.5519H11.816C12.906 11.5069 13.5325 9.96361 13.5325 8.13815Z" fill="#1BA55B"/>
-                  <path d="M7.99979 14.0007C9.55333 14.0007 10.8634 13.4693 11.818 12.5522L9.96177 11.053C9.44536 11.419 8.77867 11.6262 8.00197 11.6262C6.49925 11.6262 5.22511 10.5702 4.76795 9.15039H2.85254V10.6959C3.83035 12.7219 5.82196 14.0007 7.99979 14.0007Z" fill="#1EC68D"/>
-                  <path d="M4.76625 9.15032C4.52498 8.40519 4.52498 7.59826 4.76625 6.85306V5.30762H2.85296C2.03599 7.00299 2.03599 9.00046 2.85296 10.6958L4.76625 9.15032Z" fill="#27F795"/>
-                  <path d="M7.99979 4.37483C8.82104 4.3616 9.6147 4.68348 10.2095 5.27433L11.8539 3.5613C10.8126 2.54275 9.43057 1.98276 7.99979 2.0004C5.82196 2.0004 3.83035 3.27911 2.85254 5.3074L4.76584 6.85286C5.22088 5.43086 6.49713 4.37483 7.99979 4.37483Z" fill="#6CFAB7"/>
+                <svg className="fill-current" width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M13.5325 8.13815C13.5325 7.73028 13.5007 7.32021 13.433 6.91895H8V9.22941H11.1112C10.9821 9.97461 10.5673 10.6338 9.95987 11.0527V12.5519H11.816C12.906 11.5069 13.5325 9.96361 13.5325 8.13815Z" fill="currentColor"/>
+                  <path d="M7.99979 14.0007C9.55333 14.0007 10.8634 13.4693 11.818 12.5522L9.96177 11.053C9.44536 11.419 8.77867 11.6262 8.00197 11.6262C6.49925 11.6262 5.22511 10.5702 4.76795 9.15039H2.85254V10.6959C3.83035 12.7219 5.82196 14.0007 7.99979 14.0007Z" fill="currentColor"/>
+                  <path d="M4.76625 9.15032C4.52498 8.40519 4.52498 7.59826 4.76625 6.85306V5.30762H2.85296C2.03599 7.00299 2.03599 9.00046 2.85296 10.6958L4.76625 9.15032Z" fill="currentColor"/>
+                  <path d="M7.99979 4.37483C8.82104 4.3616 9.6147 4.68348 10.2095 5.27433L11.8539 3.5613C10.8126 2.54275 9.43057 1.98276 7.99979 2.0004C5.82196 2.0004 3.83035 3.27911 2.85254 5.3074L4.76584 6.85286C5.22088 5.43086 6.49713 4.37483 7.99979 4.37483Z" fill="currentColor"/>
                 </svg>
                 Continue with Google
               </button>
@@ -88,24 +81,31 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
               {/* GitHub Sign In */}
               <button
                 onClick={handleGithubSignIn}
-                className="flex items-center justify-center gap-2 py-4 px-6 bg-[#353535] hover:bg-[#404040] transition-colors text-white border border-[#404040]"
+                className="group flex h-[48px] items-center justify-center gap-2 py-[14px] px-4 hover:text-[var(--accent)] hover:border-[var(--accent)] transition-colors text-white border border-white default-font"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fillRule="evenodd" clipRule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0ZM8 4C9.10457 4 10 4.89543 10 6H6C6 4.89543 6.89543 4 8 4ZM5 7H11V8C11 9.65685 9.65685 11 8 11C6.34315 11 5 9.65685 5 8V7Z" fill="white"/>
+                <svg className="fill-current group-hover:fill-[var(--accent)]" width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <g clipPath="url(#clip0_5029_69354)">
+                    <path fillRule="evenodd" clipRule="evenodd" d="M8.25 0C3.8316 0 0.25 3.488 0.25 7.792C0.25 11.2352 2.542 14.156 5.7212 15.1864C6.1212 15.2584 6.2668 15.0176 6.2668 14.8104C6.2668 14.6264 6.2604 14.136 6.2564 13.4856C4.0308 13.956 3.5612 12.4408 3.5612 12.4408C3.198 11.5408 2.6732 11.3008 2.6732 11.3008C1.9468 10.8176 2.7284 10.8272 2.7284 10.8272C3.5308 10.8824 3.9532 11.6304 3.9532 11.6304C4.6668 12.8208 5.826 12.4776 6.2812 12.2784C6.3548 11.7744 6.5612 11.4304 6.79 11.236C5.014 11.04 3.146 10.3712 3.146 7.3848C3.146 6.5344 3.458 5.8384 3.9692 5.2944C3.8868 5.0968 3.6124 4.304 4.0476 3.232C4.0476 3.232 4.7196 3.0224 6.2476 4.0304C6.90099 3.85713 7.57402 3.76893 8.25 3.768C8.93 3.7712 9.614 3.8576 10.2532 4.0304C11.7804 3.0224 12.4508 3.232 12.4508 3.232C12.8876 4.304 12.6132 5.0968 12.5308 5.2944C13.0428 5.8384 13.3532 6.5344 13.3532 7.3848C13.3532 10.3784 11.482 11.0376 9.7004 11.2304C9.9876 11.4704 10.2428 11.9464 10.2428 12.6736C10.2428 13.7144 10.2332 14.5552 10.2332 14.8104C10.2332 15.0192 10.3772 15.2616 10.7836 15.1864C13.9596 14.152 16.25 11.2336 16.25 7.792C16.25 3.488 12.6676 0 8.25 0Z" fill="currentColor"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0_5029_69354">
+                      <rect width="16" height="16" fill="white" transform="translate(0.25)"/>
+                    </clipPath>
+                  </defs>
                 </svg>
-                Github
+                Continue with GitHub
               </button>
             </div>
 
             {/* Sign Up Link */}
-            <div className="text-left">
+            {/* <div className="text-left">
               <span className="text-[#C6C6C6] text-sm">Already have an account? </span>
               <a href="#" className="text-[#27F795] text-sm hover:underline">Sign Up</a>
-            </div>
+            </div> */}
 
             {/* Secure by Clerk */}
             <div className="flex items-center gap-2">
-              <span className="text-[#C6C6C6] text-sm">Secure by</span>
+              <span className="text-[#C6C6C6] text-sm">Secured by</span>
               <svg width="50" height="14" viewBox="0 0 50 14" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clipPath="url(#clip0_5029_69368)">
                   <path d="M7.88915 9.18752C9.09699 9.18752 10.0761 8.20792 10.0761 6.99952C10.0761 5.79112 9.09699 4.81152 7.88915 4.81152C6.6813 4.81152 5.70215 5.79112 5.70215 6.99952C5.70215 8.20792 6.6813 9.18752 7.88915 9.18752Z" fill="white"/>
