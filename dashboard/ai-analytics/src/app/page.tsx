@@ -130,7 +130,7 @@ function DashboardContent() {
       <main className="flex-1 flex min-h-0">
         {/* Main Content - 2/3 width */}
         <div className="w-2/3 flex flex-col min-h-0">
-          <div className="h-[60vh]">
+          <div className="h-[50vh]">
             <TimeseriesChartContainer 
               data={llmData} 
               isLoading={isLoading}
@@ -138,7 +138,7 @@ function DashboardContent() {
               onFiltersChange={handleTimeseriesFilterChange}
             />
           </div>
-          <div className="h-[35vh] overflow-hidden">
+          <div className="h-[45vh] overflow-hidden">
             <DataTableContainer 
               isLoading={isLoading}
               filters={filters} 
