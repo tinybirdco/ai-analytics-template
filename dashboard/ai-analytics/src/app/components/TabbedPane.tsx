@@ -15,6 +15,24 @@ import {
   Cpu
 } from 'lucide-react';
 
+// CSS for hiding scrollbar
+const noScrollbarStyle = `
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+`;
+
+// Add style to document
+if (typeof document !== 'undefined') {
+  const style = document.createElement('style');
+  style.textContent = noScrollbarStyle;
+  document.head.appendChild(style);
+}
+
 // Custom OpenAI Icon
 const OpenAIIcon = () => (
   <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-green-500">
@@ -188,22 +206,30 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
         defaultIndex={filteredTabs.findIndex(t => t.key === selectedTab)}
         onIndexChange={handleTabChange}
       >
-        <TabList className="flex space-x-2">
-          {filteredTabs.map((tab) => (
-            <Tab
-              key={tab.key}
-              // @ts-expect-error fix later
-              className={({ selected }) =>
-                `px-4 py-2 text-sm font-medium rounded-lg transition-colors
-                ${selected 
-                  ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'
-                  : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'}`
-              }
-            >
-              {tab.name}
-            </Tab>
-          ))}
-        </TabList>
+        <div 
+          className="overflow-x-auto no-scrollbar"
+          onWheel={(e) => {
+            e.currentTarget.scrollLeft += e.deltaY;
+            e.preventDefault();
+          }}
+        >
+          <TabList className="flex min-w-max space-x-2">
+            {filteredTabs.map((tab) => (
+              <Tab
+                key={tab.key}
+                // @ts-expect-error fix later
+                className={({ selected }) =>
+                  `px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap
+                  ${selected 
+                    ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300'
+                    : 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'}`
+                }
+              >
+                {tab.name}
+              </Tab>
+            ))}
+          </TabList>
+        </div>
         <div>
           {isLoading ? (
             <div>Loading...</div>
