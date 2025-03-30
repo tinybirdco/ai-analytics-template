@@ -124,9 +124,9 @@ export default function CustomBarList({
         {renderCustomBarList(data.slice(0, 5))}
         
         {hasMoreItems && (
-          <div className="mt-4 pt-3 border-t border-gray-100 dark:border-gray-800 flex justify-center">
+          <div className="mt-4 pt-2 pb-4 flex justify-center">
             <button
-              className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors"
+              className="group flex h-[48px] items-center justify-center gap-2 py-[14px] px-4 bg-transparent hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors text-white border border-white default-font"
               onClick={() => setIsOpen(true)}
             >
               View All ({data.length})
