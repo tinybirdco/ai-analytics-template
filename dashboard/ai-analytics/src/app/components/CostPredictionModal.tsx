@@ -731,7 +731,7 @@ export default function CostPredictionModal({
               </div>
               
               {/* Modal content */}
-              <div className="p-4 overflow-y-auto flex-grow pb-0">
+              <div className="p-4 overflow-y-auto flex-grow !pb-0">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="relative">
                     <input
@@ -815,7 +815,7 @@ export default function CostPredictionModal({
                         <div>
                           <div className="p-6 pt-0 default-font">
                             <h4 className="mb-4">Parameters</h4>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                            <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-4">
                               <div>Model</div>
                               <div>{parameters.model || 'Current models'}</div>
                               
@@ -895,19 +895,84 @@ export default function CostPredictionModal({
                       {/* Chart (always visible when parameters exist) */}
                       {dailyCosts.length > 0 && (
                         <div className="mt-4">
-                          <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
-                          </h2>
+                          {/* Legend section */}
+                          <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}</h2>
+                          <ul className="flex flex-wrap gap-8 mb-8 mt-6">
+                            {isPredictionQuery ? (
+                              // Legend for prediction query
+                              <>
+                                <li>
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-4 h-4 bg-[#27F795] shrink-0" />
+                                    <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                      ${summary?.actualTotal.toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                    Actual
+                                  </p>
+                                </li>
+                                <li>
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-4 h-4 bg-[#3CCC70] shrink-0" />
+                                    <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                      ${summary?.predictedTotal.toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                    Predicted
+                                  </p>
+                                </li>
+                              </>
+                            ) : isGroupedData ? (
+                              // Legend for grouped data
+                              chartCategories.map((category, index) => {
+                                const total = dailyCosts.reduce((sum, day) => 
+                                  sum + (typeof day[category] === 'number' ? day[category] as number : 0), 0
+                                );
+                                return (
+                                  <li key={category}>
+                                    <div className="flex items-center gap-2">
+                                      <span 
+                                        className="w-4 h-4 shrink-0"
+                                        style={{ backgroundColor: defaultColors[index % defaultColors.length] }}
+                                      />
+                                      <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                        ${total.toFixed(2)}
+                                      </p>
+                                    </div>
+                                    <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                      {category}
+                                    </p>
+                                  </li>
+                                );
+                              })
+                            ) : (
+                              // Legend for single metric
+                              <li>
+                                <div className="flex items-center gap-2">
+                                  <span className="w-4 h-4 bg-[#27F795] shrink-0" />
+                                  <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                    ${summary?.actualTotal.toFixed(2)}
+                                  </p>
+                                </div>
+                                <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                  Total Cost
+                                </p>
+                              </li>
+                            )}
+                          </ul>
                           
                           {isPredictionQuery ? (
                             // Dual area chart for predictions
                             <AreaChart
-                              className="h-72 mt-4"
+                              className="h-72"
                               data={dailyCosts}
                               index="date"
                               categories={['actualCost', 'predictedCost']}
                               colors={defaultColors}
                               valueFormatter={(value) => `$${value.toFixed(2)}`}
-                              showLegend={true}
+                              showLegend={false}
                               showGridLines={false}
                               showAnimation={true}
                               curveType="monotone"
@@ -925,14 +990,14 @@ export default function CostPredictionModal({
                           ) : isGroupedData ? (
                             // Stacked bar chart for grouped data
                             <BarChart
-                              className="h-72 mt-4"
+                              className="h-72"
                               data={dailyCosts}
                               index="date"
                               categories={chartCategories}
                               colors={defaultColors}
                               valueFormatter={(value) => `$${value.toFixed(2)}`}
                               stack={true}
-                              showLegend={true}
+                              showLegend={false}
                               showGridLines={false}
                               showAnimation={true}
                               customTooltip={(props) => (
@@ -949,7 +1014,7 @@ export default function CostPredictionModal({
                           ) : (
                             // Single area chart for regular cost analysis
                             <AreaChart
-                              className="h-72 mt-4"
+                              className="h-72"
                               data={dailyCosts}
                               index="date"
                               categories={['actualCost']}
