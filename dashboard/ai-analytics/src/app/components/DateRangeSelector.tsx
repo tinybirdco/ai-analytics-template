@@ -287,7 +287,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               <CalendarIcon className="h-[16px] w-[16px]" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="min-w-[200px] p-0 bg-[#2D2D2D] border-0 shadow-lg rounded-lg" align="start" sideOffset={4}>
+          <PopoverContent className="min-w-[288px] p-0 bg-[#353535] default-font border-0" align="start" sideOffset={22} alignOffset={-16}>
             <div className="py-2">
               <Calendar
                 mode="range"
@@ -298,75 +298,33 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
                 onSelect={(range) => {
                   if (range) handleCalendarSelect(range);
                 }}
-                className="rounded-md border-0"
+                className="border-0"
+                classNames={{
+                  months: "space-y-4",
+                  month: "space-y-4",
+                  caption: "flex justify-center pt-1 relative items-center",
+                  caption_label: "text-sm font-medium",
+                  nav: "flex items-center",
+                  nav_button: "h-4 w-4 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  nav_button_previous: "absolute left-1",
+                  nav_button_next: "absolute right-1",
+                  table: "w-full border-collapse",
+                  head_row: "flex",
+                  head_cell: "text-[#C6C6C6] w-9 font-normal text-[0.8rem]",
+                  row: "flex w-full mt-2",
+                  cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-[#4CAF50] first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                  day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 relative",
+                  day_range_start: "day-range-start",
+                  day_range_end: "day-range-end",
+                  day_selected: "bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent)] hover:text-white focus:bg-[var(--accent)] focus:text-white",
+                  day_today: "text-[var(--accent)] after:absolute after:content-[''] after:w-1 after:h-1 after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--accent)] after:rounded-none",
+                  day_outside: "text-[#C6C6C6] opacity-50",
+                  day_disabled: "text-muted-foreground opacity-50",
+                  day_range_middle: "aria-selected:bg-[#267A52] aria-selected:text-[#F4F4F4]",
+                  day_hidden: "invisible",
+                }}
                 initialFocus
               />
-              
-              {/* Time selection */}
-              <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Start Time</Label>
-                    <div className="flex gap-1">
-                      <Select value={startHour} onValueChange={setStartHour}>
-                        <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                          <SelectValue placeholder="Hour" />
-                        </SelectTrigger>
-                        <SelectContent className="transition-opacity duration-150 ease-in-out">
-                          {hours.map(hour => (
-                            <SelectItem key={`start-hour-${hour}`} value={hour}>{hour}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="flex items-center">:</span>
-                      <Select value={startMinute} onValueChange={setStartMinute}>
-                        <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                          <SelectValue placeholder="Min" />
-                        </SelectTrigger>
-                        <SelectContent className="transition-opacity duration-150 ease-in-out">
-                          {minutes.map(minute => (
-                            <SelectItem key={`start-min-${minute}`} value={minute}>{minute}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">End Time</Label>
-                    <div className="flex gap-1">
-                      <Select value={endHour} onValueChange={setEndHour}>
-                        <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                          <SelectValue placeholder="Hour" />
-                        </SelectTrigger>
-                        <SelectContent className="transition-opacity duration-150 ease-in-out">
-                          {hours.map(hour => (
-                            <SelectItem key={`end-hour-${hour}`} value={hour}>{hour}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <span className="flex items-center">:</span>
-                      <Select value={endMinute} onValueChange={setEndMinute}>
-                        <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                          <SelectValue placeholder="Min" />
-                        </SelectTrigger>
-                        <SelectContent className="transition-opacity duration-150 ease-in-out">
-                          {minutes.map(minute => (
-                            <SelectItem key={`end-min-${minute}`} value={minute}>{minute}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-                
-                <Button 
-                  className="w-full mt-3 transition-colors duration-150 ease-in-out" 
-                  onClick={handleTimeChange}
-                >
-                  Apply
-                </Button>
-              </div>
             </div>
           </PopoverContent>
         </Popover>
