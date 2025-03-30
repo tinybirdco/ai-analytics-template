@@ -185,7 +185,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                 >
                   <span className="block size-2 rounded-tremor-full bg-[var(--accent)]" />
                 </span>
-                <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content ml-2">
+                <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content ml-2 font-['Roboto']">
                   Updated just now
                 </p>
               </div>
