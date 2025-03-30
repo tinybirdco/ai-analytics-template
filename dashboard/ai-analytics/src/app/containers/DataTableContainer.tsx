@@ -91,7 +91,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
               <Search className="w-5 h-5" />
             </button>
           </div>
-          {searchText && (
+          {/* {searchText && (
             <button
               type="button"
               className="px-3 py-2 text-sm text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600"
@@ -102,7 +102,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
             >
               Clear
             </button>
-          )}
+          )} */}
         </form>
       </div>
       
