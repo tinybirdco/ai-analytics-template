@@ -284,7 +284,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               variant="ghost" 
               className="p-0 h-auto"
             >
-              <CalendarIcon className="h-[16px] w-[16px]" />
+              <CalendarIcon opacity={isOpen ? 0.5 : 1} />
             </Button>
           </PopoverTrigger>
           <PopoverContent className="min-w-[288px] p-0 bg-[#353535] default-font border-0 rounded-none" align="start" sideOffset={22} alignOffset={-16}>
@@ -343,9 +343,9 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               className="p-0 h-auto"
             >
               {isOpen ? (
-                <ChevronUp className="h-4 w-4" />
+                <ChevronUp className={`h-4 w-4 ${calendarOpen ? 'opacity-50' : ''}`} />
               ) : (
-                <ChevronDown className="h-4 w-4" />
+                <ChevronDown className={`h-4 w-4 ${calendarOpen ? 'opacity-50' : ''}`} />
               )}
             </Button>
           </PopoverTrigger>
