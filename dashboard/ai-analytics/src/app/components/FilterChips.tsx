@@ -10,7 +10,7 @@ interface FilterChip {
 
 export default function FilterChips({ dimension, value, onRemove }: FilterChip) {
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#393939] font-['Roboto'] text-sm text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+    <div className="inline-flex items-center gap-2 px-[10px] py-1.5 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
       <span>{dimension}: {value}</span>
       <button
         onClick={() => onRemove(value)}
