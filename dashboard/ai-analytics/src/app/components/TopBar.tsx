@@ -12,6 +12,7 @@ import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
 import { Dialog, DialogPanel } from '@tremor/react';
 import { Sparkles } from 'lucide-react';
+import SignInModal from './SignInModal';
 
 interface Selection {
   dimension: string;
@@ -33,6 +34,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const { openCostPrediction } = useModal();
   const { openaiKey } = useApiKeyStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -168,12 +170,14 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           >
             <SettingsIcon />
           </button>
+
           <SignedOut>
-            <SignInButton mode="modal">
-              <button className="settings-button">
-                <SignInIcon />
-              </button>
-            </SignInButton>
+            <button 
+              onClick={() => setIsSignInOpen(true)}
+              className="settings-button"
+            >
+              <SignInIcon />
+            </button>
           </SignedOut>
           <SignedIn>
             <UserButton afterSignOutUrl="/" />
@@ -218,6 +222,12 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           </div>
         </DialogPanel>
       </Dialog>
+
+      {/* Sign In Modal */}
+      <SignInModal 
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+      />
     </div>
   );
 } 
