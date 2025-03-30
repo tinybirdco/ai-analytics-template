@@ -127,73 +127,73 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   // };
 
   return (
-    <div className="flex items-center justify-between p-4 pb-6">
-      <div className="flex items-center gap-2">
-        <button
-          onClick={openCostPrediction}
-          className="ai-calculator-button"
-        >
-          <span className="font-roboto text-base font-normal">
-            AI Cost Calculator
-          </span>
-          <FilterIcon fill="#0a0a0a" />
-        </button>
-        <div className="relative w-[288px] pl-2">
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Ask AI..."
-            className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#C6C6C6]"
-            onKeyDown={handleSearch}
-            disabled={isLoading}
-          />
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            {isLoading ? (
-              <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
-            ) : (
-              <button type="submit" onClick={() => handleSearch({ key: 'Enter' } as any)}>
-                <Sparkles className="h-4 w-4" />
-              </button>
-            )}
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={openCostPrediction}
+            className="ai-calculator-button"
+          >
+            <span className="font-roboto text-base font-normal">
+              AI Cost Calculator
+            </span>
+            <FilterIcon fill="#0a0a0a" />
+          </button>
+          <div className="relative w-[288px] pl-2">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Ask AI..."
+              className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#C6C6C6]"
+              onKeyDown={handleSearch}
+              disabled={isLoading}
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              {isLoading ? (
+                <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+              ) : (
+                <button type="submit" onClick={() => handleSearch({ key: 'Enter' } as any)}>
+                  <Sparkles className="h-4 w-4" />
+                </button>
+              )}
+            </div>
           </div>
+          <DateRangeSelector />
         </div>
-        <DateRangeSelector />
-        <div className="flex flex-wrap">
-          {selections.map((selection) => (
-            selection.values.map((value) => (
-              <FilterChips
-                key={`${selection.dimension}-${value}`}
-                dimension={selection.dimensionName}
-                value={value}
-                onRemove={() => handleRemoveFilter(selection.dimension, value)}
-              />
-            ))
-          ))}
+        
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="settings-button"
+          >
+            <SettingsIcon />
+          </button>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="settings-button">
+                <SignInIcon />
+              </button>
+            </SignInButton>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </div>
-      
-      <div className="flex items-center gap-4">
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="settings-button"
-        >
-          <SettingsIcon />
-        </button>
-        {/* <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          {orgName || 'Admin User'}
-        </span> */}
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="settings-button">
-              <SignInIcon />
-            </button>
-          </SignInButton>
-        </SignedOut>
-        <SignedIn>
-          <UserButton afterSignOutUrl="/" />
-        </SignedIn>
+
+      <div className="px-4 pb-5 flex flex-wrap gap-2 p-2">
+        {selections.map((selection) => (
+          selection.values.map((value) => (
+            <FilterChips
+              key={`${selection.dimension}-${value}`}
+              dimension={selection.dimensionName}
+              value={value}
+              onRemove={() => handleRemoveFilter(selection.dimension, value)}
+            />
+          ))
+        ))}
       </div>
-      
+
       {/* Settings Modal */}
       <Dialog
         open={isSettingsOpen}
