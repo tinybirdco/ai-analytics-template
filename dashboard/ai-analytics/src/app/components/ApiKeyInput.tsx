@@ -20,6 +20,7 @@ export default function ApiKeyInput({ isOpen, onClose }: ApiKeyInputProps) {
     if (inputKey.trim()) {
       setOpenaiKey(inputKey.trim());
       setInputKey('');
+      setIsVisible(false);
     }
   };
 
