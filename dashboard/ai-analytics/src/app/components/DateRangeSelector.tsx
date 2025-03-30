@@ -274,7 +274,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   }, []);
 
   return (
-    <div className="date-range-selector">
+    <div className={`date-range-selector ${isOpen ? 'ring-1 ring-white' : ''}`}>
       <div className="date-range-content">
         {/* Calendar Icon and Popover */}
         <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
@@ -388,16 +388,16 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
             </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="min-w-[288px] pt-1 bg-[#353535] border-0 rounded-none"
+            className="min-w-[288px] pt-1 bg-[#353535] border-0 rounded-none pb-0"
             align="start"
             alignOffset={-256}
-            sideOffset={4}
+            sideOffset={22}
           >
             <div className="py-2">
               {dateRangeOptions.map((option) => (
                 <div
                   key={option.label}
-                  className="py-2 cursor-pointer text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] default-font text-['#C6C6C6'] transition-colors duration-150 ease-in-out"
+                  className="py-2 cursor-pointer default-font text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out"
                   onClick={() => handleRangeSelect(option)}
                 >
                   {option.label}
