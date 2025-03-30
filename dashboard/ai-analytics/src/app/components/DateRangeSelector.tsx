@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { format, subDays, subHours, subMonths, parse, isValid } from 'date-fns';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { CalendarIcon } from './icons';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -384,23 +384,29 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               variant="ghost" 
               className="p-0 h-auto"
             >
-              <ChevronDown className="h-4 w-4" />
+              {isOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent 
-            className="min-w-[288px] pt-1 bg-[#353535] border-0 rounded-none pb-0"
+            className="min-w-[288px] pt-1 bg-[#353535] border-0 rounded-none p-0"
             align="start"
             alignOffset={-256}
             sideOffset={22}
           >
-            <div className="py-2">
+            <div>
               {dateRangeOptions.map((option) => (
                 <div
                   key={option.label}
-                  className="py-2 cursor-pointer default-font text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out"
+                  className="cursor-pointer dropdown-font text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out"
                   onClick={() => handleRangeSelect(option)}
                 >
-                  {option.label}
+                  <span className="block px-4 py-4">
+                    {option.label}
+                  </span>
                 </div>
               ))}
             </div>

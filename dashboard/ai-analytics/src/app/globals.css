@@ -58,6 +58,13 @@ body {
   line-height: var(--line-height-sm);
 }
 
+.dropdown-font {
+  font-family: var(--font-family-base);
+  color: #C6C6C6;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
 .small-font {
   font-family: var(--font-family-base);
   color: var(--text-color-secondary);

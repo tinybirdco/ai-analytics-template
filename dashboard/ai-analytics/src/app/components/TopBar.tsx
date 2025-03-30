@@ -129,7 +129,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
           <button
             onClick={openCostPrediction}
             className="ai-calculator-button"
@@ -139,7 +139,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             </span>
             <FilterIcon fill="#0a0a0a" />
           </button>
-          <div className="relative w-[288px] pl-2">
+          <div className="relative w-[288px]">
             <input
               ref={inputRef}
               type="text"
