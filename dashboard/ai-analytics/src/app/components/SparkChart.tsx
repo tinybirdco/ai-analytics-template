@@ -7,6 +7,7 @@ import {
     BarChart,
     AreaChart,
   } from '@tremor/react';
+import CustomTooltip from './CustomTooltip';
 
   // Default colors for all categories
   const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
@@ -72,6 +73,16 @@ import {
             showAnimation={false}
             curveType="monotone"
             stack={isStacked}
+            customTooltip={(props) => (
+              <CustomTooltip
+                date={props.payload?.[0]?.payload.date}
+                entries={props.payload?.map(entry => ({
+                  name: String(entry.name),
+                  value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                  color: entry.color || '#27F795'
+                })) || []}
+              />
+            )}
           />
         </div>
       </Card>

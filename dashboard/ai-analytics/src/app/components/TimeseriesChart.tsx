@@ -11,6 +11,7 @@ import {
 } from '@tremor/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
+import CustomTooltip from './CustomTooltip';
 
 function classNames(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(' ');
@@ -228,25 +229,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showAnimation={false}
                       showXAxis={true}
                       customTooltip={(props) => (
-                        <div className="bg-[#353535] p-3 shadow-lg px-4">
-                          <div className="default-font mb-1">
-                            {props.payload?.[0]?.payload.date}
-                          </div>
-                          {props.payload?.map((entry, index) => (
-                            <div key={index} className="flex items-center justify-between py-1">
-                              <div className="flex items-center gap-2">
-                                <div
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: entry.color }}
-                                />
-                                <span className="text-[#C6C6C6] font-['Roboto'] text-sm truncate max-w-[180px]">{entry.name}</span>
-                              </div>
-                              <span className="text-[#F4F4F4] font-['Roboto'] text-sm ml-2">
-                                ${typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
+                        <CustomTooltip
+                          date={props.payload?.[0]?.payload.date}
+                          entries={props.payload?.map(entry => ({
+                            name: String(entry.name),
+                            value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                            color: entry.color || '#27F795'
+                          })) || []}
+                        />
                       )}
                     />
                     <BarChart
