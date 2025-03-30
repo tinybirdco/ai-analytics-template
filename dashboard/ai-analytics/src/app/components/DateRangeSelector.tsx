@@ -274,7 +274,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   }, []);
 
   return (
-    <div className={`date-range-selector ${isOpen ? 'ring-1 ring-white' : ''}`}>
+    <div className={`date-range-selector ${isOpen || calendarOpen ? 'ring-1 ring-white' : ''}`}>
       <div className="date-range-content">
         {/* Calendar Icon and Popover */}
         <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
@@ -287,7 +287,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               <CalendarIcon className="h-[16px] w-[16px]" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="min-w-[288px] p-0 bg-[#353535] default-font border-0" align="start" sideOffset={22} alignOffset={-16}>
+          <PopoverContent className="min-w-[288px] p-0 bg-[#353535] default-font border-0 rounded-none" align="start" sideOffset={22} alignOffset={-16}>
             <div className="py-2">
               <Calendar
                 mode="range"
@@ -313,10 +313,10 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
                   head_cell: "text-white flex-1 font-normal text-[0.8rem]",
                   row: "flex w-full mt-2",
                   cell: "flex-1 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-[#4CAF50] first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
-                  day: "w-full h-9 p-0 font-normal aria-selected:opacity-100 relative",
+                  day: "w-full h-9 p-0 font-normal aria-selected:opacity-100 relative hover:bg-[#3D3D3D] transition-colors",
                   day_range_start: "day-range-start",
                   day_range_end: "day-range-end",
-                  day_selected: "bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent)] hover:text-white focus:bg-[var(--accent)] focus:text-white",
+                  day_selected: "bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent)] hover:text-[#0A0A0A] focus:bg-[var(--accent)] focus:text-[#0A0A0A]",
                   day_today: "text-[var(--accent)] after:absolute after:content-[''] after:w-1 after:h-1 after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--accent)] after:rounded-none",
                   day_outside: "text-[#C6C6C6] opacity-50",
                   day_disabled: "text-muted-foreground opacity-50",
