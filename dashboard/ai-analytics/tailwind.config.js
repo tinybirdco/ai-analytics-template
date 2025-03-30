@@ -69,6 +69,12 @@ module.exports = {
           fontWeight: '400',
           fontStyle: 'normal'
         }],
+        'tremor-metric-xl': ['48px', { 
+          lineHeight: '48px',
+          fontFamily: ['Roboto Mono', 'monospace'],
+          fontWeight: '400',
+          fontStyle: 'normal'
+        }],
         'tremor-tab': ['14px', { lineHeight: '20px' }], // custom tab font size
       },
     },

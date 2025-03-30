@@ -7,6 +7,7 @@ import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { fetchLLMUsage } from '@/services/tinybird';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
+import CustomTooltip from './CustomTooltip';
 
 interface CostPredictionModalProps {
   isOpen: boolean;
@@ -51,6 +52,9 @@ interface DateAggregatedData {
   completion_tokens: number;
   total_cost: number;
 }
+
+// Add default colors constant at the top level
+const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
 
 export default function CostPredictionModal({ 
   isOpen, 
@@ -790,13 +794,15 @@ export default function CostPredictionModal({
                       {/* Collapsible header and parameters */}
                       <button
                         onClick={() => setShowDetails(!showDetails)}
-                        className={`w-full flex items-center justify-between text-gray-300 ${
-                          showDetails ? 'text-[var(--accent)]' : ''
+                        className={`w-full flex items-center justify-between default-font ${
+                          showDetails ? 'text-[var(--accent)] !pb-0' : ''
                         }`}
                       >
-                        <div className="flex items-center gap-2 pt-6 pb-2">
+                        <div className={`flex items-center gap-2 pt-4 pb-4 ${
+                          showDetails ? 'hover:text-[var(--accent)] !pb-0' : ''
+                        }`}>
                           {showDetails ? (
-                            <X className="h-4 w-4 text-[var(--accent)]" />
+                            <X className="h-4 w-4" />
                           ) : (
                             <Info className="h-4 w-4" />
                           )}
@@ -807,78 +813,78 @@ export default function CostPredictionModal({
                       {/* Parameters (collapsible) */}
                       {showDetails && (
                         <div>
-                          <div className="p-4">
-                            <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                              <div className="text-gray-400">Model</div>
-                              <div className="text-white">{parameters.model || 'Current models'}</div>
+                          <div className="p-6 pt-0 default-font">
+                            <h4 className="mb-4">Parameters</h4>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+                              <div>Model</div>
+                              <div>{parameters.model || 'Current models'}</div>
                               
-                              <div className="text-gray-400">Prompt Token Cost</div>
-                              <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
+                              <div>Prompt Token Cost</div>
+                              <div className="font-['Roboto Mono']">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
                               
-                              <div className="text-gray-400">Completion Token Cost</div>
-                              <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
+                              <div>Completion Token Cost</div>
+                              <div className="font-['Roboto Mono']">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
                               
                               {parameters.discount > 0 && (
                                 <>
-                                  <div className="text-gray-400">Discount</div>
-                                  <div className="text-white">{parameters.discount}%</div>
+                                  <div>Discount</div>
+                                  <div className="font-['Roboto Mono']">{parameters.discount}%</div>
                                 </>
                               )}
                               
                               {parameters.volumeChange !== 0 && (
                                 <>
-                                  <div className="text-gray-400">Volume Change</div>
-                                  <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
+                                  <div>Volume Change</div>
+                                  <div className="font-['Roboto Mono']">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
                                 </>
                               )}
                               
-                              <div className="text-gray-400">Time Period</div>
-                              <div className="text-white">{parameters.timeframe}</div>
+                              <div>Time Period</div>
+                              <div className="font-['Roboto Mono']">{parameters.timeframe}</div>
                               
-                              <div className="text-gray-400">Date Range</div>
-                              <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
+                              <div>Date Range</div>
+                              <div className="font-['Roboto Mono']">{parameters.start_date} to {parameters.end_date}</div>
                               
                               {parameters.group_by && (
                                 <>
-                                  <div className="text-gray-400">Grouped By</div>
-                                  <div className="text-white">{parameters.group_by}</div>
+                                  <div>Grouped By</div>
+                                  <div>{parameters.group_by}</div>
                                 </>
                               )}
                               
                               {/* Display filter parameters if specified */}
                               {parameters.organization && (
                                 <>
-                                  <div className="text-gray-400">Organization</div>
-                                  <div className="text-white">{parameters.organization}</div>
+                                  <div>Organization</div>
+                                  <div>{parameters.organization}</div>
                                 </>
                               )}
                               
                               {parameters.project && (
                                 <>
-                                  <div className="text-gray-400">Project</div>
-                                  <div className="text-white">{parameters.project}</div>
+                                  <div>Project</div>
+                                  <div>{parameters.project}</div>
                                 </>
                               )}
                               
                               {parameters.environment && (
                                 <>
-                                  <div className="text-gray-400">Environment</div>
-                                  <div className="text-white">{parameters.environment}</div>
+                                  <div>Environment</div>
+                                  <div>{parameters.environment}</div>
                                 </>
                               )}
                               
                               {parameters.provider && (
                                 <>
-                                  <div className="text-gray-400">Provider</div>
-                                  <div className="text-white">{parameters.provider}</div>
+                                  <div>Provider</div>
+                                  <div>{parameters.provider}</div>
                                 </>
                               )}
                               
                               {parameters.user && (
                                 <>
-                                  <div className="text-gray-400">User</div>
-                                  <div className="text-white">{parameters.user}</div>
+                                  <div>User</div>
+                                  <div>{parameters.user}</div>
                                 </>
                               )}
                             </div>
@@ -889,7 +895,7 @@ export default function CostPredictionModal({
                       {/* Chart (always visible when parameters exist) */}
                       {dailyCosts.length > 0 && (
                         <div className="mt-4">
-                          <h2 className="text-tremor-metric">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
+                          <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
                           </h2>
                           
                           {isPredictionQuery ? (
@@ -899,30 +905,21 @@ export default function CostPredictionModal({
                               data={dailyCosts}
                               index="date"
                               categories={['actualCost', 'predictedCost']}
-                              colors={['blue', 'emerald']}
+                              colors={defaultColors}
                               valueFormatter={(value) => `$${value.toFixed(2)}`}
                               showLegend={true}
                               showGridLines={false}
                               showAnimation={true}
                               curveType="monotone"
                               customTooltip={(props) => (
-                                <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
-                                  <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
-                                  {props.payload?.map((entry, index) => (
-                                    <div key={index} className="flex items-center mt-1">
-                                      <div
-                                        className="w-3 h-3 rounded-full mr-2"
-                                        style={{ backgroundColor: entry.color }}
-                                      />
-                                      <span className="text-gray-400">
-                                        {entry.name === 'actualCost' ? 'Actual' : 'Predicted'}:
-                                      </span>
-                                      <span className="text-white ml-1">
-                                        ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
+                                <CustomTooltip
+                                  date={props.payload?.[0]?.payload.date}
+                                  entries={props.payload?.map(entry => ({
+                                    name: entry.name === 'actualCost' ? 'Actual' : 'Predicted',
+                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                    color: entry.color || defaultColors[0]
+                                  })) || []}
+                                />
                               )}
                             />
                           ) : isGroupedData ? (
@@ -932,28 +929,21 @@ export default function CostPredictionModal({
                               data={dailyCosts}
                               index="date"
                               categories={chartCategories}
-                              colors={['blue', 'emerald', 'amber', 'violet', 'rose', 'cyan', 'indigo']}
+                              colors={defaultColors}
                               valueFormatter={(value) => `$${value.toFixed(2)}`}
                               stack={true}
                               showLegend={true}
                               showGridLines={false}
                               showAnimation={true}
                               customTooltip={(props) => (
-                                <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
-                                  <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
-                                  {props.payload?.map((entry, index) => (
-                                    <div key={index} className="flex items-center mt-1">
-                                      <div
-                                        className="w-3 h-3 rounded-full mr-2"
-                                        style={{ backgroundColor: entry.color }}
-                                      />
-                                      <span className="text-gray-400">{entry.name}:</span>
-                                      <span className="text-white ml-1">
-                                        ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
+                                <CustomTooltip
+                                  date={props.payload?.[0]?.payload.date}
+                                  entries={props.payload?.map(entry => ({
+                                    name: String(entry.name),
+                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                    color: entry.color || defaultColors[0]
+                                  })) || []}
+                                />
                               )}
                             />
                           ) : (
@@ -963,28 +953,21 @@ export default function CostPredictionModal({
                               data={dailyCosts}
                               index="date"
                               categories={['actualCost']}
-                              colors={['blue']}
+                              colors={[defaultColors[0]]}
                               valueFormatter={(value) => `$${value.toFixed(2)}`}
                               showLegend={false}
                               showGridLines={false}
                               showAnimation={true}
                               curveType="monotone"
                               customTooltip={(props) => (
-                                <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
-                                  <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
-                                  {props.payload?.map((entry, index) => (
-                                    <div key={index} className="flex items-center mt-1">
-                                      <div
-                                        className="w-3 h-3 rounded-full mr-2"
-                                        style={{ backgroundColor: entry.color }}
-                                      />
-                                      <span className="text-gray-400">Cost:</span>
-                                      <span className="text-white ml-1">
-                                        ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-                                      </span>
-                                    </div>
-                                  ))}
-                                </div>
+                                <CustomTooltip
+                                  date={props.payload?.[0]?.payload.date}
+                                  entries={props.payload?.map(entry => ({
+                                    name: 'Cost',
+                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                    color: entry.color || defaultColors[0]
+                                  })) || []}
+                                />
                               )}
                             />
                           )}
