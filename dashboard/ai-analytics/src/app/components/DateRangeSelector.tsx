@@ -287,8 +287,8 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               <CalendarIcon className="h-[16px] w-[16px]" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
-            <div className="p-0">
+          <PopoverContent className="min-w-[200px] p-0 bg-[#2D2D2D] border-0 shadow-lg rounded-lg" align="start" sideOffset={4}>
+            <div className="py-2">
               <Calendar
                 mode="range"
                 selected={{
@@ -387,12 +387,17 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
-            <div className="space-y-1 p-2">
+          <PopoverContent 
+            className="min-w-[288px] pt-1 bg-[#353535] border-0 rounded-none"
+            align="start"
+            alignOffset={-256}
+            sideOffset={4}
+          >
+            <div className="py-2">
               {dateRangeOptions.map((option) => (
                 <div
                   key={option.label}
-                  className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-150 ease-in-out"
+                  className="py-2 cursor-pointer text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] default-font text-['#C6C6C6'] transition-colors duration-150 ease-in-out"
                   onClick={() => handleRangeSelect(option)}
                 >
                   {option.label}
