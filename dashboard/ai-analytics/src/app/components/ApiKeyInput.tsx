@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
-import { X } from 'lucide-react';
+import { X, ArrowRight } from 'lucide-react';
 
 export default function ApiKeyInput() {
   const { openaiKey, setOpenaiKey, clearOpenaiKey } = useApiKeyStore();
@@ -30,7 +30,7 @@ export default function ApiKeyInput() {
         </div>
 
         {/* Content */}
-        <div className="p-4">
+        <div className="p-4 pt-8 pb-0">
           {openaiKey ? (
             <div>
               <div className="flex items-center mb-2">
@@ -61,8 +61,17 @@ export default function ApiKeyInput() {
                   placeholder="Introduce your Api Key"
                   className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-[#C6C6C6] placeholder:text-sm font-['Roboto']"
                 />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <button 
+                    onClick={handleSave}
+                    disabled={!inputKey.trim()}
+                    className="text-[#C6C6C6] hover:text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
-              <p className="mt-2 text-xs text-[#C6C6C6] font-['Roboto']">
+              <p className="mt-2 mb-8 text-xs text-[#C6C6C6] font-['Roboto']">
                 Your API key is stored locally in your browser and never sent to our servers.
               </p>
             </div>
