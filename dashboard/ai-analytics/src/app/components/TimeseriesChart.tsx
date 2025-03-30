@@ -239,20 +239,6 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                         />
                       )}
                     />
-                    <BarChart
-                      data={tab.data}
-                      index="date"
-                      categories={tab.categories}
-                      colors={tab.colors}
-                      stack={false}
-                      showLegend={false}
-                      showYAxis={false}
-                      valueFormatter={costValueFormatter}
-                      className="h-[calc(100%-24px)] mt-6 md:hidden"
-                      showTooltip={true}
-                      showAnimation={false}
-                      showXAxis={true}
-                    />
                   </div>
                 </TabPanel>
               ))}
