@@ -1,9 +1,10 @@
 'use client';
 
 import { Card } from '@tremor/react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { RiSearchLine } from '@remixicon/react';
 import { Dialog, DialogPanel, TextInput } from '@tremor/react';
+import { X } from 'lucide-react';
 
 interface BarListItem {
   name: string;
@@ -29,12 +30,21 @@ export default function CustomBarList({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
-  const filteredItems = data.filter((item) =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Memoize filtered items to prevent unnecessary recalculations
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return data;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return data.filter((item) => 
+      item.name.toLowerCase().includes(query)
+    );
+  }, [data, searchQuery]);
 
   // Calculate total value for header
-  const totalValue = data.reduce((sum, item) => sum + item.value, 0);
+  const totalValue = useMemo(() => 
+    data.reduce((sum, item) => sum + item.value, 0),
+    [data]
+  );
   const hasMoreItems = data.length > 5;
 
   const handleBarClick = (itemName: string) => {
@@ -126,57 +136,61 @@ export default function CustomBarList({
         
         <Dialog
           open={isOpen}
-          onClose={() => setIsOpen(false)}
+          onClose={() => {
+            setIsOpen(false);
+            setSearchQuery(''); // Clear search when closing
+          }}
           static={true}
           className="z-[100]"
         >
-          <DialogPanel className="max-w-md overflow-hidden rounded-lg">
-            <div className="px-6 pb-4 pt-6 border-b border-gray-100 dark:border-gray-800">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">All Items</h3>
-                <button 
-                  onClick={() => setIsOpen(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-              
-              <TextInput
-                icon={RiSearchLine}
-                placeholder="Search items..."
-                className="rounded-md"
-                value={searchQuery}
-                onValueChange={setSearchQuery}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault();
-                    // The search is already handled by the filteredItems logic
-                    // No need for additional action
-                  }
+          <DialogPanel className="!bg-[#262626] flex flex-col relative z-10 rounded-none p-0" style={{ width: '575px', minWidth: '575px' }}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 pb-0">
+              <h2 className="title-font">All Items</h2>
+              <button 
+                onClick={() => {
+                  setIsOpen(false);
+                  setSearchQuery(''); // Clear search when closing
                 }}
-              />
+                className="settings-button"
+              >
+                <X className="h-4 w-4 text-white" />
+              </button>
             </div>
-            
-            <div className="h-96 overflow-y-auto px-6 py-4">
-              {filteredItems.length > 0 ? (
-                renderCustomBarList(filteredItems)
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-gray-300 dark:text-gray-600 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                  <p className="text-gray-500 dark:text-gray-400">No results found for &quot;{searchQuery}&quot;</p>
-                  <button 
-                    onClick={() => setSearchQuery('')}
-                    className="mt-3 text-sm text-indigo-600 dark:text-indigo-400 hover:underline"
-                  >
-                    Clear search
-                  </button>
+
+            {/* Content */}
+            <div className="p-4 pt-8">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search items..."
+                  className="w-full h-[48px] px-4 pr-12 py-2 bg-[#353535] focus:outline-none focus:ring-1 focus:ring-white placeholder:text-[#8D8D8D] text-[#F4F4F4] placeholder:text-sm font-['Roboto']"
+                />
+                <div className="absolute right-4 top-1/2 -translate-y-1/2">
+                  <RiSearchLine className="h-4 w-4 text-[#C6C6C6]" />
                 </div>
-              )}
+              </div>
+
+              <div className="mt-4 h-[400px] overflow-y-auto">
+                {filteredItems.length > 0 ? (
+                  renderCustomBarList(filteredItems)
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-[#C6C6C6] mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <p className="text-[#C6C6C6]">No results found for &quot;{searchQuery}&quot;</p>
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="mt-3 text-sm text-[var(--accent)] hover:underline"
+                    >
+                      Clear search
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </DialogPanel>
         </Dialog>
