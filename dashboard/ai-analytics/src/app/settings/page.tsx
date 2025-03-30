@@ -8,7 +8,7 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold mb-6">Settings</h1>
       
       <div>
-        <ApiKeyInput />
+        <ApiKeyInput isOpen={true} onClose={() => {}} />
         
         {/* Other settings can go here */}
       </div>

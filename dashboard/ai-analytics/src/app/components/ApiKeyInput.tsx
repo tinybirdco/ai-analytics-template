@@ -4,10 +4,17 @@ import { useState } from 'react';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import { X, ArrowRight, Eye, EyeOff } from 'lucide-react';
 
-export default function ApiKeyInput() {
+interface ApiKeyInputProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export default function ApiKeyInput({ isOpen, onClose }: ApiKeyInputProps) {
   const { openaiKey, setOpenaiKey, clearOpenaiKey } = useApiKeyStore();
   const [inputKey, setInputKey] = useState('');
   const [isVisible, setIsVisible] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleSave = () => {
     if (inputKey.trim()) {
@@ -24,7 +31,7 @@ export default function ApiKeyInput() {
         {/* Header */}
         <div className="flex items-center justify-between p-4 pb-0">
           <h2 className="title-font">Settings</h2>
-          <button className="settings-button">
+          <button className="settings-button" onClick={onClose}>
             <X className="h-4 w-4 text-white" />
           </button>
         </div>

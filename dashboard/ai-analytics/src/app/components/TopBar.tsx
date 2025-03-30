@@ -218,7 +218,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               </button>
             </div>
             
-            <ApiKeyInput />
+            <ApiKeyInput isOpen={true} onClose={() => setIsSettingsOpen(false)} />
           </div>
         </DialogPanel>
       </Dialog>
