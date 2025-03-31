@@ -54,6 +54,6 @@ SQL >
     category,
     {% end %} 
     date
-    order by date ASC
+    order by total_cost desc
 
 TYPE endpoint

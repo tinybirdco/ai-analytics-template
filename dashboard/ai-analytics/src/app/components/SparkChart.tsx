@@ -10,7 +10,13 @@ import {
 import CustomTooltip from './CustomTooltip';
 
   // Default colors for all categories
-  const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
+  const defaultColors = [
+    '#27F795',  // 100% opacity
+    '#27F795CC', // 80% opacity
+    '#27F79599', // 60% opacity
+    '#27F79566', // 40% opacity
+    '#27F79533'  // 20% opacity
+  ];
 
   type ChartType = 'area' | 'line' | 'bar' | 'stacked-bar' | 'stacked-area';
 
