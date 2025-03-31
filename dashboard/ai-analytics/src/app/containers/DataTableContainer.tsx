@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import DataTable from '../components/DataTable';
 import { useLLMMessages } from '@/hooks/useTinybirdData';
-import { Search } from 'lucide-react';
+import { Search, Sparkles } from 'lucide-react';
 
 interface DataTableContainerProps {
   filters: Record<string, string>;
@@ -71,10 +71,16 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
       <div className="p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-grow">
+            <button
+              type="submit"
+              className="absolute inset-y-0 left-0 flex items-center px-4 text-white hover:text-white"
+            >
+              <Search className="w-4 h-4" />
+            </button>
             <input
               type="text"
               placeholder="Search conversations semantically..."
-              className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
+              className="w-full h-[48px] px-4 pl-10 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D] placeholder:focus:opacity-0"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => {
@@ -86,9 +92,9 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
             />
             <button
               type="submit"
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white"
+              className="absolute inset-y-0 right-0 flex items-center px-4 text-white hover:text-white"
             >
-              <Search className="w-5 h-5" />
+              <Sparkles className={`w-4 h-4 search-input-right-icon ${isGeneratingEmbedding ? 'animate' : ''}`} />
             </button>
           </div>
           {/* {searchText && (

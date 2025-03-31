@@ -5,7 +5,7 @@ import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { FilterIcon, SettingsIcon, SignInIcon } from './icons';
+import { SettingsIcon, SignInIcon } from './icons';
 import { useModal } from '../context/ModalContext';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
@@ -137,7 +137,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             <span className="font-roboto text-base font-normal">
               AI Cost Calculator
             </span>
-            <FilterIcon fill="currentColor" />
+            <Sparkles className="h-4 w-4" />
           </button>
           <div className="relative w-[288px]">
             <input
