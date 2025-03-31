@@ -48,6 +48,11 @@ export default clerkMiddleware(async (auth) => {
           type: "PIPES:READ",
           resource: "llm_usage",
           fixed_params: { organization: orgName }
+        },
+        {
+          type: "PIPES:READ",
+          resource: "llm_dimensions",
+          fixed_params: { organization: orgName }
         }
       ], 
       limits: {

@@ -2,12 +2,22 @@ TOKEN read_pipes READ
 
 NODE llm_dimensions_node
 SQL >
+%
     SELECT
-        groupUniqArray(organization) as organization,
+        groupUniqArray(organization) as organizations,
         groupUniqArray(project) as project,
         groupUniqArray(environment) as environment,
         groupUniqArray(model) as model,
         groupUniqArray(provider) as provider
-      FROM llm_events WHERE timestamp > now() - interval '1 month' 
+      FROM 
+      (
+        SELECT organization, project, environment, model, provider
+        FROM 
+        llm_events WHERE timestamp > now() - interval '1 month' 
+        {% if defined(organization) and organization != '' %}
+            AND organization = {{String(organization, '')}}
+        {% end %}
+      )
+      
 
 TYPE endpoint
