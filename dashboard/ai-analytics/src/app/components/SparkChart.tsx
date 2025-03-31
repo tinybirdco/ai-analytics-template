@@ -31,6 +31,7 @@ import CustomTooltip from './CustomTooltip';
     title: string;
     value: string;
     className?: string;
+    unit?: string;
   }
 
   export default function SparkChart({ 
@@ -39,7 +40,8 @@ import CustomTooltip from './CustomTooltip';
     chartType = 'line',
     title,
     value,
-    className
+    className,
+    unit = ''
   }: SparkChartProps) {
     const ChartComponent = {
       'stacked-bar': BarChart,
@@ -82,6 +84,7 @@ import CustomTooltip from './CustomTooltip';
             customTooltip={(props) => (
               <CustomTooltip
                 date={props.payload?.[0]?.payload.date}
+                unit={unit}
                 entries={props.payload?.map(entry => ({
                   name: String(entry.name),
                   value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,

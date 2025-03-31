@@ -986,6 +986,7 @@ export default function CostPredictionModal({
                                   customTooltip={(props) => (
                                     <CustomTooltip
                                       date={props.payload?.[0]?.payload.date}
+                                      unit="$"
                                       entries={props.payload?.map(entry => ({
                                         name: entry.name === 'actualCost' ? 'Actual' : 'Predicted',
                                         value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
@@ -1010,6 +1011,7 @@ export default function CostPredictionModal({
                                   customTooltip={(props) => (
                                     <CustomTooltip
                                       date={props.payload?.[0]?.payload.date}
+                                      unit="$"
                                       entries={props.payload?.map(entry => ({
                                         name: String(entry.name),
                                         value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
@@ -1034,6 +1036,7 @@ export default function CostPredictionModal({
                                   customTooltip={(props) => (
                                     <CustomTooltip
                                       date={props.payload?.[0]?.payload.date}
+                                      unit="$"
                                       entries={props.payload?.map(entry => ({
                                         name: 'Cost',
                                         value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,

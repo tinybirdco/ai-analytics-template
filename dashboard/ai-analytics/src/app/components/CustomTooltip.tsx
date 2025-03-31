@@ -7,9 +7,10 @@ interface TooltipEntry {
 interface CustomTooltipProps {
   date?: string;
   entries: TooltipEntry[];
+  unit?: string;
 }
 
-export default function CustomTooltip({ date, entries }: CustomTooltipProps) {
+export default function CustomTooltip({ date, entries, unit = '' }: CustomTooltipProps) {
   return (
     <div className="bg-[#353535] p-3 shadow-lg px-4">
       {date && (
@@ -27,7 +28,7 @@ export default function CustomTooltip({ date, entries }: CustomTooltipProps) {
             <span className="text-[#C6C6C6] font-['Roboto'] text-sm truncate max-w-[180px]">{entry.name}</span>
           </div>
           <span className="text-[#F4F4F4] font-['Roboto'] text-sm ml-2">
-            ${typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}
+            {unit == '$' ? `${unit}` : ''}{typeof entry.value === 'number' ? entry.value.toLocaleString() : entry.value}{unit == '$' ? '' : ` ${unit}`}
           </span>
         </div>
       ))}

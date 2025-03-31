@@ -18,6 +18,7 @@ export default function MetricsCards({ data, isLoading }: MetricsCardsProps) {
         metric="avg_duration"
         title="Average TTFT"
         className="pt-2"
+        unit="s"
       />
       <SparkChartContainer 
         data={data}
@@ -25,6 +26,7 @@ export default function MetricsCards({ data, isLoading }: MetricsCardsProps) {
         chartType="stacked-bar" 
         metric="total_requests"
         title="Total Requests"
+        unit="req"
       />
       <SparkChartContainer 
         data={data}
@@ -32,6 +34,7 @@ export default function MetricsCards({ data, isLoading }: MetricsCardsProps) {
         chartType="stacked-area" 
         metric="total_tokens"
         title="Total Tokens"
+        unit="tok"
       />
     </div>
   );

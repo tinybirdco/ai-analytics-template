@@ -256,6 +256,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       customTooltip={(props) => (
                         <CustomTooltip
                           date={props.payload?.[0]?.payload.date}
+                          unit="$"
                           entries={props.payload?.map(entry => ({
                             name: String(entry.name || ''),
                             value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
