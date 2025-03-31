@@ -244,16 +244,19 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     // Format as "Jan 1 - Jan 15" for custom date ranges
     setSelectedRange(`${format(start, 'MMM d')} - ${format(end, 'MMM d')}`);
     setIsPredefinedRange(false);
-    
   }, []);
+
+  // Handle calendar popover close
+  const handleCalendarPopoverOpenChange = useCallback((open: boolean) => {
+    setCalendarOpen(open);
+    if (!open && dateRange.start && dateRange.end) {
+      updateUrlParams(dateRange.start, dateRange.end);
+    }
+  }, [dateRange, updateUrlParams]);
 
   // Memoize the open/close handlers to prevent recreation
   const handleRangePopoverOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
-  }, []);
-
-  const handleCalendarPopoverOpenChange = useCallback((open: boolean) => {
-    setCalendarOpen(open);
   }, []);
 
   return (
@@ -312,7 +315,18 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
         </Popover>
 
         {/* Date Range Text */}
-        <span className="date-range-text flex-grow">
+        <span 
+          className="date-range-text flex-grow cursor-pointer"
+          onClick={() => {
+            if (isPredefinedRange) {
+              setIsOpen(true);
+              setCalendarOpen(false);
+            } else {
+              setCalendarOpen(true);
+              setIsOpen(false);
+            }
+          }}
+        >
           {selectedRange || 'Select date range'}
         </span>
 
@@ -341,7 +355,9 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               {dateRangeOptions.map((option) => (
                 <div
                   key={option.label}
-                  className="cursor-pointer dropdown-font text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out"
+                  className={`cursor-pointer dropdown-font hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out ${
+                    selectedRange === option.label ? '!text-white bg-[#3D3D3D]' : 'text-[#C6C6C6]'
+                  }`}
                   onClick={() => handleRangeSelect(option)}
                 >
                   <span className="block px-4 py-4">

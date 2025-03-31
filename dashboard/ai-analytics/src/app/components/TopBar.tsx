@@ -5,7 +5,7 @@ import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { FilterIcon, SettingsIcon, SignInIcon } from './icons';
+import { SettingsIcon, SignInIcon } from './icons';
 import { useModal } from '../context/ModalContext';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
@@ -137,7 +137,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             <span className="font-roboto text-base font-normal">
               AI Cost Calculator
             </span>
-            <FilterIcon fill="currentColor" />
+            <Sparkles className="h-4 w-4" />
           </button>
           <div className="relative w-[288px]">
             <input
@@ -203,6 +203,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         onClose={() => setIsSettingsOpen(false)}
         static={true}
       >
+        <div className="fixed inset-0 bg-[#0A0A0A] bg-opacity-80" />
         <DialogPanel className="max-w-md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -223,10 +224,16 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       </Dialog>
 
       {/* Sign In Modal */}
-      <SignInModal 
-        isOpen={isSignInOpen}
+      <Dialog
+        open={isSignInOpen}
         onClose={() => setIsSignInOpen(false)}
-      />
+        static={true}
+      >
+        <SignInModal 
+          isOpen={isSignInOpen}
+          onClose={() => setIsSignInOpen(false)}
+        />
+      </Dialog>
     </div>
   );
 } 
