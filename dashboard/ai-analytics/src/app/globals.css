@@ -2,9 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Design System */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Colors */
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --text-color: #F4F4F4;
+  --text-color-secondary: #C6C6C6;
+  --accent: #27F795;
+  --hover-accent: #267A52;
+  --main-button-text-color: var(--background);
+  
+  /* Component Colors */
+  --date-range-bg: #353535;
+  --date-range-text: #F4F4F4;
+  --date-range-divider: rgba(255, 255, 255, 0.1);
+
+  /* Typography */
+  --font-family-base: 'Roboto', sans-serif;
+  --font-family-mono: 'Roboto Mono', monospace;
+  --font-weight-normal: 400;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-title: 24px;
+  --line-height-sm: 20px;
+  --line-height-base: 24px;
+  --line-height-xs: 16px;
+  --letter-spacing: 0.16px;
 }
 
 @theme inline {
@@ -14,15 +39,250 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+.title-font {
+  font-family: var(--font-family-base);
+  color: var(--text-color);
+  font-size: var(--font-size-title);
+  line-height: var(--line-height-sm);
+}
+
+.default-font {
+  font-family: var(--font-family-base);
+  color: var(--text-color);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.dropdown-font {
+  font-family: var(--font-family-base);
+  color: #C6C6C6;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+}
+
+.small-font {
+  font-family: var(--font-family-base);
+  color: var(--text-color-secondary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-xs);
+}
+
+.button-font {
+  font-family: var(--font-family-base);
+  color: var(--background);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-base);
+}
+/* Component Styles - keeping original implementation */
+.ai-calculator-button {
+  /* Auto layout */
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 12px 24px;
+  gap: 8px;
+  height: 48px;
+  
+  background: var(--accent);
+  color: var(--main-button-text-color);
+  white-space: nowrap;
+  
+  /* Text styles */
+  font-family: var(--font-family-base);
+  font-style: normal;
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-base);
+
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+  transition: background-color 0.2s;
+}
+
+.ai-calculator-button:hover {
+  background: rgba(39, 247, 149, 0.9);
+}
+
+/* Date Range Selector styles */
+.date-range-selector {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 8px;
+  
+  width: 288px;
+  height: 48px;
+  
+  background: var(--date-range-bg);
+  
+  /* Inside auto layout */
+  flex: none;
+  order: 2;
+  flex-grow: 0;
+}
+
+.date-range-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.date-range-selector button {
+  background: transparent !important;
+  border: none !important;
+  color: var(--date-range-text) !important;
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.date-range-text {
+  font-family: var(--font-family-base);
+  font-style: normal;
+  font-weight: var(--font-weight-normal);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-sm);
+  letter-spacing: var(--letter-spacing);
+  color: var(--date-range-text);
+  height: var(--line-height-sm);
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Style for the divider between buttons */
+.date-range-selector-divider {
+  width: 1px;
+  height: 24px;
+  background: var(--date-range-divider);
+}
+
+/* Filter input styles - matching date range selector */
+.filter-input-wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 8px;
+  
+  width: 288px;
+  height: 48px;
+  
+  background: #353535;
+  
+  /* Inside auto layout */
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+.filter-input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: #F4F4F4;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  padding: 0;
+}
+
+.filter-input::placeholder {
+  color: #F4F4F4;
+  opacity: 0.5;
+}
+
+.filter-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.filter-input:disabled {
+  opacity: 0.5;
+}
+
+.settings-button {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 14px 16px;
+  gap: 8px;
+  
+  height: 48px;
+  
+  background: #353535;
+  
+  /* Inside auto layout */
+  flex: none;
+  order: 0;
+  flex-grow: 0;
+}
+
+.settings-button:hover {
+  background: rgba(53, 53, 53, 0.9);
+}
+
+/* Tremor Tab styles override */
+.tremor-TabList-root [aria-selected="true"],
+.tremor-TabList-root [data-headlessui-state*="selected"],
+.tremor-Tab-root[aria-selected="true"],
+.tremor-Tab-root[data-headlessui-state*="selected"] {
+  background-color: #262626 !important;
+  border-bottom: 2px solid #27F795 !important;
+  color: #F4F4F4 !important;
+}
+
+/* Add this to ensure no other styles are overriding */
+.tremor-Tab-root[aria-selected="true"]::after,
+.tremor-Tab-root[data-headlessui-state*="selected"]::after {
+  display: none !important;
+}
+
+.tremor-Tab-root {
+  min-width: 91.5px !important;
+  width: auto !important;
+  height: 32px !important;
+  padding: 16px 16px !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+  color: #C6C6C6 !important;
+  white-space: nowrap !important;
+  font-family: 'Roboto', sans-serif !important;
+}
+
+.tremor-Tab-root:hover {
+  color: #F4F4F4 !important;
+}
+
+.tremor-TabList-root {
+  border: none !important;
+  background: transparent !important;
+}
+
+/* Bar Chart styles */
+.tremor-BarChart rect[role="graphics-symbol"] {
+  stroke: #000000;
+  stroke-width: 1px;
+  transition: opacity 0.2s ease;
+}
+
+::selection {
+  background-color: var(--accent); /* Your accent color */
+  color: var(--background);
+}
+
+::-moz-selection {
+  background-color: var(--accent); /* Your accent color */
+  color: var(--background);
 }

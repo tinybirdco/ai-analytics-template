@@ -68,24 +68,30 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
   
   return (
     <div className="flex flex-col h-full">
-      <div className="p-4 border-b border-gray-700">
+      <div className="p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-grow">
             <input
               type="text"
               placeholder="Search conversations semantically..."
-              className="w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleSearch(e);
+                }
+              }}
             />
             <button
               type="submit"
-              className="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-white"
+              className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white"
             >
               <Search className="w-5 h-5" />
             </button>
           </div>
-          {searchText && (
+          {/* {searchText && (
             <button
               type="button"
               className="px-3 py-2 text-sm text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600"
@@ -96,7 +102,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
             >
               Clear
             </button>
-          )}
+          )} */}
         </form>
       </div>
       

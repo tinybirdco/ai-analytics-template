@@ -10,51 +10,21 @@ module.exports = {
     current: 'currentColor',
     extend: {
       colors: {
-        // light mode
-        tremor: {
-          brand: {
-            faint: '#eff6ff', // blue-50
-            muted: '#bfdbfe', // blue-200
-            subtle: '#60a5fa', // blue-400
-            DEFAULT: '#3b82f6', // blue-500
-            emphasis: '#1d4ed8', // blue-700
-            inverted: '#ffffff', // white
-          },
-          background: {
-            muted: '#f9fafb', // gray-50
-            subtle: '#f3f4f6', // gray-100
-            DEFAULT: '#ffffff', // white
-            emphasis: '#374151', // gray-700
-          },
-          border: {
-            DEFAULT: '#e5e7eb', // gray-200
-          },
-          ring: {
-            DEFAULT: '#e5e7eb', // gray-200
-          },
-          content: {
-            subtle: '#9ca3af', // gray-400
-            DEFAULT: '#6b7280', // gray-500
-            emphasis: '#374151', // gray-700
-            strong: '#111827', // gray-900
-            inverted: '#ffffff', // white
-          },
-        },
         // dark mode
         'dark-tremor': {
           brand: {
             faint: '#0B1229', // custom
             muted: '#172554', // blue-950
-            subtle: '#1e40af', // blue-800
-            DEFAULT: '#3b82f6', // blue-500
-            emphasis: '#60a5fa', // blue-400
+            subtle: '#262626',
+            DEFAULT: '#27F795',
+            emphasis: '#353535',
             inverted: '#030712', // gray-950
           },
           background: {
             muted: '#131A2B', // custom
-            subtle: '#1f2937', // gray-800
-            DEFAULT: '#111827', // gray-900
-            emphasis: '#d1d5db', // gray-300
+            subtle: '#353535',
+            DEFAULT: '#0A0A0A',
+            emphasis: '#353535',
           },
           border: {
             DEFAULT: '#1f2937', // gray-800
@@ -88,9 +58,24 @@ module.exports = {
       },
       fontSize: {
         'tremor-label': ['0.75rem'],
-        'tremor-default': ['0.875rem', { lineHeight: '1.25rem' }],
+        'tremor-default': ['0.875rem', { 
+          lineHeight: '1.25rem',
+          fontFamily: ['Roboto', 'sans-serif']
+        }],
         'tremor-title': ['1.125rem', { lineHeight: '1.75rem' }],
-        'tremor-metric': ['1.875rem', { lineHeight: '2.25rem' }],
+        'tremor-metric': ['24px', { 
+          lineHeight: '20px',
+          fontFamily: ['Roboto Mono', 'monospace'],
+          fontWeight: '400',
+          fontStyle: 'normal'
+        }],
+        'tremor-metric-xl': ['48px', { 
+          lineHeight: '48px',
+          fontFamily: ['Roboto Mono', 'monospace'],
+          fontWeight: '400',
+          fontStyle: 'normal'
+        }],
+        'tremor-tab': ['14px', { lineHeight: '20px' }], // custom tab font size
       },
     },
   },
@@ -122,6 +107,21 @@ module.exports = {
       pattern:
         /^(fill-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(?:50|100|200|300|400|500|600|700|800|900|950))$/,
     },
+    // Add custom colors to safelist using flatMap
+    ...['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'].flatMap((customColor) => [
+      `bg-[${customColor}]`,
+      `border-[${customColor}]`,
+      `hover:bg-[${customColor}]`,
+      `hover:border-[${customColor}]`,
+      `hover:text-[${customColor}]`,
+      `fill-[${customColor}]`,
+      `ring-[${customColor}]`,
+      `stroke-[${customColor}]`,
+      `text-[${customColor}]`,
+      `ui-selected:bg-[${customColor}]`,
+      `ui-selected:border-[${customColor}]`,
+      `ui-selected:text-[${customColor}]`,
+    ]),
   ],
   plugins: [],
 } 

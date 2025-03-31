@@ -11,6 +11,8 @@ import {
 } from '@tremor/react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
+import CustomTooltip from './CustomTooltip';
+import { useState } from 'react';
 
 function classNames(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(' ');
@@ -44,6 +46,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   const router = useRouter();
   const searchParams = useSearchParams();
   const { orgName } = useTinybirdToken();
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // Add null check for data
   if (!data?.data) {
@@ -54,19 +57,22 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   const models = [...new Set(data.data.map(d => d.category))];
 
   // Default colors for unknown models
-  const defaultColors = ['orange', 'cyan', 'amber', 'teal', 'lime', 'pink'];
+  const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
 
   // Use the same approach for all tabs - just use default colors in sequence
   const transformedData = dates.map(date => {
     const dayData = data.data.filter(d => d.date === date);
+    const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: '2-digit' 
+    });
     return {
-      date: new Date(date).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: '2-digit' 
-      }),
+      date: formattedDate,
+      originalDate: date,
       ...models.reduce((acc, model) => ({
         ...acc,
-        [model]: dayData.find(d => d.category === model)?.total_cost || 0
+        [model]: dayData.find(d => d.category === model)?.total_cost || 0,
+        [`${model}_opacity`]: selectedDate === null || selectedDate === formattedDate ? 1 : 0.3
       }), {})
     };
   });
@@ -77,13 +83,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'model',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     },
     {
@@ -91,13 +98,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'provider',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     },
     {
@@ -105,13 +113,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'environment',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     }
   ];
@@ -122,13 +131,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       key: 'organization',
       data: transformedData,
       categories: models,
-      colors: models.map((_, index) => defaultColors[index % defaultColors.length]),
+      colors: defaultColors,
       summary: models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-${defaultColors[index % defaultColors.length]}-500`,
+        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     })
   }
@@ -146,67 +156,77 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     onFiltersChange?.(newFilters);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleValueChange = (v: any) => {
+    if (v) {
+      setSelectedDate(v.date);
+    } else {
+      setSelectedDate(null);
+    }
+  };
+
   // Determine the default index - use 'model' if no column_name is specified
   const defaultIndex = tabs.findIndex(t => t.key === (searchParams.get('column_name') || 'model'));
   
   // Add $ sign to the value formatter for costs
   const costValueFormatter = (number: number) => 
-    `$${Intl.NumberFormat('us').format(number).toString()}`;
+    `$${valueFormatter(number)}`;
   
   return (
-    <Card className="h-full p-0 rounded-none border-0" style={{ boxShadow: '-1px 0 0 0 rgb(55 65 81)' }}>
+    <Card 
+      className="h-full p-0 rounded-none border-0" 
+      style={{ 
+        background: 'var(--background)',  // Match page background
+        boxShadow: 'none'  // Remove shadow
+      }}
+    >
       <div className="flex h-full flex-col">
-        <div className="flex-1 border-t border-tremor-border p-6 dark:border-dark-tremor-border overflow-hidden">
+        <div className="flex-1 overflow-hidden">
           <TabGroup 
             className="h-full flex flex-col"
             onIndexChange={handleTabChange}
             defaultIndex={defaultIndex >= 0 ? defaultIndex : 0}
           >
-            <div className="flex-none md:flex md:items-center md:justify-between">
-              <TabList
-                variant="solid"
-                className="w-full rounded-tremor-small md:w-[400px]"
-              >
+            <div className="flex-none md:flex md:items-center md:justify-between pl-4">
+              <TabList className="w-auto border-none">
                 {tabs.map((tab) => (
                   <Tab
-                    key={tab.name}
-                    className="w-full whitespace-nowrap px-3 justify-center ui-selected:text-tremor-content-strong ui-selected:dark:text-dark-tremor-content-strong"
-                  >
+                    key={tab.name}>
                     {tab.name}
                   </Tab>
                 ))}
               </TabList>
-              <div className="hidden md:flex md:items-center md:space-x-2">
+              <div className="hidden md:flex md:items-center px-4">
                 <span
-                  className="shrink-0 animate-pulse rounded-tremor-full bg-emerald-500/30 p-1"
+                  className="shrink-0 animate-pulse rounded-tremor-full bg-[#27F795]/30 p-1"
                   aria-hidden={true}
                 >
-                  <span className="block size-2 rounded-tremor-full bg-emerald-500" />
+                  <span className="block size-2 rounded-tremor-full bg-[var(--accent)]" />
                 </span>
-                <p className="mt-4 text-tremor-default text-tremor-content dark:text-dark-tremor-content md:mt-0">
+                <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content ml-2 font-['Roboto']">
                   Updated just now
                 </p>
               </div>
             </div>
-            <TabPanels className="flex-1 min-h-0 overflow-hidden">
+            <TabPanels className="flex-1 min-h-0 overflow-hidden px-6 pt-8">
               {tabs.map((tab) => (
                 <TabPanel key={tab.name} className="h-full flex flex-col">
-                  <ul className="flex-none mt-6 flex flex-wrap gap-x-20 gap-y-10">
+                  <ul className="flex-none flex flex-wrap gap-8">
                     {tab.summary.map((item) => (
                       <li key={item.name}>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center gap-2">
                           <span
                             className={classNames(
                               item.color,
-                              'size-3 shrink-0 rounded-sm',
+                              'w-4 h-4 shrink-0',
                             )}
                             aria-hidden={true}
                           />
-                          <p className="font-semibold text-tremor-content-strong dark:text-dark-tremor-content-strong">
+                          <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong" style={{ fontFamily: 'var(--font-family-mono)' }}>
                             ${valueFormatter(item.total)}
                           </p>
                         </div>
-                        <p className="whitespace-nowrap text-tremor-default text-tremor-content dark:text-dark-tremor-content">
+                        <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
                           {item.name}
                         </p>
                       </li>
@@ -218,7 +238,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       index="date"
                       categories={tab.categories}
                       colors={tab.colors}
-                      stack={true}
+                      stack={false}
                       showLegend={false}
                       yAxisWidth={45}
                       valueFormatter={costValueFormatter}
@@ -226,20 +246,17 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showTooltip={true}
                       showAnimation={false}
                       showXAxis={true}
-                    />
-                    <BarChart
-                      data={tab.data}
-                      index="date"
-                      categories={tab.categories}
-                      colors={tab.colors}
-                      stack={true}
-                      showLegend={false}
-                      showYAxis={false}
-                      valueFormatter={costValueFormatter}
-                      className="h-[calc(100%-24px)] mt-6 md:hidden"
-                      showTooltip={true}
-                      showAnimation={false}
-                      showXAxis={true}
+                      onValueChange={handleValueChange}
+                      customTooltip={(props) => (
+                        <CustomTooltip
+                          date={props.payload?.[0]?.payload.date}
+                          entries={props.payload?.map(entry => ({
+                            name: String(entry.name || ''),
+                            value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                            color: entry.color || '#27F795'
+                          })) || []}
+                        />
+                      )}
                     />
                   </div>
                 </TabPanel>

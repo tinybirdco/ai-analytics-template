@@ -4,13 +4,11 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'next/navigation';
 import { format, subDays, subHours, subMonths, parse, isValid } from 'date-fns';
-import { Calendar as CalendarIcon, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { CalendarIcon } from './icons';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 
 interface DateRangeOption {
   label: string;
@@ -49,10 +47,6 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   
   // Track if we've already initialized from URL
   const initializedRef = useRef(false);
-
-  // Generate hours and minutes for dropdowns
-  const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0')), []);
-  const minutes = useMemo(() => Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0')), []);
 
   // Predefined date ranges - memoize to prevent recreation
   const dateRangeOptions = useMemo<DateRangeOption[]>(() => [
@@ -251,17 +245,7 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     setSelectedRange(`${format(start, 'MMM d')} - ${format(end, 'MMM d')}`);
     setIsPredefinedRange(false);
     
-    // Don't close the calendar or update URL params yet
-    // Wait for the Apply button to be clicked
   }, []);
-
-  // Handle time change - memoize to prevent recreation
-  const handleTimeChange = useCallback(() => {
-    if (!dateRange.start || !dateRange.end) return;
-    
-    updateUrlParams(dateRange.start, dateRange.end);
-    setCalendarOpen(false); // Only close the calendar when Apply is clicked
-  }, [dateRange, updateUrlParams]);
 
   // Memoize the open/close handlers to prevent recreation
   const handleRangePopoverOpenChange = useCallback((open: boolean) => {
@@ -273,270 +257,102 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
   }, []);
 
   return (
-    <div className="flex items-center">
-      {isPredefinedRange ? (
-        // Predefined range layout - Text with chevron on left, calendar on right
-        <>
-          <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
-            <PopoverTrigger asChild>
-              <Button 
-                ref={rangePopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center justify-between gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-md rounded-r-none px-3 py-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
-              >
-                <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <span className="text-sm font-medium">
-                  {selectedRange || 'Select date range'}
-                </span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
-              <div className="space-y-1 p-2">
-                {dateRangeOptions.map((option) => (
-                  <div
-                    key={option.label}
-                    className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-150 ease-in-out"
-                    onClick={() => handleRangeSelect(option)}
-                  >
+    <div className={`date-range-selector ${isOpen || calendarOpen ? 'ring-1 ring-white' : ''}`}>
+      <div className="date-range-content">
+        {/* Calendar Icon and Popover */}
+        <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
+          <PopoverTrigger asChild>
+            <Button 
+              ref={calendarPopoverTriggerRef}
+              variant="ghost" 
+              className="p-0 h-auto"
+            >
+              <CalendarIcon opacity={isOpen ? 0.5 : 1} />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="min-w-[288px] p-0 bg-[#353535] default-font border-0 rounded-none" align="start" sideOffset={22} alignOffset={-16}>
+            <div>
+              <Calendar
+                mode="range"
+                selected={{
+                  from: dateRange.start || undefined,
+                  to: dateRange.end || undefined,
+                }}
+                onSelect={(range) => {
+                  if (range) handleCalendarSelect(range);
+                }}
+                className="border-0"
+                classNames={{
+                  months: "space-y-4",
+                  month: "space-y-4",
+                  caption: "flex justify-center pt-1 relative items-center",
+                  caption_label: "text-sm font-medium",
+                  nav: "flex items-center",
+                  nav_button: "h-4 w-4 bg-transparent p-0 opacity-50 hover:opacity-100",
+                  nav_button_previous: "absolute left-1",
+                  nav_button_next: "absolute right-1",
+                  table: "w-full border-collapse",
+                  head_row: "flex w-full",
+                  head_cell: "text-white flex-1 font-normal text-[0.8rem]",
+                  row: "flex w-full mt-2",
+                  cell: "flex-1 text-center text-sm p-0 relative [&:has([aria-selected])]:bg-[#4CAF50] first:[&:has([aria-selected])]:rounded-l-md last:[&:has([aria-selected])]:rounded-r-md focus-within:relative focus-within:z-20",
+                  day: "w-full h-9 p-0 font-normal aria-selected:opacity-100 relative hover:bg-[#3D3D3D] transition-colors",
+                  day_range_start: "bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent)] hover:text-[#0A0A0A] focus:bg-[var(--accent)] focus:text-[#0A0A0A]",
+                  day_range_end: "bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent)] hover:text-[#0A0A0A] focus:bg-[var(--accent)] focus:text-[#0A0A0A]",
+                  day_selected: "bg-[var(--accent)] text-[#0A0A0A] hover:bg-[var(--accent)] hover:text-[#0A0A0A] focus:bg-[var(--accent)] focus:text-[#0A0A0A]",
+                  day_today: "text-[var(--accent)] after:absolute after:content-[''] after:w-1 after:h-1 after:bottom-1 after:left-1/2 after:-translate-x-1/2 after:bg-[var(--accent)] after:rounded-none",
+                  day_disabled: "text-muted-foreground opacity-50",
+                  day_range_middle: "aria-selected:bg-[#267A52] aria-selected:text-[#F4F4F4]",
+                  day_hidden: "invisible",
+                }}
+                initialFocus
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Date Range Text */}
+        <span className="date-range-text flex-grow">
+          {selectedRange || 'Select date range'}
+        </span>
+
+        {/* Chevron and Predefined Ranges Popover */}
+        <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
+          <PopoverTrigger asChild>
+            <Button 
+              ref={rangePopoverTriggerRef}
+              variant="ghost" 
+              className="p-0 h-auto"
+            >
+              {isOpen ? (
+                <ChevronUp className={`h-4 w-4 ${calendarOpen ? 'opacity-50' : ''}`} />
+              ) : (
+                <ChevronDown className={`h-4 w-4 ${calendarOpen ? 'opacity-50' : ''}`} />
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent 
+            className="min-w-[288px] pt-1 bg-[#353535] border-0 rounded-none p-0"
+            align="start"
+            alignOffset={-256}
+            sideOffset={22}
+          >
+            <div>
+              {dateRangeOptions.map((option) => (
+                <div
+                  key={option.label}
+                  className="cursor-pointer dropdown-font text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out"
+                  onClick={() => handleRangeSelect(option)}
+                >
+                  <span className="block px-4 py-4">
                     {option.label}
-                  </div>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-          
-          <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
-            <PopoverTrigger asChild>
-              <Button 
-                ref={calendarPopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-l-0 rounded-l-none rounded-r-md px-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
-              >
-                <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
-              <div className="p-0">
-                <Calendar
-                  mode="range"
-                  selected={{
-                    from: dateRange.start || undefined,
-                    to: dateRange.end || undefined,
-                  }}
-                  onSelect={(range) => {
-                    if (range) handleCalendarSelect(range);
-                  }}
-                  className="rounded-md border-0"
-                  initialFocus
-                />
-                
-                {/* Time selection */}
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Start Time</Label>
-                      <div className="flex gap-1">
-                        <Select value={startHour} onValueChange={setStartHour}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Hour" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {hours.map(hour => (
-                              <SelectItem key={`start-hour-${hour}`} value={hour}>{hour}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="flex items-center">:</span>
-                        <Select value={startMinute} onValueChange={setStartMinute}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Min" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {minutes.map(minute => (
-                              <SelectItem key={`start-min-${minute}`} value={minute}>{minute}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">End Time</Label>
-                      <div className="flex gap-1">
-                        <Select value={endHour} onValueChange={setEndHour}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Hour" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {hours.map(hour => (
-                              <SelectItem key={`end-hour-${hour}`} value={hour}>{hour}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="flex items-center">:</span>
-                        <Select value={endMinute} onValueChange={setEndMinute}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Min" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {minutes.map(minute => (
-                              <SelectItem key={`end-min-${minute}`} value={minute}>{minute}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-3 transition-colors duration-150 ease-in-out" 
-                    onClick={handleTimeChange}
-                  >
-                    Apply
-                  </Button>
+                  </span>
                 </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </>
-      ) : (
-        // Custom range layout - similar changes for this section
-        <>
-          <Popover open={isOpen} onOpenChange={handleRangePopoverOpenChange}>
-            <PopoverTrigger asChild>
-              <Button 
-                ref={rangePopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-l-md rounded-r-none px-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
-              >
-                <ChevronDown className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
-              <div className="space-y-1 p-2">
-                {dateRangeOptions.map((option) => (
-                  <div
-                    key={option.label}
-                    className="px-4 py-2 text-sm cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors duration-150 ease-in-out"
-                    onClick={() => handleRangeSelect(option)}
-                  >
-                    {option.label}
-                  </div>
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
-          
-          <Popover open={calendarOpen} onOpenChange={handleCalendarPopoverOpenChange}>
-            <PopoverTrigger asChild>
-              <Button 
-                ref={calendarPopoverTriggerRef}
-                variant="outline" 
-                className={cn(
-                  "flex items-center gap-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 border-l-0 rounded-l-none rounded-r-md px-3 py-2 h-10",
-                  "transition-all duration-200 ease-in-out"
-                )}
-              >
-                <span className="text-sm font-medium">
-                  {selectedRange || 'Select dates'}
-                </span>
-                <CalendarIcon className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg rounded-md transition-all duration-200 ease-in-out">
-              <div className="p-0">
-                <Calendar
-                  mode="range"
-                  selected={{
-                    from: dateRange.start || undefined,
-                    to: dateRange.end || undefined,
-                  }}
-                  onSelect={(range) => {
-                    if (range) handleCalendarSelect(range);
-                  }}
-                  className="rounded-md border-0"
-                  initialFocus
-                />
-                
-                {/* Time selection */}
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">Start Time</Label>
-                      <div className="flex gap-1">
-                        <Select value={startHour} onValueChange={setStartHour}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Hour" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {hours.map(hour => (
-                              <SelectItem key={`start-hour-${hour}`} value={hour}>{hour}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="flex items-center">:</span>
-                        <Select value={startMinute} onValueChange={setStartMinute}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Min" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {minutes.map(minute => (
-                              <SelectItem key={`start-min-${minute}`} value={minute}>{minute}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <Label className="text-xs text-gray-500 dark:text-gray-400 mb-1 block">End Time</Label>
-                      <div className="flex gap-1">
-                        <Select value={endHour} onValueChange={setEndHour}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Hour" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {hours.map(hour => (
-                              <SelectItem key={`end-hour-${hour}`} value={hour}>{hour}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <span className="flex items-center">:</span>
-                        <Select value={endMinute} onValueChange={setEndMinute}>
-                          <SelectTrigger className="w-full transition-colors duration-150 ease-in-out">
-                            <SelectValue placeholder="Min" />
-                          </SelectTrigger>
-                          <SelectContent className="transition-opacity duration-150 ease-in-out">
-                            {minutes.map(minute => (
-                              <SelectItem key={`end-min-${minute}`} value={minute}>{minute}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    className="w-full mt-3 transition-colors duration-150 ease-in-out" 
-                    onClick={handleTimeChange}
-                  >
-                    Apply
-                  </Button>
-                </div>
-              </div>
-            </PopoverContent>
-          </Popover>
-        </>
-      )}
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+      </div>
     </div>
   );
 } 

@@ -1,16 +1,17 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { SignInButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useRef, useState } from 'react';
 import DateRangeSelector from './DateRangeSelector';
-import { Calculator, Settings } from 'lucide-react';
+import { FilterIcon, SettingsIcon, SignInIcon } from './icons';
 import { useModal } from '../context/ModalContext';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import ApiKeyInput from './ApiKeyInput';
 import { Dialog, DialogPanel } from '@tremor/react';
+import { Sparkles } from 'lucide-react';
+import SignInModal from './SignInModal';
 
 interface Selection {
   dimension: string;
@@ -26,12 +27,12 @@ interface TopBarProps {
 export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { orgName } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
   const { openCostPrediction } = useModal();
   const { openaiKey } = useApiKeyStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false);
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -126,73 +127,76 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   // };
 
   return (
-    <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={openCostPrediction}
-          className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-sm"
-        >
-          <Calculator className="w-4 h-4 mr-2" />
-          AI calculator
-        </button>
-        <div className="relative">
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Filter by..."
-            className="px-4 py-2 text-sm border rounded-md dark:bg-gray-800 dark:border-gray-700 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all"
-            onKeyDown={handleSearch}
-            disabled={isLoading}
-          />
-          {isLoading && (
-            <div className="absolute right-3 top-2">
-              <div className="animate-spin h-4 w-4 border-2 border-indigo-500 rounded-full border-t-transparent"></div>
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between p-4">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={openCostPrediction}
+            className="ai-calculator-button hover:bg-[var(--hover-accent)] hover:text-white group"
+          >
+            <span className="font-roboto text-base font-normal">
+              AI Cost Calculator
+            </span>
+            <FilterIcon fill="currentColor" />
+          </button>
+          <div className="relative w-[288px]">
+            <input
+              ref={inputRef}
+              type="text"
+              placeholder="Ask AI..."
+              className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
+              onKeyDown={handleSearch}
+              disabled={isLoading}
+            />
+            <div className="absolute right-4 top-1/2 -translate-y-1/2">
+              {isLoading ? (
+                <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
+              ) : (
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                <button type="submit" onClick={() => handleSearch({ key: 'Enter' } as any)}>
+                  <Sparkles className="h-4 w-4" />
+                </button>
+              )}
             </div>
-          )}
+          </div>
+          <DateRangeSelector />
         </div>
-        <DateRangeSelector />
-        <div className="flex flex-wrap gap-2">
-          {selections.map((selection) => (
-            selection.values.map((value) => (
-              <FilterChips
-                key={`${selection.dimension}-${value}`}
-                dimension={selection.dimensionName}
-                value={value}
-                onRemove={() => handleRemoveFilter(selection.dimension, value)}
-              />
-            ))
-          ))}
+        
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="settings-button"
+          >
+            <SettingsIcon />
+          </button>
+
+          <SignedOut>
+            <button 
+              onClick={() => setIsSignInOpen(true)}
+              className="settings-button"
+            >
+              <SignInIcon />
+            </button>
+          </SignedOut>
+          <SignedIn>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </div>
-      
-      <div className="flex items-center space-x-4">
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="flex items-center px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors shadow-sm"
-        >
-          <Settings className="w-4 h-4 mr-2" />
-          Settings
-        </button>
-        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
-          {orgName || 'Admin User'}
-        </span>
-        <SignedOut>
-          <SignInButton mode="modal">
-            <button className="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
-              Sign In
-            </button>
-          </SignInButton>
-          {/* <SignUpButton mode="modal">
-            <button className="px-4 py-2 text-sm font-medium text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900">
-              Sign Up
-            </button>
-          </SignUpButton> */}
-        </SignedOut>
-        <SignedIn>
-          <UserButton afterSignOutUrl="/" />
-        </SignedIn>
+
+      <div className="px-4 pb-5 flex flex-wrap gap-2 p-2">
+        {selections.map((selection) => (
+          selection.values.map((value) => (
+            <FilterChips
+              key={`${selection.dimension}-${value}`}
+              dimension={selection.dimensionName}
+              value={value}
+              onRemove={() => handleRemoveFilter(selection.dimension, value)}
+            />
+          ))
+        ))}
       </div>
-      
+
       {/* Settings Modal */}
       <Dialog
         open={isSettingsOpen}
@@ -213,10 +217,16 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               </button>
             </div>
             
-            <ApiKeyInput />
+            <ApiKeyInput isOpen={true} onClose={() => setIsSettingsOpen(false)} />
           </div>
         </DialogPanel>
       </Dialog>
+
+      {/* Sign In Modal */}
+      <SignInModal 
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+      />
     </div>
   );
 } 

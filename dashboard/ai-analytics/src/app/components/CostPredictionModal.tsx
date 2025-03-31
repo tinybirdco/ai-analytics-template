@@ -2,11 +2,12 @@
 'use client';
 
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { X, Calculator, Copy, Check, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, Sparkles, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { AreaChart, BarChart } from '@tremor/react';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { fetchLLMUsage } from '@/services/tinybird';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
+import CustomTooltip from './CustomTooltip';
 
 interface CostPredictionModalProps {
   isOpen: boolean;
@@ -52,6 +53,9 @@ interface DateAggregatedData {
   total_cost: number;
 }
 
+// Add default colors constant at the top level
+const defaultColors = ['#27F795', '#3CCC70', '#40A25F', '#34836E', '#2B6D5C'];
+
 export default function CostPredictionModal({ 
   isOpen, 
   onClose,
@@ -67,13 +71,13 @@ export default function CostPredictionModal({
     difference: number;
     percentChange: number;
   } | null>(null);
-  const [copiedExample, setCopiedExample] = useState<number | null>(null);
-  const [showExamples, setShowExamples] = useState(false);
+  const [showExamples, setShowExamples] = useState(true);
 //   const [usageData, setUsageData] = useState<UsageDataItem[]>([]);
 //   const [isLoadingUsage, setIsLoadingUsage] = useState(false);
   const [chartCategories, setChartCategories] = useState<string[]>(['actualCost', 'predictedCost']);
   const [isGroupedData, setIsGroupedData] = useState(false);
   const [isPredictionQuery, setIsPredictionQuery] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   
   const { token } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -318,12 +322,6 @@ export default function CostPredictionModal({
     if (inputRef.current) {
       inputRef.current.focus();
     }
-  };
-
-  const copyExample = (index: number, example: string) => {
-    navigator.clipboard.writeText(example);
-    setCopiedExample(index);
-    setTimeout(() => setCopiedExample(null), 2000);
   };
 
   const calculateCosts = (usageData: UsageDataItem[], params: CostParameters) => {
@@ -706,7 +704,7 @@ export default function CostPredictionModal({
         <>
           {/* Modal backdrop - updated to use the memoized handler */}
           <div 
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 font-['Roboto']"
             onClick={handleBackdropClick}
           />
           
@@ -716,48 +714,55 @@ export default function CostPredictionModal({
             onClick={handleBackdropClick} // Also handle clicks on the container outside the modal
           >
             <div 
-              className="bg-gray-900 rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] flex flex-col"
+              className="bg-[#262626] w-full max-w-3xl max-h-[90vh] flex flex-col"
               onClick={(e) => e.stopPropagation()} // Prevent clicks on the modal itself from closing it
             >
               {/* Modal header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-800">
+              <div className="flex items-center justify-between p-4 pb-0">
                 <div className="flex items-center space-x-2">
-                  <Calculator className="h-5 w-5 text-blue-400" />
-                  <h2 className="text-lg font-medium text-white">Cost Calculator</h2>
+                  <h2 className="title-font">Cost Calculator</h2>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="settings-button"
                 >
-                  <X className="h-5 w-5" />
+                  <X className="h-4 w-4 text-white" />
                 </button>
               </div>
               
               {/* Modal content */}
-              <div className="p-4 overflow-y-auto flex-grow">
+              <div className="p-4 overflow-y-auto flex-grow !pb-0">
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
-                      <Sparkles className="h-4 w-4 text-blue-400" />
-                    </div>
                     <input
-                      ref={inputRef}
                       type="text"
+                      placeholder="Ask AI..."
+                      className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
-                      placeholder="Ask about cost calculations..."
-                      className="w-full bg-gray-800 text-white rounded-lg pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleSubmit(e);
+                        }
+                      }}
                     />
+                    <button
+                      type="submit"
+                      className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white pr-4"
+                    >
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </button>
                   </div>
                   
                   {/* Examples dropdown */}
-                  <div className="bg-gray-800/50 rounded-lg">
+                  <div className="bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle pb-2">
                     <button
                       type="button"
                       onClick={() => setShowExamples(!showExamples)}
-                      className="w-full flex items-center justify-between px-4 py-2 text-sm text-gray-300 hover:text-white"
+                      className="w-full flex items-center justify-between px-4 py-2 pt-4 text-sm text-gray-300 hover:text-white"
                     >
-                      <span>Example queries</span>
+                      <span className="small-font">Example queries</span>
                       {showExamples ? (
                         <ChevronUp className="h-4 w-4" />
                       ) : (
@@ -766,45 +771,290 @@ export default function CostPredictionModal({
                     </button>
                     
                     {showExamples && (
-                      <div className="px-4 pb-3 space-y-2">
+                      <div className="px-4 pb-4 space-y-2">
                         {exampleQueries.map((example, index) => (
                           <div key={index} className="flex items-center gap-2">
                             <button
                               type="button"
                               onClick={() => handleExampleClick(example)}
-                              className="flex-grow text-left text-sm text-blue-400 hover:text-blue-300 truncate"
+                              className="flex-grow text-left default-font hover:text-[var(--accent)] truncate"
                             >
                               {example}
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => copyExample(index, example)}
-                              className="flex-shrink-0 text-gray-400 hover:text-white"
-                              title="Copy to clipboard"
-                            >
-                              {copiedExample === index ? (
-                                <Check className="h-4 w-4 text-green-400" />
-                              ) : (
-                                <Copy className="h-4 w-4" />
-                              )}
                             </button>
                           </div>
                         ))}
                       </div>
                     )}
                   </div>
+
+                  {/* Parameters and chart */}
+                <div className="space-y-4 font-['Roboto']">
+                  {parameters && (
+                    <>
+                      {/* Collapsible header and parameters */}
+                      <button
+                        onClick={() => setShowDetails(!showDetails)}
+                        className={`w-full flex items-center justify-between default-font ${
+                          showDetails ? 'text-[var(--accent)] !pb-0' : ''
+                        }`}
+                      >
+                        <div className={`flex items-center gap-2 pt-4 pb-4 ${
+                          showDetails ? 'hover:text-[var(--accent)] !pb-0' : ''
+                        }`}>
+                          {showDetails ? (
+                            <X className="h-4 w-4" />
+                          ) : (
+                            <Info className="h-4 w-4" />
+                          )}
+                          <span className="text-sm">{showDetails ? 'Hide details' : 'Show details'}</span>
+                        </div>
+                      </button>
+
+                      {/* Parameters (collapsible) */}
+                      {showDetails && (
+                        <div>
+                          <div className="p-6 pt-0 default-font">
+                            <h4 className="mb-4">Parameters</h4>
+                            <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-4">
+                              <div>Model</div>
+                              <div>{parameters.model || 'Current models'}</div>
+                              
+                              <div>Prompt Token Cost</div>
+                              <div className="font-['Roboto Mono']">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
+                              
+                              <div>Completion Token Cost</div>
+                              <div className="font-['Roboto Mono']">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
+                              
+                              {parameters.discount > 0 && (
+                                <>
+                                  <div>Discount</div>
+                                  <div className="font-['Roboto Mono']">{parameters.discount}%</div>
+                                </>
+                              )}
+                              
+                              {parameters.volumeChange !== 0 && (
+                                <>
+                                  <div>Volume Change</div>
+                                  <div className="font-['Roboto Mono']">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
+                                </>
+                              )}
+                              
+                              <div>Time Period</div>
+                              <div className="font-['Roboto Mono']">{parameters.timeframe}</div>
+                              
+                              <div>Date Range</div>
+                              <div className="font-['Roboto Mono']">{parameters.start_date} to {parameters.end_date}</div>
+                              
+                              {parameters.group_by && (
+                                <>
+                                  <div>Grouped By</div>
+                                  <div>{parameters.group_by}</div>
+                                </>
+                              )}
+                              
+                              {/* Display filter parameters if specified */}
+                              {parameters.organization && (
+                                <>
+                                  <div>Organization</div>
+                                  <div>{parameters.organization}</div>
+                                </>
+                              )}
+                              
+                              {parameters.project && (
+                                <>
+                                  <div>Project</div>
+                                  <div>{parameters.project}</div>
+                                </>
+                              )}
+                              
+                              {parameters.environment && (
+                                <>
+                                  <div>Environment</div>
+                                  <div>{parameters.environment}</div>
+                                </>
+                              )}
+                              
+                              {parameters.provider && (
+                                <>
+                                  <div>Provider</div>
+                                  <div>{parameters.provider}</div>
+                                </>
+                              )}
+                              
+                              {parameters.user && (
+                                <>
+                                  <div>User</div>
+                                  <div>{parameters.user}</div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Chart (always visible when parameters exist) */}
+                      {dailyCosts.length > 0 && (
+                        <div className="mt-4">
+                          {/* Legend section */}
+                          <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}</h2>
+                          <ul className="flex flex-wrap gap-8 mb-8 mt-6">
+                            {isPredictionQuery ? (
+                              // Legend for prediction query
+                              <>
+                                <li>
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-4 h-4 bg-[#27F795] shrink-0" />
+                                    <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                      ${summary?.actualTotal.toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                    Actual
+                                  </p>
+                                </li>
+                                <li>
+                                  <div className="flex items-center gap-2">
+                                    <span className="w-4 h-4 bg-[#3CCC70] shrink-0" />
+                                    <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                      ${summary?.predictedTotal.toFixed(2)}
+                                    </p>
+                                  </div>
+                                  <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                    Predicted
+                                  </p>
+                                </li>
+                              </>
+                            ) : isGroupedData ? (
+                              // Legend for grouped data
+                              chartCategories.map((category, index) => {
+                                const total = dailyCosts.reduce((sum, day) => 
+                                  sum + (typeof day[category] === 'number' ? day[category] as number : 0), 0
+                                );
+                                return (
+                                  <li key={category}>
+                                    <div className="flex items-center gap-2">
+                                      <span 
+                                        className="w-4 h-4 shrink-0"
+                                        style={{ backgroundColor: defaultColors[index % defaultColors.length] }}
+                                      />
+                                      <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                        ${total.toFixed(2)}
+                                      </p>
+                                    </div>
+                                    <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                      {category}
+                                    </p>
+                                  </li>
+                                );
+                              })
+                            ) : (
+                              // Legend for single metric
+                              <li>
+                                <div className="flex items-center gap-2">
+                                  <span className="w-4 h-4 bg-[#27F795] shrink-0" />
+                                  <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                    ${summary?.actualTotal.toFixed(2)}
+                                  </p>
+                                </div>
+                                <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                  Total Cost
+                                </p>
+                              </li>
+                            )}
+                          </ul>
+                          
+                          {isPredictionQuery ? (
+                            // Dual area chart for predictions
+                            <AreaChart
+                              className="h-72"
+                              data={dailyCosts}
+                              index="date"
+                              categories={['actualCost', 'predictedCost']}
+                              colors={defaultColors}
+                              valueFormatter={(value) => `$${value.toFixed(2)}`}
+                              showLegend={false}
+                              showGridLines={false}
+                              showAnimation={true}
+                              curveType="monotone"
+                              customTooltip={(props) => (
+                                <CustomTooltip
+                                  date={props.payload?.[0]?.payload.date}
+                                  entries={props.payload?.map(entry => ({
+                                    name: entry.name === 'actualCost' ? 'Actual' : 'Predicted',
+                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                    color: entry.color || defaultColors[0]
+                                  })) || []}
+                                />
+                              )}
+                            />
+                          ) : isGroupedData ? (
+                            // Stacked bar chart for grouped data
+                            <BarChart
+                              className="h-72"
+                              data={dailyCosts}
+                              index="date"
+                              categories={chartCategories}
+                              colors={defaultColors}
+                              valueFormatter={(value) => `$${value.toFixed(2)}`}
+                              stack={true}
+                              showLegend={false}
+                              showGridLines={false}
+                              showAnimation={true}
+                              customTooltip={(props) => (
+                                <CustomTooltip
+                                  date={props.payload?.[0]?.payload.date}
+                                  entries={props.payload?.map(entry => ({
+                                    name: String(entry.name),
+                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                    color: entry.color || defaultColors[0]
+                                  })) || []}
+                                />
+                              )}
+                            />
+                          ) : (
+                            // Single area chart for regular cost analysis
+                            <AreaChart
+                              className="h-72"
+                              data={dailyCosts}
+                              index="date"
+                              categories={['actualCost']}
+                              colors={[defaultColors[0]]}
+                              valueFormatter={(value) => `$${value.toFixed(2)}`}
+                              showLegend={false}
+                              showGridLines={false}
+                              showAnimation={true}
+                              curveType="monotone"
+                              customTooltip={(props) => (
+                                <CustomTooltip
+                                  date={props.payload?.[0]?.payload.date}
+                                  entries={props.payload?.map(entry => ({
+                                    name: 'Cost',
+                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                    color: entry.color || defaultColors[0]
+                                  })) || []}
+                                />
+                              )}
+                            />
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
                   
-                  <button
-                    type="submit"
-                    disabled={isLoading || !query.trim()}
-                    className={`w-full py-2 px-4 rounded-lg font-medium transition-colors ${
-                      isLoading || !query.trim()
-                        ? 'bg-gray-700 text-gray-400 cursor-not-allowed'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                    }`}
-                  >
-                    {isLoading ? 'Calculating...' : 'Calculate Cost'}
-                  </button>
+                  <div className="-mx-4 pt-4"> {/* Negative margins to counter parent padding */}
+                    <button
+                      type="submit"
+                      disabled={isLoading || !query.trim()}
+                      className={`w-full py-4 transition-colors ${
+                        isLoading || !query.trim()
+                          ? 'bg-[var(--accent)] button-font cursor-not-allowed'
+                          : 'bg-[var(--accent)] button-font text-white hover:bg-[var(--hover-accent)] hover:text-white'
+                      }`}
+                    >
+                      {isLoading ? 'Calculating...' : 'Calculate Cost'}
+                    </button>
+                  </div>
                 </form>
                 
                 {/* Results section */}
@@ -835,201 +1085,6 @@ export default function CostPredictionModal({
                     </div> */}
                   </div>
                 )}
-                
-                {/* Parameters and chart */}
-                <div className="space-y-4">
-                  {/* Parameters */}
-                  {parameters && (
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        <h2 className="text-lg font-medium text-gray-300 mb-2">Cost</h2>
-                        <div className="text-xl font-semibold text-white">
-                          {summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}
-                        </div>
-                      </div>
-                      <h4 className="text-sm font-medium text-gray-300 mb-2">Parameters</h4>
-                      <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
-                        <div className="text-gray-400">Model</div>
-                        <div className="text-white">{parameters.model || 'Current models'}</div>
-                        
-                        <div className="text-gray-400">Prompt Token Cost</div>
-                        <div className="text-white">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
-                        
-                        <div className="text-gray-400">Completion Token Cost</div>
-                        <div className="text-white">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
-                        
-                        {parameters.discount > 0 && (
-                          <>
-                            <div className="text-gray-400">Discount</div>
-                            <div className="text-white">{parameters.discount}%</div>
-                          </>
-                        )}
-                        
-                        {parameters.volumeChange !== 0 && (
-                          <>
-                            <div className="text-gray-400">Volume Change</div>
-                            <div className="text-white">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
-                          </>
-                        )}
-                        
-                        <div className="text-gray-400">Time Period</div>
-                        <div className="text-white">{parameters.timeframe}</div>
-                        
-                        <div className="text-gray-400">Date Range</div>
-                        <div className="text-white">{parameters.start_date} to {parameters.end_date}</div>
-                        
-                        {parameters.group_by && (
-                          <>
-                            <div className="text-gray-400">Grouped By</div>
-                            <div className="text-white">{parameters.group_by}</div>
-                          </>
-                        )}
-                        
-                        {/* Display filter parameters if specified */}
-                        {parameters.organization && (
-                          <>
-                            <div className="text-gray-400">Organization</div>
-                            <div className="text-white">{parameters.organization}</div>
-                          </>
-                        )}
-                        
-                        {parameters.project && (
-                          <>
-                            <div className="text-gray-400">Project</div>
-                            <div className="text-white">{parameters.project}</div>
-                          </>
-                        )}
-                        
-                        {parameters.environment && (
-                          <>
-                            <div className="text-gray-400">Environment</div>
-                            <div className="text-white">{parameters.environment}</div>
-                          </>
-                        )}
-                        
-                        {parameters.provider && (
-                          <>
-                            <div className="text-gray-400">Provider</div>
-                            <div className="text-white">{parameters.provider}</div>
-                          </>
-                        )}
-                        
-                        {parameters.user && (
-                          <>
-                            <div className="text-gray-400">User</div>
-                            <div className="text-white">{parameters.user}</div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Chart */}
-                  {dailyCosts.length > 0 && (
-                    <div className="mt-4">
-                      <h3 className="text-lg font-medium text-gray-300 mb-2">
-                        {isPredictionQuery ? 'Cost Prediction' : 'Cost Analysis'}
-                      </h3>
-                      
-                      {isPredictionQuery ? (
-                        // Dual area chart for predictions
-                        <AreaChart
-                          className="h-72 mt-4"
-                          data={dailyCosts}
-                          index="date"
-                          categories={['actualCost', 'predictedCost']}
-                          colors={['blue', 'emerald']}
-                          valueFormatter={(value) => `$${value.toFixed(2)}`}
-                          showLegend={true}
-                          showGridLines={false}
-                          showAnimation={true}
-                          curveType="monotone"
-                          customTooltip={(props) => (
-                            <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
-                              <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
-                              {props.payload?.map((entry, index) => (
-                                <div key={index} className="flex items-center mt-1">
-                                  <div
-                                    className="w-3 h-3 rounded-full mr-2"
-                                    style={{ backgroundColor: entry.color }}
-                                  />
-                                  <span className="text-gray-400">
-                                    {entry.name === 'actualCost' ? 'Actual' : 'Predicted'}:
-                                  </span>
-                                  <span className="text-white ml-1">
-                                    ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        />
-                      ) : isGroupedData ? (
-                        // Stacked bar chart for grouped data
-                        <BarChart
-                          className="h-72 mt-4"
-                          data={dailyCosts}
-                          index="date"
-                          categories={chartCategories}
-                          colors={['blue', 'emerald', 'amber', 'violet', 'rose', 'cyan', 'indigo']}
-                          valueFormatter={(value) => `$${value.toFixed(2)}`}
-                          stack={true}
-                          showLegend={true}
-                          showGridLines={false}
-                          showAnimation={true}
-                          customTooltip={(props) => (
-                            <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
-                              <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
-                              {props.payload?.map((entry, index) => (
-                                <div key={index} className="flex items-center mt-1">
-                                  <div
-                                    className="w-3 h-3 rounded-full mr-2"
-                                    style={{ backgroundColor: entry.color }}
-                                  />
-                                  <span className="text-gray-400">{entry.name}:</span>
-                                  <span className="text-white ml-1">
-                                    ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        />
-                      ) : (
-                        // Single area chart for regular cost analysis
-                        <AreaChart
-                          className="h-72 mt-4"
-                          data={dailyCosts}
-                          index="date"
-                          categories={['actualCost']}
-                          colors={['blue']}
-                          valueFormatter={(value) => `$${value.toFixed(2)}`}
-                          showLegend={false}
-                          showGridLines={false}
-                          showAnimation={true}
-                          curveType="monotone"
-                          customTooltip={(props) => (
-                            <div className="bg-gray-900 border border-gray-800 p-2 rounded-md shadow-lg">
-                              <div className="text-gray-300 font-medium">{props.payload?.[0]?.payload.date}</div>
-                              {props.payload?.map((entry, index) => (
-                                <div key={index} className="flex items-center mt-1">
-                                  <div
-                                    className="w-3 h-3 rounded-full mr-2"
-                                    style={{ backgroundColor: entry.color }}
-                                  />
-                                  <span className="text-gray-400">Cost:</span>
-                                  <span className="text-white ml-1">
-                                    ${typeof entry.value === 'number' ? entry.value.toFixed(2) : entry.value}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
               </div>
             </div>
           </div>

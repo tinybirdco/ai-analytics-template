@@ -16,7 +16,8 @@ export default function MetricsCards({ data, isLoading }: MetricsCardsProps) {
         isLoading={isLoading}
         chartType="line" 
         metric="avg_duration"
-        title="Average Duration"
+        title="Average TTFT"
+        className="pt-2"
       />
       <SparkChartContainer 
         data={data}

@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@tremor/react';
 import { format } from 'date-fns';
-import { X } from 'lucide-react';
+import { X, User, Cloud } from 'lucide-react';
 import { useLLMMessages } from '@/hooks/useTinybirdData';
 
 // Define the shape of the LLM message data
@@ -66,12 +66,47 @@ const MOCK_DATA = {
   ]
 };
 
+// Custom OpenAI Icon
+const OpenAIIcon = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#C6C6C6]">
+    <path d="M22.2819 9.8211a5.9847 5.9847 0 0 0-.5157-4.9108 6.0462 6.0462 0 0 0-6.5098-2.9A6.0651 6.0651 0 0 0 4.9807 4.1818a5.9847 5.9847 0 0 0-3.9977 2.9 6.0462 6.0462 0 0 0 .7427 7.0966 5.98 5.98 0 0 0 .511 4.9107 6.051 6.051 0 0 0 6.5146 2.9001A5.9847 5.9847 0 0 0 13.2599 24a6.0557 6.0557 0 0 0 5.7718-4.2058 5.9894 5.9894 0 0 0 3.9977-2.9001 6.0557 6.0557 0 0 0-.7475-7.0729zm-9.022 12.6081a4.4755 4.4755 0 0 1-2.8764-1.0408l.1419-.0804 4.7783-2.7582a.7948.7948 0 0 0 .3927-.6813v-6.7369l2.02 1.1686a.071.071 0 0 1 .038.052v5.5826a4.504 4.504 0 0 1-4.4945 4.4944zm-9.6607-4.1254a4.4708 4.4708 0 0 1-.5346-3.0137l.142.0852 4.783 2.7582a.7712.7712 0 0 0 .7806 0l5.8428-3.3685v2.3324a.0804.0804 0 0 1-.0332.0615L9.74 19.9502a4.4992 4.4992 0 0 1-6.1408-1.6464zM2.3408 7.8956a4.485 4.485 0 0 1 2.3655-1.9728V11.6a.7664.7664 0 0 0 .3879.6765l5.8144 3.3543-2.0201 1.1685a.0757.0757 0 0 1-.071 0l-4.8303-2.7865A4.504 4.504 0 0 1 2.3408 7.872zm16.5963 3.8558L13.1038 8.364 15.1192 7.2a.0757.0757 0 0 1 .071 0l4.8303 2.7913a4.4944 4.4944 0 0 1-.6765 8.1042v-5.6772a.79.79 0 0 0-.407-.667zm2.0107-3.0231l-.142-.0852-4.7735-2.7818a.7759.7759 0 0 0-.7854 0L9.409 9.2297V6.8974a.0662.0662 0 0 1 .0284-.0615l4.8303-2.7866a4.4992 4.4992 0 0 1 6.6802 4.66zM8.3065 12.863l-2.02-1.1638a.0804.0804 0 0 1-.038-.0567V6.0742a4.4992 4.4992 0 0 1 7.3757-3.4537l-.142.0805L8.704 5.459a.7948.7948 0 0 0-.3927.6813zm1.0976-2.3654l2.602-1.4998 2.6069 1.4998v2.9994l-2.5974 1.4997-2.6067-1.4997Z" fill="currentColor"/>
+  </svg>
+);
+
+// Custom Anthropic Icon
+const AnthropicIcon = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#C6C6C6]">
+    <path d="M13.827 3.52h3.603L24 20h-3.603l-6.57-16.48zm-7.258 0h3.767L16.906 20h-3.674l-1.343-3.461H5.017l-1.344 3.46H0L6.57 3.522zm4.132 9.959L8.453 7.687 6.205 13.48H10.7z" fill="currentColor"/>
+  </svg>
+);
+
+// Custom Google AI Icon
+const GoogleAIIcon = () => (
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#C6C6C6]">
+    <path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" fill="currentColor"/>
+  </svg>
+);
+
 // Detail view component
 function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => void }) {
   const { data: chatData, isLoading } = useLLMMessages({
     chat_id: message.chat_id,
     message_id: message.message_id
   });
+
+  // Helper function to get icon for provider
+  const getProviderIcon = (provider: string) => {
+    const lowerProvider = provider.toLowerCase();
+    if (lowerProvider.includes('openai')) {
+      return <OpenAIIcon />;
+    } else if (lowerProvider.includes('anthropic')) {
+      return <AnthropicIcon />;
+    } else if (lowerProvider.includes('google')) {
+      return <GoogleAIIcon />;
+    } else {
+      return <Cloud className="w-4 h-4 text-[#C6C6C6]" />;
+    }
+  };
 
   // Parse messages from JSON string if needed
   const parseMessages = (msg: LLMMessage) => {
@@ -107,50 +142,57 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 w-1/3 bg-gray-800 shadow-xl z-50 overflow-auto transition-transform duration-300 transform translate-x-0">
-      <div className="p-4 border-b border-gray-700 flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-white">Conversation Details</h2>
+    <div className="fixed inset-y-0 right-0 w-1/3 bg-[#262626] z-50 overflow-auto transition-transform duration-300 transform translate-x-0 font-['Roboto']">
+      <div className="p-4 flex justify-between items-center sticky top-0 bg-[#262626] z-10">
+        <h2 className="title-font">Conversation Details</h2>
         <button 
           onClick={onClose}
-          className="p-1 rounded-full hover:bg-gray-700 transition-colors"
+          className="settings-button"
         >
-          <X className="h-6 w-6 text-gray-400" />
+          <X className="h-4 w-4 text-white" />
         </button>
       </div>
       
-      <div className="p-4">
-        <div className="mb-6 bg-gray-900 rounded-lg p-4">
-          <h3 className="text-lg font-medium text-white mb-2">Message Info</h3>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div className="text-gray-400">Model</div>
-            <div className="text-white">{message.model}</div>
+      <div className="p-4 space-y-4 default-font">
+          <div>Message Info</div>
+          <div className="grid grid-cols-2 gap-y-3 gap-x-4 text-sm">
+            <div className=" text-left truncate">Model</div>
+            <div className=" text-right truncate">{message.model}</div>
             
-            <div className="text-gray-400">Provider</div>
-            <div className="text-white">{message.provider}</div>
+            <div className=" text-left truncate">Provider</div>
+            <div className=" text-right truncate">{message.provider}</div>
             
-            <div className="text-gray-400">Organization</div>
-            <div className="text-white">{message.organization}</div>
+            <div className=" text-left truncate">Organization</div>
+            <div className=" text-right truncate">{message.organization}</div>
             
-            <div className="text-gray-400">Project</div>
-            <div className="text-white">{message.project}</div>
+            <div className=" text-left truncate">Project</div>
+            <div className=" text-right truncate">{message.project}</div>
             
-            <div className="text-gray-400">User</div>
-            <div className="text-white">{message.user}</div>
+            <div className=" text-left truncate">User</div>
+            <div className=" text-right truncate">{message.user}</div>
             
-            <div className="text-gray-400">Timestamp</div>
-            <div className="text-white">{format(new Date(message.timestamp), 'MMM d, yyyy HH:mm:ss')}</div>
+            <div className=" text-left truncate">Timestamp</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {format(new Date(message.timestamp), 'MMM d, yyyy HH:mm:ss')}
+            </div>
             
-            <div className="text-gray-400">Total Tokens</div>
-            <div className="text-white">{message.total_tokens.toLocaleString()}</div>
+            <div className=" text-left truncate">Total Tokens</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.total_tokens.toLocaleString()}
+            </div>
             
-            <div className="text-gray-400">Duration</div>
-            <div className="text-white">{message.duration.toFixed(2)}s</div>
+            <div className=" text-left truncate">Duration</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.duration.toFixed(2)}s
+            </div>
             
-            <div className="text-gray-400">Cost</div>
-            <div className="text-white">${message.cost.toFixed(4)}</div>
+            <div className=" text-left truncate">Cost</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              ${message.cost.toFixed(4)}
+            </div>
             
-            <div className="text-gray-400">Status</div>
-            <div className="text-white">
+            <div className=" text-left truncate">Status</div>
+            <div className=" text-right">
               <span className={`px-2 py-1 rounded-full text-xs ${
                 message.response_status === 'success' 
                   ? 'bg-green-100 text-green-800' 
@@ -160,86 +202,88 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
               </span>
             </div>
             
-            {/* Add similarity score when available */}
             {message.similarity !== undefined && (
               <>
-                <div className="text-gray-400">Similarity</div>
-                <div className="text-white">
-                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                <div className=" text-left truncate">Similarity</div>
+                <div className=" text-right">
+                  <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 font-['Roboto_Mono']">
                     {(message.similarity * 100).toFixed(0)}%
                   </span>
                 </div>
               </>
             )}
           </div>
-        </div>
         
-        <h3 className="text-lg font-medium text-white mb-2">Conversation</h3>
-        
-        {isLoading ? (
-          <div className="text-center py-4 text-gray-400">Loading conversation...</div>
-        ) : (
-          <div className="space-y-4">
-            {chatData?.data && chatData.data.length > 0 ? (
-              chatData.data.map((msg: LLMMessage, idx: number) => {
-                const messages = parseMessages(msg);
-                
-                // If we have structured messages, render those
-                if (messages && messages.length > 0) {
-                  return (
-                    <div key={idx} className="space-y-2">
-                      {messages.map((chatMsg: { role: string; content: string }, msgIdx: number) => (
-                        <div key={`${idx}-${msgIdx}`} className={`rounded-lg p-3 text-white ${
-                          chatMsg.role === 'user' ? 'bg-gray-700' : 
-                          chatMsg.role === 'assistant' ? 'bg-blue-900' : 
-                          'bg-purple-900'
-                        }`}>
-                          <div className="text-xs text-gray-400 mb-1 capitalize">{chatMsg.role}</div>
-                          <div className="whitespace-pre-wrap">{chatMsg.content}</div>
-                        </div>
-                      ))}
-                      
-                      {/* Show alternative responses if available */}
-                      {msg.response_status === 'success' && (
-                        <>
-                          {parseResponseChoices(msg).length > 1 && (
-                            <div className="mt-4">
-                              <div className="text-sm text-gray-400 mb-2">Alternative Responses:</div>
-                              <div className="space-y-2">
-                                {parseResponseChoices(msg).slice(1).map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
-                                  <div key={`choice-${choiceIdx}`} className="bg-gray-700 rounded-lg p-3 text-white opacity-75">
-                                    <div className="text-xs text-gray-400 mb-1">Alternative {choiceIdx + 1}</div>
-                                    <div className="whitespace-pre-wrap">
-                                      {choice.message?.content || choice.content || JSON.stringify(choice)}
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
+        <div className="pt-12">
+          <h2 className="title-font pb-6">Conversation</h2>
+          
+          {isLoading ? (
+            <div className="text-center py-8 ">Loading conversation...</div>
+          ) : (
+            <div className="space-y-4">
+              {chatData?.data && chatData.data.length > 0 ? (
+                chatData.data.map((msg: LLMMessage, idx: number) => {
+                  const messages = parseMessages(msg);
+                  
+                  if (messages && messages.length > 0) {
+                    return (
+                      <div key={idx} className="space-y-6">
+                        {messages.map((chatMsg: { role: string; content: string }, msgIdx: number) => (
+                          <div key={`${idx}-${msgIdx}`} className={`${chatMsg.role === 'assistant' ? 'pl-6' : ''}`}>
+                            <div className="flex items-center gap-2 mb-2">
+                              {chatMsg.role === 'system' && (
+                                <div className="w-4 h-4 rounded-full bg-[#353535] flex items-center justify-center">
+                                  <div className="w-2 h-2 rounded-full bg-[#C6C6C6]" />
+                                </div>
+                              )}
+                              {chatMsg.role === 'user' && (
+                                <User className="w-4 h-4 text-[#C6C6C6]" />
+                              )}
+                              {chatMsg.role === 'assistant' && (
+                                getProviderIcon(msg.provider)
+                              )}
+                              <span className="text-xs text-[#C6C6C6] capitalize">{chatMsg.role}</span>
                             </div>
-                          )}
-                        </>
+                            <div className="ml-6 text-[#F4F4F4] whitespace-pre-wrap">{chatMsg.content}</div>
+                          </div>
+                        ))}
+                        
+                        {msg.response_status === 'success' && parseResponseChoices(msg).length > 1 && (
+                          <div className="mt-4 space-y-3">
+                            <div className="text-sm ">Alternative Responses:</div>
+                            <div className="space-y-3">
+                              {parseResponseChoices(msg).slice(1).map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
+                                <div key={`choice-${choiceIdx}`} className="bg-gray-700 rounded-lg p-3">
+                                  <div className="text-xs  mb-1.5">Alternative {choiceIdx + 1}</div>
+                                  <div className=" whitespace-pre-wrap">
+                                    {choice.message?.content || choice.content || JSON.stringify(choice)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  }
+                  
+                  return (
+                    <div key={idx}>
+                      {msg.response_status !== 'success' && msg.exception && (
+                        <div className="bg-red-900 rounded-lg p-3">
+                          <div className="text-xs text-red-400 mb-1.5">Error</div>
+                          <div className="text-red-200 whitespace-pre-wrap">{msg.exception}</div>
+                        </div>
                       )}
                     </div>
                   );
-                }
-                
-                // Fallback
-                return (
-                  <div key={idx} className="space-y-2">
-                    {msg.response_status !== 'success' && msg.exception && (
-                      <div className="bg-red-900 rounded-lg p-3 text-white">
-                        <div className="text-xs text-gray-400 mb-1">Error</div>
-                        <div className="whitespace-pre-wrap">{msg.exception}</div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <div className="text-center py-4 text-gray-400">No conversation data available</div>
-            )}
-          </div>
-        )}
+                })
+              ) : (
+                <div className="text-center py-8 ">No conversation data available</div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -273,22 +317,22 @@ export default function DataTable({
       {/* Content container with conditional blur */}
       <div className={`flex-1 overflow-auto min-h-0 transition-all duration-300 ${selectedMessage ? 'blur-sm' : ''}`}>
         <div className="min-w-[1024px]">
-          <Table>
-            <TableHead className="sticky top-0 bg-gray-900 z-10">
+          <Table className="font-['Roboto'] text-[#F4F4F4]">
+            <TableHead className="sticky top-0 z-10">
               <TableRow>
-                <TableHeaderCell>Timestamp</TableHeaderCell>
-                <TableHeaderCell>Model</TableHeaderCell>
-                <TableHeaderCell>Provider</TableHeaderCell>
-                <TableHeaderCell>Organization</TableHeaderCell>
-                <TableHeaderCell>Project</TableHeaderCell>
-                <TableHeaderCell>User</TableHeaderCell>
-                <TableHeaderCell>Prompt Tokens</TableHeaderCell>
-                <TableHeaderCell>Completion Tokens</TableHeaderCell>
-                <TableHeaderCell>Total Tokens</TableHeaderCell>
-                <TableHeaderCell>Duration (s)</TableHeaderCell>
-                <TableHeaderCell>Cost</TableHeaderCell>
-                <TableHeaderCell>Status</TableHeaderCell>
-                {searchHighlight && <TableHeaderCell>Relevance</TableHeaderCell>}
+                <TableHeaderCell className="text-[#F4F4F4]">Timestamp</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Model</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Provider</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Organization</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Project</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">User</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Prompt Tokens</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Completion Tokens</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Total Tokens</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Duration (s)</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Cost</TableHeaderCell>
+                <TableHeaderCell className="text-[#F4F4F4]">Status</TableHeaderCell>
+                {searchHighlight && <TableHeaderCell className="text-[#F4F4F4]">Relevance</TableHeaderCell>}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -297,7 +341,7 @@ export default function DataTable({
                   <TableRow 
                     key={idx}
                     onClick={() => handleRowClick(item)}
-                    className="cursor-pointer hover:bg-gray-800 transition-colors"
+                    className="cursor-pointer hover:bg-tremor-brand-emphasis dark:hover:bg-dark-tremor-brand-emphasis text-[#F4F4F4] transition-colors"
                   >
                     <TableCell>{format(new Date(item.timestamp), 'MMM d, yyyy HH:mm:ss')}</TableCell>
                     <TableCell>{item.model}</TableCell>
