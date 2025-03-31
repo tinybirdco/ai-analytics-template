@@ -3,7 +3,7 @@
 import { Card } from '@tremor/react';
 import { useState, useMemo } from 'react';
 import { RiSearchLine } from '@remixicon/react';
-import { Dialog, DialogPanel, TextInput } from '@tremor/react';
+import { Dialog, DialogPanel } from '@tremor/react';
 import { X } from 'lucide-react';
 
 interface BarListItem {

@@ -156,6 +156,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     onFiltersChange?.(newFilters);
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleValueChange = (v: any) => {
     if (v) {
       setSelectedDate(v.date);
