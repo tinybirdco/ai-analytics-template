@@ -2,22 +2,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { wrapModelWithTinybird } from '@/lib/tinybird-wrapper';
-
-const DIMENSIONS = {
-  model: ['gpt-4', 'gpt-3.5-turbo', 'claude-2'],
-  provider: ['openai', 'anthropic'],
-  environment: ['production', 'staging', 'development'],
-  date_range: {
-    'last month': {
-      start_date: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
-      end_date: new Date().toISOString().split('T')[0]
-    },
-    'last week': {
-      start_date: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0],
-      end_date: new Date().toISOString().split('T')[0]
-    }
-  }
-};
+import { fetchAvailableDimensions } from '@/lib/dimensions';
 
 export async function POST(req: Request) {
   const { prompt, apiKey } = await req.json();
@@ -40,18 +25,24 @@ export async function POST(req: Request) {
       }
     );
 
+    // Fetch available dimensions
+    const availableDimensions = await fetchAvailableDimensions();
+    
     // Create the schema outside the function call
     const filterSchema = z.object({
-      model: z.enum(DIMENSIONS.model as [string, ...string[]]).optional(),
-      provider: z.enum(DIMENSIONS.provider as [string, ...string[]]).optional(),
-      environment: z.enum(DIMENSIONS.environment as [string, ...string[]]).optional(),
-      date_range: z.enum(Object.keys(DIMENSIONS.date_range) as [string, ...string[]]).optional(),
+      model: z.enum((availableDimensions?.data?.[0]?.model || ['gpt-4']) as [string, ...string[]]).optional(),
+      provider: z.enum((availableDimensions?.data?.[0]?.provider || ['openai']) as [string, ...string[]]).optional(),
+      environment: z.enum((availableDimensions?.data?.[0]?.environment || ['production']) as [string, ...string[]]).optional(),
+      organization: z.enum((availableDimensions?.data?.[0]?.organization || ['']) as [string, ...string[]]).optional(),
+      project: z.enum((availableDimensions?.data?.[0]?.project || ['']) as [string, ...string[]]).optional(),
+      date_range: z.enum(['last month', 'last week'] as [string, ...string[]]).optional(),
     });
 
     const systemPromptText = `You are a filter parser for an analytics dashboard. Convert natural language into filter key-value pairs.
-    Available dimensions: ${Object.keys(DIMENSIONS).join(', ')}.
-    Common values: ${JSON.stringify(DIMENSIONS, null, 2)}.
-    Return only valid values from the provided dimensions.`;
+    Available dimensions: ${Object.keys(availableDimensions?.data?.[0] || {}).join(', ')}.
+    Common values: ${JSON.stringify(availableDimensions?.data?.[0] || {}, null, 2)}.
+    Return only valid values from the provided dimensions, fix typos when necessary.`;
+    console.log(systemPromptText);
 
     const result = await generateObject({
       model: wrappedOpenAI,

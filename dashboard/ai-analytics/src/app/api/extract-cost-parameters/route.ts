@@ -3,6 +3,7 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
+import { fetchAvailableDimensions } from '@/lib/dimensions';
 
 // Define the schema for cost parameters
 const costParametersSchema = z.object({
@@ -24,55 +25,6 @@ const costParametersSchema = z.object({
 
 // Create a type from the schema
 type CostParameters = z.infer<typeof costParametersSchema>;
-
-// Add a new function to fetch available dimensions
-const fetchAvailableDimensions = async () => {
-  const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL || 'http://localhost:7181';
-  const TINYBIRD_API_KEY = process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
-  
-  if (!TINYBIRD_API_KEY) {
-    console.error('No Tinybird API key available');
-    return null;
-  }
-  
-  try {
-    // SQL query to get all unique values for each dimension
-    const query = `
-      SELECT
-        groupUniqArray(organization) as organizations,
-        groupUniqArray(project) as projects,
-        groupUniqArray(environment) as environments,
-        groupUniqArray(model) as models,
-        groupUniqArray(provider) as providers
-      FROM llm_events FORMAT JSON
-    `;
-    
-    // URL encode the query
-    const encodedQuery = encodeURIComponent(query);
-    const url = `${TINYBIRD_API_URL}/v0/sql?q=${encodedQuery}`;
-    
-    console.log('Fetching available dimensions from:', url);
-    
-    const response = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${TINYBIRD_API_KEY}`,
-      },
-    });
-    
-    if (!response.ok) {
-      const error = await response.text();
-      console.error('Error fetching dimensions:', error);
-      throw new Error('Network response was not ok');
-    }
-    
-    const data = await response.json();
-    console.log('Available dimensions:', data);
-    return data;
-  } catch (error) {
-    console.error('Error fetching dimensions:', error);
-    return null;
-  }
-};
 
 // Format today's date with time in yyyy-MM-dd HH:mm:ss format
 const formatDate = (date: Date): string => {
