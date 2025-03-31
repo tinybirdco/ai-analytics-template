@@ -238,7 +238,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       index="date"
                       categories={tab.categories}
                       colors={tab.colors}
-                      stack={false}
+                      stack={true}
                       showLegend={false}
                       yAxisWidth={45}
                       valueFormatter={costValueFormatter}
