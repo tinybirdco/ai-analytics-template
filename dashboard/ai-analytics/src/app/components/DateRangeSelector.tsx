@@ -244,16 +244,19 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     // Format as "Jan 1 - Jan 15" for custom date ranges
     setSelectedRange(`${format(start, 'MMM d')} - ${format(end, 'MMM d')}`);
     setIsPredefinedRange(false);
-    
   }, []);
+
+  // Handle calendar popover close
+  const handleCalendarPopoverOpenChange = useCallback((open: boolean) => {
+    setCalendarOpen(open);
+    if (!open && dateRange.start && dateRange.end) {
+      updateUrlParams(dateRange.start, dateRange.end);
+    }
+  }, [dateRange, updateUrlParams]);
 
   // Memoize the open/close handlers to prevent recreation
   const handleRangePopoverOpenChange = useCallback((open: boolean) => {
     setIsOpen(open);
-  }, []);
-
-  const handleCalendarPopoverOpenChange = useCallback((open: boolean) => {
-    setCalendarOpen(open);
   }, []);
 
   return (
@@ -312,7 +315,18 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
         </Popover>
 
         {/* Date Range Text */}
-        <span className="date-range-text flex-grow">
+        <span 
+          className="date-range-text flex-grow cursor-pointer"
+          onClick={() => {
+            if (isPredefinedRange) {
+              setIsOpen(true);
+              setCalendarOpen(false);
+            } else {
+              setCalendarOpen(true);
+              setIsOpen(false);
+            }
+          }}
+        >
           {selectedRange || 'Select date range'}
         </span>
 
