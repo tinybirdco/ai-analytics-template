@@ -252,6 +252,10 @@ select::placeholder {
   color: var(--accent);
 }
 
+.settings-button:hover * {
+  color: var(--accent);
+}
+
 /* Tremor Tab styles override */
 .tremor-TabList-root [aria-selected="true"],
 .tremor-TabList-root [data-headlessui-state*="selected"],
