@@ -732,317 +732,319 @@ export default function CostPredictionModal({
               
               {/* Modal content */}
               <div className="p-4 overflow-y-auto flex-grow !pb-0">
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Ask AI..."
-                      className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
-                      value={query}
-                      onChange={(e) => setQuery(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          handleSubmit(e);
-                        }
-                      }}
-                    />
-                    <button
-                      type="submit"
-                      className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white pr-4"
-                    >
-                      <Sparkles className="h-4 w-4 text-white" />
-                    </button>
-                  </div>
-                  
-                  {/* Examples dropdown */}
-                  <div className="bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle pb-2">
-                    <button
-                      type="button"
-                      onClick={() => setShowExamples(!showExamples)}
-                      className="w-full flex items-center justify-between px-4 py-2 pt-4 text-sm text-gray-300 hover:text-white"
-                    >
-                      <span className="small-font">Example queries</span>
-                      {showExamples ? (
-                        <ChevronUp className="h-4 w-4" />
-                      ) : (
-                        <ChevronDown className="h-4 w-4" />
-                      )}
-                    </button>
-                    
-                    {showExamples && (
-                      <div className="px-4 pb-4 space-y-2">
-                        {exampleQueries.map((example, index) => (
-                          <div key={index} className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => handleExampleClick(example)}
-                              className="flex-grow text-left default-font hover:text-[var(--accent)] truncate"
-                            >
-                              {example}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Parameters and chart */}
-                <div className="space-y-4 font-['Roboto']">
-                  {parameters && (
-                    <>
-                      {/* Collapsible header and parameters */}
+                <form onSubmit={handleSubmit} className="flex flex-col">
+                  <div className="space-y-4">
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Ask AI..."
+                        className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleSubmit(e);
+                          }
+                        }}
+                      />
                       <button
-                        onClick={() => setShowDetails(!showDetails)}
-                        className={`w-full flex items-center justify-between default-font ${
-                          showDetails ? 'text-[var(--accent)] !pb-0' : ''
-                        }`}
+                        type="submit"
+                        className="absolute inset-y-0 right-0 flex items-center px-3 text-white hover:text-white pr-4"
                       >
-                        <div className={`flex items-center gap-2 pt-4 pb-4 ${
-                          showDetails ? 'hover:text-[var(--accent)] !pb-0' : ''
-                        }`}>
-                          {showDetails ? (
-                            <X className="h-4 w-4" />
-                          ) : (
-                            <Info className="h-4 w-4" />
-                          )}
-                          <span className="text-sm">{showDetails ? 'Hide details' : 'Show details'}</span>
-                        </div>
+                        <Sparkles className="h-4 w-4 text-white" />
                       </button>
-
-                      {/* Parameters (collapsible) */}
-                      {showDetails && (
-                        <div>
-                          <div className="p-6 pt-0 default-font">
-                            <h4 className="mb-4">Parameters</h4>
-                            <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-4">
-                              <div>Model</div>
-                              <div>{parameters.model || 'Current models'}</div>
-                              
-                              <div>Prompt Token Cost</div>
-                              <div className="font-['Roboto Mono']">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
-                              
-                              <div>Completion Token Cost</div>
-                              <div className="font-['Roboto Mono']">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
-                              
-                              {parameters.discount > 0 && (
-                                <>
-                                  <div>Discount</div>
-                                  <div className="font-['Roboto Mono']">{parameters.discount}%</div>
-                                </>
-                              )}
-                              
-                              {parameters.volumeChange !== 0 && (
-                                <>
-                                  <div>Volume Change</div>
-                                  <div className="font-['Roboto Mono']">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
-                                </>
-                              )}
-                              
-                              <div>Time Period</div>
-                              <div className="font-['Roboto Mono']">{parameters.timeframe}</div>
-                              
-                              <div>Date Range</div>
-                              <div className="font-['Roboto Mono']">{parameters.start_date} to {parameters.end_date}</div>
-                              
-                              {parameters.group_by && (
-                                <>
-                                  <div>Grouped By</div>
-                                  <div>{parameters.group_by}</div>
-                                </>
-                              )}
-                              
-                              {/* Display filter parameters if specified */}
-                              {parameters.organization && (
-                                <>
-                                  <div>Organization</div>
-                                  <div>{parameters.organization}</div>
-                                </>
-                              )}
-                              
-                              {parameters.project && (
-                                <>
-                                  <div>Project</div>
-                                  <div>{parameters.project}</div>
-                                </>
-                              )}
-                              
-                              {parameters.environment && (
-                                <>
-                                  <div>Environment</div>
-                                  <div>{parameters.environment}</div>
-                                </>
-                              )}
-                              
-                              {parameters.provider && (
-                                <>
-                                  <div>Provider</div>
-                                  <div>{parameters.provider}</div>
-                                </>
-                              )}
-                              
-                              {parameters.user && (
-                                <>
-                                  <div>User</div>
-                                  <div>{parameters.user}</div>
-                                </>
-                              )}
+                    </div>
+                    
+                    {/* Examples dropdown */}
+                    <div className="bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle pb-2">
+                      <button
+                        type="button"
+                        onClick={() => setShowExamples(!showExamples)}
+                        className="w-full flex items-center justify-between px-4 py-2 pt-4 text-sm text-gray-300 hover:text-white"
+                      >
+                        <span className="small-font">Example queries</span>
+                        {showExamples ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
+                      </button>
+                      
+                      {showExamples && (
+                        <div className="px-4 pb-4 space-y-2">
+                          {exampleQueries.map((example, index) => (
+                            <div key={index} className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={() => handleExampleClick(example)}
+                                className="flex-grow text-left default-font hover:text-[var(--accent)] truncate"
+                              >
+                                {example}
+                              </button>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       )}
+                    </div>
 
-                      {/* Chart (always visible when parameters exist) */}
-                      {dailyCosts.length > 0 && (
-                        <div className="mt-4">
-                          {/* Legend section */}
-                          <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}</h2>
-                          <ul className="flex flex-wrap gap-8 mb-8 mt-6">
-                            {isPredictionQuery ? (
-                              // Legend for prediction query
-                              <>
-                                <li>
-                                  <div className="flex items-center gap-2">
-                                    <span className="w-4 h-4 bg-[#27F795] shrink-0" />
-                                    <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                      ${summary?.actualTotal.toFixed(2)}
-                                    </p>
-                                  </div>
-                                  <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
-                                    Actual
-                                  </p>
-                                </li>
-                                <li>
-                                  <div className="flex items-center gap-2">
-                                    <span className="w-4 h-4 bg-[#3CCC70] shrink-0" />
-                                    <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                      ${summary?.predictedTotal.toFixed(2)}
-                                    </p>
-                                  </div>
-                                  <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
-                                    Predicted
-                                  </p>
-                                </li>
-                              </>
-                            ) : isGroupedData ? (
-                              // Legend for grouped data
-                              chartCategories.map((category, index) => {
-                                const total = dailyCosts.reduce((sum, day) => 
-                                  sum + (typeof day[category] === 'number' ? day[category] as number : 0), 0
-                                );
-                                return (
-                                  <li key={category}>
+                    {/* Parameters and chart */}
+                    <div className="font-['Roboto']">
+                      {parameters && (
+                        <>
+                          {/* Collapsible header and parameters */}
+                          <button
+                            onClick={() => setShowDetails(!showDetails)}
+                            className={`w-full flex items-center justify-between default-font ${
+                              showDetails ? 'text-[var(--accent)] !pb-0' : ''
+                            }`}
+                          >
+                            <div className={`flex items-center gap-2 pt-4 pb-4 ${
+                              showDetails ? 'hover:text-[var(--accent)] !pb-0' : ''
+                            }`}>
+                              {showDetails ? (
+                                <X className="h-4 w-4" />
+                              ) : (
+                                <Info className="h-4 w-4" />
+                              )}
+                              <span className="text-sm">{showDetails ? 'Hide details' : 'Show details'}</span>
+                            </div>
+                          </button>
+
+                          {/* Parameters (collapsible) */}
+                          {showDetails && (
+                            <div>
+                              <div className="p-6 pt-0 default-font">
+                                <h4 className="mb-4">Parameters</h4>
+                                <div className="grid grid-cols-[150px_1fr] gap-x-4 gap-y-4">
+                                  <div>Model</div>
+                                  <div>{parameters.model || 'Current models'}</div>
+                                  
+                                  <div>Prompt Token Cost</div>
+                                  <div className="font-['Roboto Mono']">${parameters.promptTokenCost || getDefaultPromptCost(parameters.model).toFixed(6)}</div>
+                                  
+                                  <div>Completion Token Cost</div>
+                                  <div className="font-['Roboto Mono']">${parameters.completionTokenCost || getDefaultCompletionCost(parameters.model).toFixed(6)}</div>
+                                  
+                                  {parameters.discount > 0 && (
+                                    <>
+                                      <div>Discount</div>
+                                      <div className="font-['Roboto Mono']">{parameters.discount}%</div>
+                                    </>
+                                  )}
+                                  
+                                  {parameters.volumeChange !== 0 && (
+                                    <>
+                                      <div>Volume Change</div>
+                                      <div className="font-['Roboto Mono']">{parameters.volumeChange > 0 ? '+' : ''}{parameters.volumeChange}%</div>
+                                    </>
+                                  )}
+                                  
+                                  <div>Time Period</div>
+                                  <div className="font-['Roboto Mono']">{parameters.timeframe}</div>
+                                  
+                                  <div>Date Range</div>
+                                  <div className="font-['Roboto Mono']">{parameters.start_date} to {parameters.end_date}</div>
+                                  
+                                  {parameters.group_by && (
+                                    <>
+                                      <div>Grouped By</div>
+                                      <div>{parameters.group_by}</div>
+                                    </>
+                                  )}
+                                  
+                                  {/* Display filter parameters if specified */}
+                                  {parameters.organization && (
+                                    <>
+                                      <div>Organization</div>
+                                      <div>{parameters.organization}</div>
+                                    </>
+                                  )}
+                                  
+                                  {parameters.project && (
+                                    <>
+                                      <div>Project</div>
+                                      <div>{parameters.project}</div>
+                                    </>
+                                  )}
+                                  
+                                  {parameters.environment && (
+                                    <>
+                                      <div>Environment</div>
+                                      <div>{parameters.environment}</div>
+                                    </>
+                                  )}
+                                  
+                                  {parameters.provider && (
+                                    <>
+                                      <div>Provider</div>
+                                      <div>{parameters.provider}</div>
+                                    </>
+                                  )}
+                                  
+                                  {parameters.user && (
+                                    <>
+                                      <div>User</div>
+                                      <div>{parameters.user}</div>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Chart (always visible when parameters exist) */}
+                          {dailyCosts.length > 0 && (
+                            <div className="mt-4">
+                              {/* Legend section */}
+                              <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}</h2>
+                              <ul className="flex flex-wrap gap-8 mb-8 mt-6">
+                                {isPredictionQuery ? (
+                                  // Legend for prediction query
+                                  <>
+                                    <li>
+                                      <div className="flex items-center gap-2">
+                                        <span className="w-4 h-4 bg-[#27F795] shrink-0" />
+                                        <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                          ${summary?.actualTotal.toFixed(2)}
+                                        </p>
+                                      </div>
+                                      <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                        Actual
+                                      </p>
+                                    </li>
+                                    <li>
+                                      <div className="flex items-center gap-2">
+                                        <span className="w-4 h-4 bg-[#3CCC70] shrink-0" />
+                                        <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                          ${summary?.predictedTotal.toFixed(2)}
+                                        </p>
+                                      </div>
+                                      <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                        Predicted
+                                      </p>
+                                    </li>
+                                  </>
+                                ) : isGroupedData ? (
+                                  // Legend for grouped data
+                                  chartCategories.map((category, index) => {
+                                    const total = dailyCosts.reduce((sum, day) => 
+                                      sum + (typeof day[category] === 'number' ? day[category] as number : 0), 0
+                                    );
+                                    return (
+                                      <li key={category}>
+                                        <div className="flex items-center gap-2">
+                                          <span 
+                                            className="w-4 h-4 shrink-0"
+                                            style={{ backgroundColor: defaultColors[index % defaultColors.length] }}
+                                          />
+                                          <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
+                                            ${total.toFixed(2)}
+                                          </p>
+                                        </div>
+                                        <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                                          {category}
+                                        </p>
+                                      </li>
+                                    );
+                                  })
+                                ) : (
+                                  // Legend for single metric
+                                  <li>
                                     <div className="flex items-center gap-2">
-                                      <span 
-                                        className="w-4 h-4 shrink-0"
-                                        style={{ backgroundColor: defaultColors[index % defaultColors.length] }}
-                                      />
+                                      <span className="w-4 h-4 bg-[#27F795] shrink-0" />
                                       <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                        ${total.toFixed(2)}
+                                        ${summary?.actualTotal.toFixed(2)}
                                       </p>
                                     </div>
                                     <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
-                                      {category}
+                                      Total Cost
                                     </p>
                                   </li>
-                                );
-                              })
-                            ) : (
-                              // Legend for single metric
-                              <li>
-                                <div className="flex items-center gap-2">
-                                  <span className="w-4 h-4 bg-[#27F795] shrink-0" />
-                                  <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                    ${summary?.actualTotal.toFixed(2)}
-                                  </p>
-                                </div>
-                                <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
-                                  Total Cost
-                                </p>
-                              </li>
-                            )}
-                          </ul>
-                          
-                          {isPredictionQuery ? (
-                            // Dual area chart for predictions
-                            <AreaChart
-                              className="h-72"
-                              data={dailyCosts}
-                              index="date"
-                              categories={['actualCost', 'predictedCost']}
-                              colors={defaultColors}
-                              valueFormatter={(value) => `$${value.toFixed(2)}`}
-                              showLegend={false}
-                              showGridLines={false}
-                              showAnimation={true}
-                              curveType="monotone"
-                              customTooltip={(props) => (
-                                <CustomTooltip
-                                  date={props.payload?.[0]?.payload.date}
-                                  entries={props.payload?.map(entry => ({
-                                    name: entry.name === 'actualCost' ? 'Actual' : 'Predicted',
-                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
-                                    color: entry.color || defaultColors[0]
-                                  })) || []}
+                                )}
+                              </ul>
+                              
+                              {isPredictionQuery ? (
+                                // Dual area chart for predictions
+                                <AreaChart
+                                  className="h-72"
+                                  data={dailyCosts}
+                                  index="date"
+                                  categories={['actualCost', 'predictedCost']}
+                                  colors={defaultColors}
+                                  valueFormatter={(value) => `$${value.toFixed(2)}`}
+                                  showLegend={false}
+                                  showGridLines={false}
+                                  showAnimation={true}
+                                  curveType="monotone"
+                                  customTooltip={(props) => (
+                                    <CustomTooltip
+                                      date={props.payload?.[0]?.payload.date}
+                                      entries={props.payload?.map(entry => ({
+                                        name: entry.name === 'actualCost' ? 'Actual' : 'Predicted',
+                                        value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                        color: entry.color || defaultColors[0]
+                                      })) || []}
+                                    />
+                                  )}
+                                />
+                              ) : isGroupedData ? (
+                                // Stacked bar chart for grouped data
+                                <BarChart
+                                  className="h-72"
+                                  data={dailyCosts}
+                                  index="date"
+                                  categories={chartCategories}
+                                  colors={defaultColors}
+                                  valueFormatter={(value) => `$${value.toFixed(2)}`}
+                                  stack={true}
+                                  showLegend={false}
+                                  showGridLines={false}
+                                  showAnimation={true}
+                                  customTooltip={(props) => (
+                                    <CustomTooltip
+                                      date={props.payload?.[0]?.payload.date}
+                                      entries={props.payload?.map(entry => ({
+                                        name: String(entry.name),
+                                        value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                        color: entry.color || defaultColors[0]
+                                      })) || []}
+                                    />
+                                  )}
+                                />
+                              ) : (
+                                // Single area chart for regular cost analysis
+                                <AreaChart
+                                  className="h-72"
+                                  data={dailyCosts}
+                                  index="date"
+                                  categories={['actualCost']}
+                                  colors={[defaultColors[0]]}
+                                  valueFormatter={(value) => `$${value.toFixed(2)}`}
+                                  showLegend={false}
+                                  showGridLines={false}
+                                  showAnimation={true}
+                                  curveType="monotone"
+                                  customTooltip={(props) => (
+                                    <CustomTooltip
+                                      date={props.payload?.[0]?.payload.date}
+                                      entries={props.payload?.map(entry => ({
+                                        name: 'Cost',
+                                        value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                        color: entry.color || defaultColors[0]
+                                      })) || []}
+                                    />
+                                  )}
                                 />
                               )}
-                            />
-                          ) : isGroupedData ? (
-                            // Stacked bar chart for grouped data
-                            <BarChart
-                              className="h-72"
-                              data={dailyCosts}
-                              index="date"
-                              categories={chartCategories}
-                              colors={defaultColors}
-                              valueFormatter={(value) => `$${value.toFixed(2)}`}
-                              stack={true}
-                              showLegend={false}
-                              showGridLines={false}
-                              showAnimation={true}
-                              customTooltip={(props) => (
-                                <CustomTooltip
-                                  date={props.payload?.[0]?.payload.date}
-                                  entries={props.payload?.map(entry => ({
-                                    name: String(entry.name),
-                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
-                                    color: entry.color || defaultColors[0]
-                                  })) || []}
-                                />
-                              )}
-                            />
-                          ) : (
-                            // Single area chart for regular cost analysis
-                            <AreaChart
-                              className="h-72"
-                              data={dailyCosts}
-                              index="date"
-                              categories={['actualCost']}
-                              colors={[defaultColors[0]]}
-                              valueFormatter={(value) => `$${value.toFixed(2)}`}
-                              showLegend={false}
-                              showGridLines={false}
-                              showAnimation={true}
-                              curveType="monotone"
-                              customTooltip={(props) => (
-                                <CustomTooltip
-                                  date={props.payload?.[0]?.payload.date}
-                                  entries={props.payload?.map(entry => ({
-                                    name: 'Cost',
-                                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
-                                    color: entry.color || defaultColors[0]
-                                  })) || []}
-                                />
-                              )}
-                            />
+                            </div>
                           )}
-                        </div>
+                        </>
                       )}
-                    </>
-                  )}
-                </div>
+                    </div>
+                  </div>
                   
-                  <div className="-mx-4 pt-4"> {/* Negative margins to counter parent padding */}
+                  <div className="-mx-4 mt-4"> {/* Changed pt-4 to mt-4 */}
                     <button
                       type="submit"
                       disabled={isLoading || !query.trim()}

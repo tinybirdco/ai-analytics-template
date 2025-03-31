@@ -4,44 +4,7 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { fetchAvailableDimensions } from '@/lib/dimensions';
-
-// Define the schema for cost parameters
-const costParametersSchema = z.object({
-  model: z.string().nullable().optional(),
-  promptTokenCost: z.number().nullable().optional(),
-  completionTokenCost: z.number().nullable().optional(),
-  discount: z.number().default(0).optional(),
-  timeframe: z.string().default('last month').optional(),
-  volumeChange: z.number().default(0).optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  group_by: z.string().optional(),
-  organization: z.string().optional(),
-  project: z.string().optional(),
-  environment: z.string().optional(),
-  provider: z.string().optional(),
-  user: z.string().optional()
-});
-
-// Create a type from the schema
-type CostParameters = z.infer<typeof costParametersSchema>;
-
-// Format today's date with time in yyyy-MM-dd HH:mm:ss format
-const formatDate = (date: Date): string => {
-  const pad = (num: number): string => num.toString().padStart(2, '0');
-  
-  const year = date.getFullYear();
-  const month = pad(date.getMonth() + 1); // getMonth() is 0-indexed
-  const day = pad(date.getDate());
-  const hours = pad(date.getHours());
-  const minutes = pad(date.getMinutes());
-  const seconds = pad(date.getSeconds());
-  
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
-
-const today = formatDate(new Date());
-const todayDateOnly = today.split(' ')[0]; // Just the date part: yyyy-MM-dd
+import { extractDatesFromQuery } from '@/lib/dateUtils';
 
 // Update the POST function to properly map meta with data
 export async function POST(req: Request) {
@@ -56,14 +19,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'OpenAI API key is required' }, { status: 400 });
     }
     
+    // Extract dates using our new function
+    let { start_date, end_date } = extractDatesFromQuery(query);
+    
     // Fetch pipe definition and available dimensions in parallel
     const [pipeDefinition, availableDimensions] = await Promise.all([
       fetchPipeDefinition(),
       fetchAvailableDimensions()
     ]);
-    
-    console.log('Pipe definition:', pipeDefinition);
-    console.log('Available dimensions:', availableDimensions);
     
     // Extract dimension values for the system prompt
     const dimensionValues: Record<string, { type: string, values: string[] }> = {};
@@ -86,56 +49,36 @@ export async function POST(req: Request) {
     
     // Update system prompt to include formatted timestamp
     const systemPromptText = `
-      You are an LLM cost calculator parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
+      You are a parameter extractor for an LLM cost calculator. Extract parameters from natural language queries about AI model cost predictions.
       
-      Today's date and time is ${today}.
-      
-      Return values for these parameters:
-      - model: The AI model mentioned (e.g., "gpt-4", "claude-sonnet")
-      - promptTokenCost: Cost per prompt token (in USD)
-      - completionTokenCost: Cost per completion token (in USD)
-      - discount: Any discount percentage mentioned (0-100)
-      - timeframe: Time period for analysis (e.g., "last month", "last week", "last 3 months", "last year")
-      - volumeChange: Any volume change percentage mentioned (can be positive or negative)
-      - start_date: The start date in YYYY-MM-DD format based on the timeframe
-      - end_date: The end date in YYYY-MM-DD format (usually today: ${todayDateOnly})
-      - group_by: If the user wants to group by a specific dimension (e.g., "model", "provider", "organization", "project", "environment", "user")
-      
-      Also extract filter parameters if mentioned:
-      ${availableDimensions?.meta?.map((meta: { name: string, type: string }) => {
-        const name = meta.name;
-        // Convert to singular form for the parameter name (remove trailing 's')
-        const paramName = name.endsWith('s') ? name.slice(0, -1) : name;
-        return `- ${paramName}: ${name.charAt(0).toUpperCase() + name.slice(1)} to filter by`;
-      }).join('\n  ') || ''}
-      
-      These are the available values in the database, extract them if mentioned no matter if the parameter name is provided or not:
+      Available dimensions and unique values:
       ${availableDimensions?.meta?.map((meta: { name: string, type: string }) => {
         const name = meta.name;
         const values = dimensionValues[name]?.values || [];
         return `- ${name.charAt(0).toUpperCase() + name.slice(1)}: ${JSON.stringify(values)}`;
       }).join('\n  ') || ''}
-      
-      For timeframes, calculate the appropriate start_date:
-      - "last week" = 7 days before today
-      - "last month" = 1 month before today
-      - "last 3 months" = 3 months before today
-      - "last year" = 1 year before today
-      
-      If a parameter is not specified in the query, omit it from your response.
-      Always include start_date and end_date based on the timeframe (default to "last month" if not specified).
-      
-      Context-based filter extraction rules:
-        - Only use values that exist in the database (see "Available values" above).
-      
-      Look for phrases like "filter by", "for", "in", "with", etc. to identify filter parameters.
-      Examples:
-      - "Show costs for organization quantum_systems" → organization: "quantum_systems"
-      - "Predict costs for OpenAI models in production" → provider: "OpenAI", environment: "production"
-      - "What if we switch to Claude with a 10% discount for the chatbot project" → model: "Claude", discount: 10, project: "chatbot"
-      - "How much would GPT-4 cost us next month?" → model: "gpt-4"
-      - "Compare Anthropic models with OpenAI" → provider: "Anthropic" (for the primary analysis)
+
+      Look for phrases like "filter by", "for", "in", "with", etc. to identify filtering parameters, guess the parameter name based on the available dimensions. Fix typos when necessary.
     `;
+    console.log(systemPromptText);
+
+    const costParametersSchema = z.object({
+      promptTokenCost: z.number().nullable().optional(),
+      completionTokenCost: z.number().nullable().optional(),
+      discount: z.number().default(0).optional(),
+      timeframe: z.string().default('last month').optional(),
+      volumeChange: z.number().default(0).optional(),
+      start_date: z.string().optional(),
+      end_date: z.string().optional(),
+      group_by: z.string().optional(),
+      model: z.enum((availableDimensions?.data?.[0]?.model || ['gpt-4']) as [string, ...string[]]).optional(),
+      provider: z.enum((availableDimensions?.data?.[0]?.provider || ['openai']) as [string, ...string[]]).optional(),
+      environment: z.enum((availableDimensions?.data?.[0]?.environment || ['production']) as [string, ...string[]]).optional(),
+      organization: z.enum((availableDimensions?.data?.[0]?.organization || ['']) as [string, ...string[]]).optional(),
+      project: z.enum((availableDimensions?.data?.[0]?.project || ['']) as [string, ...string[]]).optional(),
+      user: z.string().optional()
+    });
+    type CostParameters = z.infer<typeof costParametersSchema>;
 
     const openai = createOpenAI({ apiKey: apiKey })
 
@@ -149,22 +92,12 @@ export async function POST(req: Request) {
 
     // Type assertion to handle the result object
     const extractedParams = result.object as CostParameters;
+    console.log('Extracted parameters:', extractedParams);
     
     // Ensure timeframe is correctly processed
     const timeframe = extractedParams.timeframe || 'last month';
-    
-    // Calculate start_date based on timeframe if not provided by the LLM
-    let start_date = extractedParams.start_date;
-    if (!start_date) {
-      start_date = getDefaultStartDate(timeframe);
-    } else {
-      // Double-check that the start_date matches the timeframe
-      const calculatedStartDate = getDefaultStartDate(timeframe);
-      if (start_date !== calculatedStartDate) {
-        console.log(`LLM provided start_date ${start_date} doesn't match calculated date ${calculatedStartDate} for timeframe ${timeframe}. Using calculated date.`);
-        start_date = calculatedStartDate;
-      }
-    }
+    start_date = extractedParams.start_date || start_date;
+    end_date = extractedParams.end_date || end_date;
     
     // Apply defaults for missing parameters
     const processedResult = {
@@ -175,7 +108,7 @@ export async function POST(req: Request) {
       timeframe: timeframe,
       volumeChange: extractedParams.volumeChange || 0,
       start_date: start_date,
-      end_date: extractedParams.end_date || today,
+      end_date: end_date,
       group_by: extractedParams.group_by || null,
       organization: extractedParams.organization || null,
       project: extractedParams.project || null,
@@ -197,36 +130,6 @@ export async function POST(req: Request) {
     
     return NextResponse.json({ error: 'Failed to extract parameters' }, { status: 500 });
   }
-}
-
-// Improved function to calculate start date based on timeframe
-function getDefaultStartDate(timeframe: string): string {
-  const now = new Date();
-  const startDate = new Date(now); // Clone the date
-  
-  // Convert timeframe to lowercase for case-insensitive comparison
-  const normalizedTimeframe = timeframe.toLowerCase();
-  
-  if (normalizedTimeframe.includes('week')) {
-    startDate.setDate(now.getDate() - 7);
-  } else if (normalizedTimeframe.includes('month')) {
-    // Check if it specifies a number of months
-    const monthMatch = normalizedTimeframe.match(/(\d+)\s*month/);
-    if (monthMatch && monthMatch[1]) {
-      const months = parseInt(monthMatch[1], 10);
-      startDate.setMonth(now.getMonth() - months);
-    } else {
-      startDate.setMonth(now.getMonth() - 1);
-    }
-  } else if (normalizedTimeframe.includes('year')) {
-    startDate.setFullYear(now.getFullYear() - 1);
-  } else {
-    // Default to last month
-    startDate.setMonth(now.getMonth() - 1);
-  }
-  
-  // Format the date with the current time
-  return formatDate(startDate);
 }
 
 // Fetch the llm_usage pipe definition
@@ -256,8 +159,8 @@ const fetchPipeDefinition = async () => {
     }
     
     const data = await response.json();
-    console.log('Pipe definition:', data);
-    return data;
+    console.log('Pipe definition:', data.content);
+    return data.content;
   } catch (error) {
     console.error('Error fetching pipe definition:', error);
     return null;
