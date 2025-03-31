@@ -7,7 +7,7 @@ NODE llm_messages_node
 SQL >
     %
     {% if defined(embedding) %}
-        with if(length(embedding) <= 0 OR length({{ Array(embedding, 'Float32') }}) <= 0, 1, cosineDistance(embedding, {{ Array(embedding, 'Float32') }})) as _similarity
+        with cosineDistance(embedding, {{ Array(embedding, 'Float32') }}) as _similarity
     {% end %}
     SELECT
         timestamp,
@@ -27,7 +27,7 @@ SQL >
         response_status,
         exception
         {% if defined(embedding) %}
-            , if(length(embedding) <= 0 OR length({{ Array(embedding, 'Float32') }}) <= 0, 0, 1 - _similarity) as similarity
+            , 1 - _similarity as similarity
         {% else %}
             , 0 as similarity
         {% end %}
@@ -36,7 +36,7 @@ SQL >
         {% else %}
             , [] as messages, [] as response_choices
         {% end %}
-    FROM llm_events
+    FROM (select * from llm_events where organization != 'your-org')
     WHERE 1
         {% if defined(organization) %}
         AND organization = {{String(organization, '')}}
