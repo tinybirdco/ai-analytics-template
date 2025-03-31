@@ -314,8 +314,8 @@ export default function DataTable({
 
   return (
     <div className="flex flex-col h-full relative">
-      {/* Content container with conditional blur */}
-      <div className={`flex-1 overflow-auto min-h-0 transition-all duration-300 ${selectedMessage ? 'blur-sm' : ''}`}>
+      {/* Content container without blur */}
+      <div className="flex-1 overflow-auto min-h-0">
         <div className="min-w-[1024px]">
           <Table className="font-['Roboto'] text-[#F4F4F4]">
             <TableHead className="sticky top-0 z-10">
@@ -389,7 +389,7 @@ export default function DataTable({
       {/* Semi-transparent overlay */}
       {selectedMessage && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-30 z-40 backdrop-blur-sm"
+          className="fixed inset-0 bg-[#0A0A0A] bg-opacity-80 z-40"
           onClick={handleCloseDetail}
         />
       )}

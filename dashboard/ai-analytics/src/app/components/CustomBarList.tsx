@@ -143,6 +143,7 @@ export default function CustomBarList({
           static={true}
           className="z-[100]"
         >
+          <div className="fixed inset-0 bg-[#0A0A0A] bg-opacity-80" />
           <DialogPanel className="!bg-[#262626] flex flex-col relative z-10 rounded-none p-0" style={{ width: '575px', minWidth: '575px' }}>
             {/* Header */}
             <div className="flex items-center justify-between p-4 pb-0">

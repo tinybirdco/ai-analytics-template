@@ -203,6 +203,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         onClose={() => setIsSettingsOpen(false)}
         static={true}
       >
+        <div className="fixed inset-0 bg-[#0A0A0A] bg-opacity-80" />
         <DialogPanel className="max-w-md">
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -223,10 +224,16 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       </Dialog>
 
       {/* Sign In Modal */}
-      <SignInModal 
-        isOpen={isSignInOpen}
+      <Dialog
+        open={isSignInOpen}
         onClose={() => setIsSignInOpen(false)}
-      />
+        static={true}
+      >
+        <SignInModal 
+          isOpen={isSignInOpen}
+          onClose={() => setIsSignInOpen(false)}
+        />
+      </Dialog>
     </div>
   );
 } 
