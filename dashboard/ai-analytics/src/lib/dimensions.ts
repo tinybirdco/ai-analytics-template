@@ -8,23 +8,7 @@ export const fetchAvailableDimensions = async () => {
   }
   
   try {
-    // SQL query to get all unique values for each dimension
-    const query = `
-      SELECT
-        groupUniqArray(organization) as organization,
-        groupUniqArray(project) as project,
-        groupUniqArray(environment) as environment,
-        groupUniqArray(model) as model,
-        groupUniqArray(provider) as provider
-      FROM llm_events WHERE timestamp > now() - interval '1 month' FORMAT JSON
-    `;
-    
-    // URL encode the query
-    const encodedQuery = encodeURIComponent(query);
-    const url = `${TINYBIRD_API_URL}/v0/sql?q=${encodedQuery}`;
-    
-    console.log('Fetching available dimensions from:', url);
-    
+    const url = `${TINYBIRD_API_URL}/v0/pipes/llm_dimensions.json`;
     const response = await fetch(url, {
       headers: {
         Authorization: `Bearer ${TINYBIRD_API_KEY}`,
