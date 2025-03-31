@@ -80,16 +80,16 @@ export default function CustomBarList({
             <div className="flex items-center w-full py-1">
               <div className="flex items-center min-w-0 flex-1">
                 {item.icon && (
-                  <div className="mr-2.5 flex-shrink-0">
+                  <div className="mr-2.5 flex-shrink-0 color-[#C6C6C6]">
                     {item.icon}
                   </div>
                 )}
-                <p className="truncate text-sm text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>
+                <p className="truncate small-font" style={{ fontFamily: 'var(--font-family-base)' }}>
                   {item.name}
                 </p>
               </div>
-              <p className={`flex-shrink-0 text-right text-sm ${
-                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'text-tremor-default dark:text-dark-tremor-default text-tremor-content dark:text-dark-tremor-content'
+              <p className={`flex-shrink-0 text-right ${
+                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'small-font'
               }`}>
                 {valueFormatter(item.value)}
               </p>
@@ -115,7 +115,7 @@ export default function CustomBarList({
         style={{ boxShadow: 'none' }}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
+          <h3 className="small-font" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
           <p className="text-tremor-metric">
             {valueFormatter(totalValue)}
           </p>

@@ -300,6 +300,7 @@ select::placeholder {
 .recharts-text tspan {
   fill: #C6C6C6 !important;
   color: #C6C6C6 !important;
+  font-size: 12px !important;
 }
 
 /* Bar Chart styles */
