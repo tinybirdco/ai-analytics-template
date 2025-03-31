@@ -195,9 +195,27 @@ body {
   padding: 0;
 }
 
-.filter-input::placeholder {
-  color: #F4F4F4;
-  opacity: 0.5;
+/* Apply placeholder styles to all input types */
+input::placeholder,
+textarea::placeholder,
+select::placeholder {
+  color: #C6C6C6 !important;
+  opacity: 1;
+  font-family: var(--font-family-base) !important;
+  font-size: var(--font-size-sm) !important;
+  line-height: var(--line-height-sm) !important;
+}
+
+/* Ensure placeholder styles work in Firefox */
+::-moz-placeholder {
+  color: #C6C6C6 !important;
+  opacity: 1;
+}
+
+/* Ensure placeholder styles work in IE */
+:-ms-input-placeholder {
+  color: #C6C6C6 !important;
+  opacity: 1;
 }
 
 .filter-input:focus {
