@@ -270,6 +270,13 @@ body {
   background: transparent !important;
 }
 
+/* Bar Chart styles */
+.tremor-BarChart rect[role="graphics-symbol"] {
+  stroke: #000000;
+  stroke-width: 1px;
+  transition: opacity 0.2s ease;
+}
+
 ::selection {
   background-color: var(--accent); /* Your accent color */
   color: var(--background);

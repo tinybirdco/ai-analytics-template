@@ -12,6 +12,7 @@ import {
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import CustomTooltip from './CustomTooltip';
+import { useState } from 'react';
 
 function classNames(...classes: (string | undefined | null | false)[]) {
   return classes.filter(Boolean).join(' ');
@@ -45,6 +46,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   const router = useRouter();
   const searchParams = useSearchParams();
   const { orgName } = useTinybirdToken();
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // Add null check for data
   if (!data?.data) {
@@ -60,14 +62,17 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
   // Use the same approach for all tabs - just use default colors in sequence
   const transformedData = dates.map(date => {
     const dayData = data.data.filter(d => d.date === date);
+    const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+      month: 'short', 
+      day: '2-digit' 
+    });
     return {
-      date: new Date(date).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: '2-digit' 
-      }),
+      date: formattedDate,
+      originalDate: date,
       ...models.reduce((acc, model) => ({
         ...acc,
-        [model]: dayData.find(d => d.category === model)?.total_cost || 0
+        [model]: dayData.find(d => d.category === model)?.total_cost || 0,
+        [`${model}_opacity`]: selectedDate === null || selectedDate === formattedDate ? 1 : 0.3
       }), {})
     };
   });
@@ -85,6 +90,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
         color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     },
     {
@@ -99,6 +105,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
         color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     },
     {
@@ -113,6 +120,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
         color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     }
   ];
@@ -130,6 +138,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
         color: `bg-[${defaultColors[index % defaultColors.length]}]`,
+        opacity: selectedDate ? 0.3 : 1
       })),
     })
   }
@@ -145,6 +154,14 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     const newFilters = { ...filters, column_name: tab.key };
     // Pass the new filters up to parent component
     onFiltersChange?.(newFilters);
+  };
+
+  const handleValueChange = (v: any) => {
+    if (v) {
+      setSelectedDate(v.date);
+    } else {
+      setSelectedDate(null);
+    }
   };
 
   // Determine the default index - use 'model' if no column_name is specified
@@ -220,7 +237,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       index="date"
                       categories={tab.categories}
                       colors={tab.colors}
-                      stack={false}
+                      stack={true}
                       showLegend={false}
                       yAxisWidth={45}
                       valueFormatter={costValueFormatter}
@@ -228,11 +245,12 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
                       showTooltip={true}
                       showAnimation={false}
                       showXAxis={true}
+                      onValueChange={handleValueChange}
                       customTooltip={(props) => (
                         <CustomTooltip
                           date={props.payload?.[0]?.payload.date}
                           entries={props.payload?.map(entry => ({
-                            name: String(entry.name),
+                            name: String(entry.name || ''),
                             value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
                             color: entry.color || '#27F795'
                           })) || []}
