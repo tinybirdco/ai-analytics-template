@@ -16,7 +16,7 @@ export const fetchAvailableDimensions = async () => {
         groupUniqArray(environment) as environment,
         groupUniqArray(model) as model,
         groupUniqArray(provider) as provider
-      FROM llm_events WHERE timestamp > now() - interval '1 day' FORMAT JSON
+      FROM llm_events WHERE timestamp > now() - interval '1 month' FORMAT JSON
     `;
     
     // URL encode the query
