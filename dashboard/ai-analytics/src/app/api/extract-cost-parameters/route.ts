@@ -4,10 +4,7 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { fetchAvailableDimensions } from '@/lib/dimensions';
-import { formatDate, extractDatesFromQuery } from '@/lib/dateUtils';
-
-// Format today's date with time in yyyy-MM-dd HH:mm:ss format
-const today = formatDate(new Date());
+import { extractDatesFromQuery } from '@/lib/dateUtils';
 
 // Update the POST function to properly map meta with data
 export async function POST(req: Request) {
@@ -133,36 +130,6 @@ export async function POST(req: Request) {
     
     return NextResponse.json({ error: 'Failed to extract parameters' }, { status: 500 });
   }
-}
-
-// Improved function to calculate start date based on timeframe
-function getDefaultStartDate(timeframe: string): string {
-  const now = new Date();
-  const startDate = new Date(now); // Clone the date
-  
-  // Convert timeframe to lowercase for case-insensitive comparison
-  const normalizedTimeframe = timeframe.toLowerCase();
-  
-  if (normalizedTimeframe.includes('week')) {
-    startDate.setDate(now.getDate() - 7);
-  } else if (normalizedTimeframe.includes('month')) {
-    // Check if it specifies a number of months
-    const monthMatch = normalizedTimeframe.match(/(\d+)\s*month/);
-    if (monthMatch && monthMatch[1]) {
-      const months = parseInt(monthMatch[1], 10);
-      startDate.setMonth(now.getMonth() - months);
-    } else {
-      startDate.setMonth(now.getMonth() - 1);
-    }
-  } else if (normalizedTimeframe.includes('year')) {
-    startDate.setFullYear(now.getFullYear() - 1);
-  } else {
-    // Default to last month
-    startDate.setMonth(now.getMonth() - 1);
-  }
-  
-  // Format the date with the current time
-  return formatDate(startDate);
 }
 
 // Fetch the llm_usage pipe definition
