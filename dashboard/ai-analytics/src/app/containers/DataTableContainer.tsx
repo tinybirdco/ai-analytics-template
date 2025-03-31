@@ -57,7 +57,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
     ...filters,
     ...(embedding ? {
       embedding: embedding,
-      similarity_threshold: 0.3
+      similarity_threshold: 0.6
     } : {})
   });
   

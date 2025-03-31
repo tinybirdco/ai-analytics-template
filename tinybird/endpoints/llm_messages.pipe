@@ -69,7 +69,7 @@ SQL >
         AND timestamp < {{DateTime(end_date)}}
         {% end %}
         {% if defined(embedding) %}
-        AND length(embedding) > 0 and _similarity <= {{ Float64(similarity_threshold, 0.3) }}
+        AND length(embedding) > 0 and _similarity <= {{ Float64(similarity_threshold, 0.5) }}
         and response_status != 'error'
         {% end %}
     {% if defined(embedding) %}
