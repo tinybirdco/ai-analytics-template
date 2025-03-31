@@ -7,7 +7,7 @@ NODE llm_messages_node
 SQL >
     %
     {% if defined(embedding) %}
-        with if(length(embedding) <= 384, 1, cosineDistance(embedding, {{ Array(embedding, 'Float32') }})) as _similarity
+        with if(length(embedding) <= 0, 1, cosineDistance(embedding, {{ Array(embedding, 'Float32') }})) as _similarity
     {% end %}
     SELECT
         timestamp,
@@ -29,7 +29,7 @@ SQL >
         {% if defined(embedding) %}
             , 1 - _similarity as similarity
         {% else %}
-            , 0 as _similarity as similarity
+            , 0 as _similarity
         {% end %}
         {% if defined(chat_id) %}
             , messages, response_choices
