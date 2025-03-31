@@ -5,26 +5,6 @@ import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { fetchAvailableDimensions } from '@/lib/dimensions';
 
-// Define the schema for cost parameters
-const costParametersSchema = z.object({
-  model: z.string().nullable().optional(),
-  promptTokenCost: z.number().nullable().optional(),
-  completionTokenCost: z.number().nullable().optional(),
-  discount: z.number().default(0).optional(),
-  timeframe: z.string().default('last month').optional(),
-  volumeChange: z.number().default(0).optional(),
-  start_date: z.string().optional(),
-  end_date: z.string().optional(),
-  group_by: z.string().optional(),
-  organization: z.string().optional(),
-  project: z.string().optional(),
-  environment: z.string().optional(),
-  provider: z.string().optional(),
-  user: z.string().optional()
-});
-
-// Create a type from the schema
-type CostParameters = z.infer<typeof costParametersSchema>;
 
 // Format today's date with time in yyyy-MM-dd HH:mm:ss format
 const formatDate = (date: Date): string => {
@@ -62,9 +42,6 @@ export async function POST(req: Request) {
       fetchAvailableDimensions()
     ]);
     
-    console.log('Pipe definition:', pipeDefinition);
-    console.log('Available dimensions:', availableDimensions);
-    
     // Extract dimension values for the system prompt
     const dimensionValues: Record<string, { type: string, values: string[] }> = {};
     
@@ -86,56 +63,50 @@ export async function POST(req: Request) {
     
     // Update system prompt to include formatted timestamp
     const systemPromptText = `
-      You are an LLM cost calculator parameter extractor. Extract parameters from natural language queries about AI model cost predictions.
+      You are a parameter extractor for an LLM cost calculator. Extract parameters from natural language queries about AI model cost predictions.
       
-      Today's date and time is ${today}.
-      
-      Return values for these parameters:
-      - model: The AI model mentioned (e.g., "gpt-4", "claude-sonnet")
-      - promptTokenCost: Cost per prompt token (in USD)
-      - completionTokenCost: Cost per completion token (in USD)
-      - discount: Any discount percentage mentioned (0-100)
-      - timeframe: Time period for analysis (e.g., "last month", "last week", "last 3 months", "last year")
-      - volumeChange: Any volume change percentage mentioned (can be positive or negative)
-      - start_date: The start date in YYYY-MM-DD format based on the timeframe
-      - end_date: The end date in YYYY-MM-DD format (usually today: ${todayDateOnly})
-      - group_by: If the user wants to group by a specific dimension (e.g., "model", "provider", "organization", "project", "environment", "user")
-      
-      Also extract filter parameters if mentioned:
-      ${availableDimensions?.meta?.map((meta: { name: string, type: string }) => {
-        const name = meta.name;
-        // Convert to singular form for the parameter name (remove trailing 's')
-        const paramName = name.endsWith('s') ? name.slice(0, -1) : name;
-        return `- ${paramName}: ${name.charAt(0).toUpperCase() + name.slice(1)} to filter by`;
-      }).join('\n  ') || ''}
-      
-      These are the available values in the database, extract them if mentioned no matter if the parameter name is provided or not:
+      Available dimensions and unique values:
       ${availableDimensions?.meta?.map((meta: { name: string, type: string }) => {
         const name = meta.name;
         const values = dimensionValues[name]?.values || [];
         return `- ${name.charAt(0).toUpperCase() + name.slice(1)}: ${JSON.stringify(values)}`;
       }).join('\n  ') || ''}
-      
-      For timeframes, calculate the appropriate start_date:
+
+      Look for phrases like "filter by", "for", "in", "with", etc. to identify filtering parameters, guess the parameter name based on the available dimensions. Fix typos when necessary.
+
+      Example:
+      - Anthropic is not an organization, it's a provider.
+      - gpt-4 is not a project, it's a model.
+      - production is an environment, not a project.
+
+      Today's date and time is ${today}, calculate relative start_date and end_date from natural language queries. Examples, but guess any timeframe:
       - "last week" = 7 days before today
+      - "last n days" = n days before today
+      - "last n weeks" = n weeks before today
       - "last month" = 1 month before today
-      - "last 3 months" = 3 months before today
+      - "last n months" = n months before today
       - "last year" = 1 year before today
-      
-      If a parameter is not specified in the query, omit it from your response.
-      Always include start_date and end_date based on the timeframe (default to "last month" if not specified).
-      
-      Context-based filter extraction rules:
-        - Only use values that exist in the database (see "Available values" above).
-      
-      Look for phrases like "filter by", "for", "in", "with", etc. to identify filter parameters.
-      Examples:
-      - "Show costs for organization quantum_systems" → organization: "quantum_systems"
-      - "Predict costs for OpenAI models in production" → provider: "OpenAI", environment: "production"
-      - "What if we switch to Claude with a 10% discount for the chatbot project" → model: "Claude", discount: 10, project: "chatbot"
-      - "How much would GPT-4 cost us next month?" → model: "gpt-4"
-      - "Compare Anthropic models with OpenAI" → provider: "Anthropic" (for the primary analysis)
+      - "last n years" = n years before today
     `;
+    console.log(systemPromptText);
+
+    const costParametersSchema = z.object({
+      promptTokenCost: z.number().nullable().optional(),
+      completionTokenCost: z.number().nullable().optional(),
+      discount: z.number().default(0).optional(),
+      timeframe: z.string().default('last month').optional(),
+      volumeChange: z.number().default(0).optional(),
+      start_date: z.string().optional(),
+      end_date: z.string().optional(),
+      group_by: z.string().optional(),
+      model: z.enum((availableDimensions?.data?.[0]?.model || ['gpt-4']) as [string, ...string[]]).optional(),
+      provider: z.enum((availableDimensions?.data?.[0]?.provider || ['openai']) as [string, ...string[]]).optional(),
+      environment: z.enum((availableDimensions?.data?.[0]?.environment || ['production']) as [string, ...string[]]).optional(),
+      organization: z.enum((availableDimensions?.data?.[0]?.organization || ['']) as [string, ...string[]]).optional(),
+      project: z.enum((availableDimensions?.data?.[0]?.project || ['']) as [string, ...string[]]).optional(),
+      user: z.string().optional()
+    });
+    type CostParameters = z.infer<typeof costParametersSchema>;
 
     const openai = createOpenAI({ apiKey: apiKey })
 
@@ -149,6 +120,7 @@ export async function POST(req: Request) {
 
     // Type assertion to handle the result object
     const extractedParams = result.object as CostParameters;
+    console.log('Extracted parameters:', extractedParams);
     
     // Ensure timeframe is correctly processed
     const timeframe = extractedParams.timeframe || 'last month';
@@ -256,8 +228,8 @@ const fetchPipeDefinition = async () => {
     }
     
     const data = await response.json();
-    console.log('Pipe definition:', data);
-    return data;
+    console.log('Pipe definition:', data.content);
+    return data.content;
   } catch (error) {
     console.error('Error fetching pipe definition:', error);
     return null;
