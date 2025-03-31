@@ -355,7 +355,9 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
               {dateRangeOptions.map((option) => (
                 <div
                   key={option.label}
-                  className="cursor-pointer dropdown-font text-[#C6C6C6] hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out"
+                  className={`cursor-pointer dropdown-font hover:text-white hover:bg-[#3D3D3D] transition-colors duration-150 ease-in-out ${
+                    selectedRange === option.label ? '!text-white bg-[#3D3D3D]' : 'text-[#C6C6C6]'
+                  }`}
                   onClick={() => handleRangeSelect(option)}
                 >
                   <span className="block px-4 py-4">
