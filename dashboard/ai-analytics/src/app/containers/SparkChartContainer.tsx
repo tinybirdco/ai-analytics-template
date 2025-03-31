@@ -56,7 +56,7 @@ export default function SparkChartContainer({
   // Calculate metric average/total
   const metricValue = data.data.reduce((sum, curr) => sum + curr[metric], 0);
   const formattedValue = metric === 'avg_duration' 
-    ? `${(metricValue / data.data.length).toFixed(2)}ms`
+    ? `${(metricValue / data.data.length).toFixed(2)} s`
     : metric === 'total_tokens'
       ? `${metricValue.toLocaleString()} tokens`
       : metricValue.toLocaleString();
