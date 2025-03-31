@@ -77,6 +77,16 @@ module.exports = {
         }],
         'tremor-tab': ['14px', { lineHeight: '20px' }], // custom tab font size
       },
+      // Add Tremor chart styles
+      tremor: {
+        chart: {
+          axis: {
+            label: {
+              color: '#C6C6C6',
+            },
+          },
+        },
+      },
     },
   },
   safelist: [
