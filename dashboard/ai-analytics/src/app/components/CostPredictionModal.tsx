@@ -732,7 +732,7 @@ export default function CostPredictionModal({
               
               {/* Modal content */}
               <div className="p-4 overflow-y-auto flex-grow !pb-0">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-4 !pb-0">
                   <div className="relative">
                     <input
                       type="text"
