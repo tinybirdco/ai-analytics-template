@@ -242,10 +242,14 @@ select::placeholder {
   flex: none;
   order: 0;
   flex-grow: 0;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
 }
 
 .settings-button:hover {
-  background: rgba(53, 53, 53, 0.9);
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
 }
 
 /* Tremor Tab styles override */
