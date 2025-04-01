@@ -2,26 +2,31 @@
 
 This is a template for an AI analytics dashboard and cost calculator. It is built with Next.js and [Tinybird](https://tinybird.co).
 
-Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator. Fork it and make it your own!
+Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator.
 
 Features:
 
+- Track costs, requests, tokens and duration by model, provider, organization, project, environment and user
 - Multi-tenant user-facing dashboard
 - AI cost calculator
 - Vector search
 - Ask AI integration
 
+Fork it and make it your own! You can track your own metrics and dimensions.
+
 Stack:
 
-- [Next.js](https://nextjs.org/)
-- [Tinybird](https://tinybird.co)
-- [OpenAI](https://openai.com/)
-- [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction)
-- [Clerk](https://clerk.com/)
+- [Next.js](https://nextjs.org/) - Application
+- [Tinybird](https://tinybird.co) - Analytics
+- [OpenAI](https://openai.com/) - AI features
+- [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction) - AI features
+- [Vercel](https://sdk.vercel.ai/docs/introduction) - Application deployment
+- [Clerk](https://clerk.com/) - User management and auth
+- [Tremor](https://tremor.so/) - Charts
 
 ## Live Demo
 
-- https://ai-analytics.tinybird.app
+- https://ai.tinybird.app
 
 ## Quick Start
 
