@@ -33,9 +33,29 @@ const ONBOARDING_STEPS = [
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const { currentStep, setCurrentStep } = useOnboarding()
   const [position, setPosition] = useState({ top: 0, left: 0 })
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
-    if (!isOpen) return
+    // Check if all target elements are available
+    const checkTargets = () => {
+      const allTargetsAvailable = ONBOARDING_STEPS.every(step => {
+        const element = document.querySelector(step.targetSelector)
+        return element !== null
+      })
+
+      if (allTargetsAvailable) {
+        setIsReady(true)
+      } else {
+        // If not all targets are available, try again in 100ms
+        setTimeout(checkTargets, 100)
+      }
+    }
+
+    checkTargets()
+  }, [])
+
+  useEffect(() => {
+    if (!isOpen || !isReady) return
 
     const targetElement = document.querySelector(ONBOARDING_STEPS[currentStep].targetSelector)
     if (!targetElement) return
@@ -70,9 +90,9 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     return () => {
       targetElement.classList.remove('onboarding-highlight')
     }
-  }, [currentStep, isOpen])
+  }, [currentStep, isOpen, isReady])
 
-  if (!isOpen) return null
+  if (!isOpen || !isReady) return null
 
   const handleNext = () => {
     if (currentStep < ONBOARDING_STEPS.length - 1) {

@@ -84,13 +84,9 @@ export function FloatingNotification({
     }
   }, [isDragging, dragOffset])
 
-  // Check if it's first load
+  // Show onboarding modal on page load
   useEffect(() => {
-    const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding')
-    if (!hasSeenOnboarding) {
-      setShowOnboarding(true)
-      localStorage.setItem('hasSeenOnboarding', 'true')
-    }
+    setShowOnboarding(true)
   }, [])
 
   return (
