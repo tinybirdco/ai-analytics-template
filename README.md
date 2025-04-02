@@ -2,6 +2,8 @@
 
 This is a template for an LLM performance tracker dashboard and cost calculator. It is built with Next.js and [Tinybird](https://tinybird.co).
 
+![LLM Performance Tracker Dashboard](./assets/screenshot.png)
+
 Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator.
 
 Features:
@@ -75,8 +77,8 @@ http://localhost:3000
 
 Send your data to Tinybird. Some examples:
 
-- [LiteLLM (python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
-- [Vercel AI SDK (typescript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
+- [LiteLLM (Python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
+- [Vercel AI SDK (TypeScript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
 
 ## Deployment
 
@@ -107,8 +109,6 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 
 The [middleware](https://github.com/tinybirdco/ai-analytics-template/blob/main/dashboard/ai-analytics/src/middleware.ts) will get the `org:name` permission from the Clerk user and use it to create a Tinybird JWT token with the `organization` dimension fixed to that value. Read more about Tinybird JWT tokens [here](https://www.tinybird.co/docs/forward/get-started/authentication#json-web-tokens-jwts).
 
-[Watch a video of the Clerk + Tinybird JWT token flow](./assets/clerk-tinybird-jwt.mp4)
-
 ## Mock Data
 
 For local testing, generate mock data with the following commands:
@@ -123,11 +123,9 @@ The [generate-llm-events.js](https://github.com/tinybirdco/ai-analytics-template
 
 ## AI features
 
-To use the AI features, click on Settings in the dashboard and input an Open AI API key.
+To use the AI features, click on Settings in the dashboard and input an OpenAI API key.
 
 See the `search` and `extract-cost-parameters` [API routes](https://github.com/tinybirdco/ai-analytics-template/tree/main/dashboard/ai-analytics/src/app/api) for more details on how the AI features work.
-
-[Watch a video of the AI cost calculator](./assets/ai-cost-calculator.mp4)
 
 ## Vector search
 
@@ -147,10 +145,10 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Support
 
-Join the Tinybird Slack community to get help with your project.
+Join the [Tinybird Slack community](https://www.tinybird.co/community) to get help with your project.
 
 ## License
 
 MIT License
 
-Copyright (c) 2025 Tinybird.co
+©️ Copyright 2025 Tinybird
