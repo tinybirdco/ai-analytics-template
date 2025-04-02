@@ -26,6 +26,7 @@ export function FloatingNotification({
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [showOnboarding, setShowOnboarding] = useState(false)
+  const [isHighlighted, setIsHighlighted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -48,6 +49,23 @@ export function FloatingNotification({
     findSettingsButton()
   }, [])
 
+  // Show onboarding modal on page load
+  useEffect(() => {
+    setShowOnboarding(true)
+  }, [])
+
+  // Add highlight when onboarding closes
+  useEffect(() => {
+    if (!showOnboarding) {
+      setIsHighlighted(true)
+      // Remove highlight after 5 seconds
+      const timer = setTimeout(() => {
+        setIsHighlighted(false)
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [showOnboarding])
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect()
@@ -56,6 +74,8 @@ export function FloatingNotification({
         y: e.clientY - rect.top,
       })
       setIsDragging(true)
+      // Remove highlight when user interacts with the notification
+      setIsHighlighted(false)
     }
   }
 
@@ -84,11 +104,6 @@ export function FloatingNotification({
     }
   }, [isDragging, dragOffset])
 
-  // Show onboarding modal on page load
-  useEffect(() => {
-    setShowOnboarding(true)
-  }, [])
-
   return (
     <>
       <div
@@ -96,6 +111,7 @@ export function FloatingNotification({
         className={cn(
           'fixed flex items-center bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-0 font-["Roboto"] transition-[width] duration-150 ease-in-out w-auto',
           isCollapsed ? 'gap-0' : 'gap-4',
+          isHighlighted && 'floating-notification-highlight',
           className
         )}
         style={{
