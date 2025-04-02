@@ -44,19 +44,6 @@ const highlightStyles = `
     border: 2px solid #27F795;
     border-radius: 4px;
     pointer-events: none;
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(39, 247, 149, 0.4);
-    }
-    70% {
-      box-shadow: 0 0 0 10px rgba(39, 247, 149, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(39, 247, 149, 0);
-    }
   }
 `;
 
