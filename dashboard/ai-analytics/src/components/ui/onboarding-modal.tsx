@@ -154,16 +154,16 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         </div>
 
         {/* Rest of modal content */}
-        <div className="p-6">
-          <div className="bg-black/50 p-8 mb-8">
+        <div className="pt-6">
+          <div className="bg-black/50 mb-8">
             {/* We'll replace this with actual components later */}
             <div className="h-64 flex items-center justify-center text-gray-500">
               {ONBOARDING_STEPS[currentStep].component} Preview
             </div>
           </div>
 
-          <div className="-mx-6 -mb-6 flex items-center justify-between bg-[#1C1C1C]">
-            <div className="flex gap-2 pl-4">
+          <div className="flex items-center justify-between bg-[#1C1C1C]">
+            <div className="flex gap-2 pl-6">
               {ONBOARDING_STEPS.map((_, index) => (
                 <div
                   key={index}
@@ -184,7 +184,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
               </button>
               <button
                 onClick={handleNext}
-                className="px-12 py-3 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
+                className="h-[48px] px-12 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
               >
                 Next
               </button>
