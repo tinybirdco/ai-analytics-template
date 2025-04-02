@@ -21,12 +21,32 @@ export function FloatingNotification({
   title = 'Learn more:',
   links = {},
 }: FloatingNotificationProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
-  const [position, setPosition] = useState({ x: 20, y: 20 })
+  const [isCollapsed, setIsCollapsed] = useState(true)
+  const [position, setPosition] = useState({ x: 0, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [showOnboarding, setShowOnboarding] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Find the settings button in the TopBar using data attribute
+    const findSettingsButton = () => {
+      const settingsButton = document.querySelector('[data-settings-button]') as HTMLElement
+      if (settingsButton) {
+        const rect = settingsButton.getBoundingClientRect()
+        // Position to the left of the settings button
+        setPosition({
+          x: rect.left - 16 - (containerRef.current?.offsetWidth || 40), // 40px is the collapsed width
+          y: rect.top, // Align with the top of the button
+        })
+      } else {
+        // If button not found, try again in 100ms
+        setTimeout(findSettingsButton, 100)
+      }
+    }
+
+    findSettingsButton()
+  }, [])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (containerRef.current) {
@@ -86,6 +106,7 @@ export function FloatingNotification({
           left: `${position.x}px`,
           top: `${position.y}px`,
           cursor: isDragging ? 'grabbing' : 'grab',
+          transform: isCollapsed ? 'none' : 'translateX(-62%)',
         }}
         onMouseDown={handleMouseDown}
       >
@@ -122,16 +143,16 @@ export function FloatingNotification({
               </a>
             )}
             <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={() => setIsCollapsed(true)}
               className="floating-notification-button text-muted-foreground transition-colors hover:bg-[#27F795] hover:text-[#262626] active:bg-[#267A52] active:border-none active:text-[#FFFFFF] ml-4"
             >
-              {isCollapsed ? '+' : <X className="h-4 w-4" />}
+              <X className="h-4 w-4" />
             </button>
           </div>
         )}
         {isCollapsed && (
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={() => setIsCollapsed(false)}
             className="floating-notification-button text-muted-foreground transition-colors hover:bg-[#27F795] hover:text-[#262626] active:bg-[#267A52] active:border-none active:text-[#FFFFFF]"
           >
             <div className="h-4 w-4 flex items-center justify-center">+</div>
