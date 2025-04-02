@@ -7,6 +7,11 @@
   z-index: 51;
 }
 
+.onboarding-highlight[data-search-input],
+.onboarding-highlight[data-table-search] {
+  border: 1px solid #F4F4F4;
+}
+
 /* Design System */
 :root {
   /* Colors */
