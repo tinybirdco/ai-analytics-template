@@ -157,7 +157,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
           </div>
 
           <div className="flex items-center justify-between bg-[#1C1C1C]">
-            <div className="flex gap-2 pl-6">
+            <div className="flex gap-2 pl-4">
               {ONBOARDING_STEPS.map((_, index) => (
                 <div
                   key={index}
@@ -172,7 +172,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <div className="flex">
               <button
                 onClick={handleSkip}
-                className="h-[48px] px-6 text-[#F4F4F4] hover:text-white transition-colors"
+                className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors"
               >
                 Skip tour
               </button>
