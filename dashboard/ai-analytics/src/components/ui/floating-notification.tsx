@@ -78,8 +78,8 @@ export function FloatingNotification({
       <div
         ref={containerRef}
         className={cn(
-          'fixed flex items-center gap-4 bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-4 font-roboto transition-all duration-300 ease-in-out',
-          isCollapsed ? 'w-[40px]' : 'w-auto',
+          'fixed flex items-center bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-0 font-["Roboto"] transition-[width] duration-150 ease-in-out w-auto',
+          isCollapsed ? 'gap-0' : 'gap-4',
           className
         )}
         style={{
@@ -89,10 +89,10 @@ export function FloatingNotification({
         }}
         onMouseDown={handleMouseDown}
       >
-        <div className="flex items-center gap-4">
+        <div className={`flex items-center ${isCollapsed ? 'gap-0' : 'gap-4'}`}>
           <button
             onClick={() => setShowOnboarding(true)}
-            className="floating-notification-button bg-transparent text-sm text-muted-foreground hover:text-[#27F795] transition-colors"
+            className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
           >
             <HelpCircle className="h-4 w-4" />
           </button>
