@@ -44,7 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none' }}>
           <Ribbons
             baseThickness={3}
-            colors={['#ffffff', '#27F795', '#000000']}
+            colors={['#ffffff', '#27F795', '#000000', '#C6C6C6']}
             speedMultiplier={0.5}
             maxAge={500}
             enableFade={true}

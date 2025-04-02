@@ -1,5 +1,5 @@
 'use client'
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Renderer, Transform, Vec3, Color, Polyline } from 'ogl';
 
 interface RibbonsProps {
@@ -17,6 +17,19 @@ interface RibbonsProps {
   backgroundColor?: number[];
 }
 
+const KONAMI_CODE = [
+  'ArrowUp',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight',
+  'ArrowLeft',
+  'ArrowRight',
+  'b',
+  'a'
+];
+
 const Ribbons: React.FC<RibbonsProps> = ({
   colors = ['#ff9346', '#7cff67', '#ffee51', '#00d8ff'],
   baseSpring = 0.03,
@@ -32,8 +45,34 @@ const Ribbons: React.FC<RibbonsProps> = ({
   backgroundColor = [0, 0, 0, 0],
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const [konamiProgress, setKonamiProgress] = useState<number>(0);
 
   useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase();
+      const expectedKey = KONAMI_CODE[konamiProgress].toLowerCase();
+      
+      if (key === expectedKey) {
+        const newProgress = konamiProgress + 1;
+        setKonamiProgress(newProgress);
+        
+        if (newProgress === KONAMI_CODE.length) {
+          setIsVisible(true);
+          setKonamiProgress(0);
+        }
+      } else {
+        setKonamiProgress(0);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [konamiProgress]);
+
+  useEffect(() => {
+    if (!isVisible) return;
+    
     const container = containerRef.current;
     if (!container) return;
 
@@ -244,9 +283,12 @@ const Ribbons: React.FC<RibbonsProps> = ({
       window.removeEventListener('touchmove', updateMouse);
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(frameId);
-      container.removeChild(gl.canvas);
+      if (container.contains(gl.canvas)) {
+        container.removeChild(gl.canvas);
+      }
     };
   }, [
+    isVisible,
     colors,
     baseSpring,
     baseFriction,
@@ -260,6 +302,8 @@ const Ribbons: React.FC<RibbonsProps> = ({
     effectAmplitude,
     backgroundColor,
   ]);
+
+  if (!isVisible) return null;
 
   return (
     <div 
