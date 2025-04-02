@@ -65,8 +65,8 @@ export function FloatingNotification({
     <div
       ref={containerRef}
       className={cn(
-        'fixed flex items-center gap-6 bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-4',
-        isCollapsed ? 'w-auto' : 'w-[500px]',
+        'fixed flex items-center gap-4 bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-4',
+        isCollapsed ? 'w-auto' : 'w-auto',
         className
       )}
       style={{
@@ -76,7 +76,7 @@ export function FloatingNotification({
       }}
       onMouseDown={handleMouseDown}
     >
-      <div className="flex items-center gap-6">
+      <div className="flex items-center gap-4">
         <div className="text-sm text-muted-foreground">ⓘ</div>
         {!isCollapsed && (
           <div className="text-sm text-muted-foreground !-ml-2">{title}</div>
@@ -84,13 +84,13 @@ export function FloatingNotification({
       </div>
 
       {!isCollapsed && (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-0">
           {links.telegram && (
             <a
               href={links.telegram}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
+              className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
             >
               <Send className="h-4 w-4" />
             </a>
@@ -100,14 +100,14 @@ export function FloatingNotification({
               href={links.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-md p-2 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
+              className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
             >
               <Github className="h-4 w-4" />
             </a>
           )}
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="floating-notification-button text-muted-foreground transition-colors hover:bg-[#27F795] hover:text-[#262626] active:bg-[#267A52] active:border-none active:text-[#FFFFFF]"
+            className="floating-notification-button text-muted-foreground transition-colors hover:bg-[#27F795] hover:text-[#262626] active:bg-[#267A52] active:border-none active:text-[#FFFFFF] ml-4"
           >
             {isCollapsed ? '+' : <X className="h-4 w-4" />}
           </button>
