@@ -110,7 +110,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 font-['Roboto']">
-      <div className="fixed inset-0 bg-black/50" onClick={handleSkip} />
+      <div className="fixed inset-0 bg-black/75" onClick={handleSkip} />
       <div
         data-onboarding-modal
         className="fixed bg-[#1C1C1C] w-[573px] h-[540px] overflow-hidden transition-all duration-300 ease-in-out"
