@@ -106,11 +106,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50">
+    <div className="fixed inset-0 z-50 font-['Roboto']">
       <div className="fixed inset-0 bg-black/50" onClick={handleSkip} />
       <div
         data-onboarding-modal
-        className="fixed bg-[#1C1C1C] rounded-lg w-full max-w-md mx-4 overflow-hidden transition-all duration-300 ease-in-out"
+        className="fixed bg-[#1C1C1C] w-full max-w-md mx-4 overflow-hidden transition-all duration-300 ease-in-out"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -137,7 +137,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             {ONBOARDING_STEPS[currentStep].description}
           </p>
 
-          <div className="bg-black/50 rounded-lg p-8 mb-8">
+          <div className="bg-black/50 p-8 mb-8">
             {/* We'll replace this with actual components later */}
             <div className="h-64 flex items-center justify-center text-gray-500">
               {ONBOARDING_STEPS[currentStep].component} Preview
@@ -166,7 +166,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
               </button>
               <button
                 onClick={handleNext}
-                className="px-6 py-2 bg-[#27F795] text-black rounded hover:bg-[#20C77A] transition-colors font-roboto"
+                className="px-6 py-2 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors font-roboto"
               >
                 {currentStep === ONBOARDING_STEPS.length - 1 ? 'Finish' : 'Next'}
               </button>
