@@ -18,7 +18,7 @@ interface FloatingNotificationProps {
 
 export function FloatingNotification({
   className,
-  title = 'Build with your data',
+  title = 'Fork and build your own LLM tracker',
   links = {},
 }: FloatingNotificationProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
