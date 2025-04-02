@@ -29,6 +29,37 @@ const ONBOARDING_STEPS = [
   }
 ]
 
+// Add this CSS at the top of the file, after the imports
+const highlightStyles = `
+  .onboarding-highlight {
+    position: relative;
+    z-index: 51;
+  }
+  
+  .onboarding-highlight::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: rgba(39, 247, 149, 0.1);
+    border: 2px solid #27F795;
+    border-radius: 4px;
+    pointer-events: none;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 rgba(39, 247, 149, 0.4);
+    }
+    70% {
+      box-shadow: 0 0 0 10px rgba(39, 247, 149, 0);
+    }
+    100% {
+      box-shadow: 0 0 0 0 rgba(39, 247, 149, 0);
+    }
+  }
+`;
+
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const { currentStep, setCurrentStep } = useOnboarding()
   const [position, setPosition] = useState({ top: 0, left: 0 })
@@ -36,58 +67,40 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   useEffect(() => {
     if (!isOpen) return
 
-    const updatePosition = () => {
-      const targetElement = document.querySelector(ONBOARDING_STEPS[currentStep].targetSelector)
-      if (targetElement) {
-        const rect = targetElement.getBoundingClientRect()
-        const modalElement = document.querySelector('[data-onboarding-modal]')
-        const modalRect = modalElement?.getBoundingClientRect()
-        const modalHeight = modalRect?.height || 0
-        const modalWidth = modalRect?.width || 0
+    const targetElement = document.querySelector(ONBOARDING_STEPS[currentStep].targetSelector)
+    if (!targetElement) return
 
-        // Calculate position based on step
-        let top = 0
-        let left = 0
+    // Add highlight class to target element
+    targetElement.classList.add('onboarding-highlight')
 
-        switch (currentStep) {
-          case 0: // Under AI Calculator button
-            top = rect.bottom + 20
-            left = rect.left - (modalWidth / 2) + (rect.width / 2)
-            break
-          case 1: // Under top bar search
-            top = rect.bottom + 20
-            left = rect.left - (modalWidth / 2) + (rect.width / 2)
-            break
-          case 2: // Above table search
-            top = rect.top - modalHeight - 20
-            left = rect.left - (modalWidth / 2) + (rect.width / 2)
-            break
-        }
+    const rect = targetElement.getBoundingClientRect()
+    const modalWidth = 400 // Approximate modal width
+    const modalHeight = 300 // Approximate modal height
+    const padding = 20
 
-        // Ensure modal stays within viewport
-        const viewportWidth = window.innerWidth
-        const viewportHeight = window.innerHeight
+    let top = rect.top - modalHeight - padding
+    let left = rect.left + (rect.width - modalWidth) / 2
 
-        left = Math.max(20, Math.min(left, viewportWidth - modalWidth - 20))
-        top = Math.max(20, Math.min(top, viewportHeight - modalHeight - 20))
-
-        setPosition({ top, left })
-      }
+    // Adjust position if modal would go off screen
+    if (top < padding) {
+      top = rect.bottom + padding
     }
 
-    // Update position initially and on window resize
-    updatePosition()
-    window.addEventListener('resize', updatePosition)
+    if (left < padding) {
+      left = padding
+    }
 
-    // Update position when step changes
-    const observer = new MutationObserver(updatePosition)
-    observer.observe(document.body, { childList: true, subtree: true })
+    if (left + modalWidth > window.innerWidth - padding) {
+      left = window.innerWidth - modalWidth - padding
+    }
 
+    setPosition({ top, left })
+
+    // Cleanup function to remove highlight
     return () => {
-      window.removeEventListener('resize', updatePosition)
-      observer.disconnect()
+      targetElement.classList.remove('onboarding-highlight')
     }
-  }, [isOpen, currentStep])
+  }, [currentStep, isOpen])
 
   if (!isOpen) return null
 
@@ -117,26 +130,31 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
           transform: 'translate(0, 0)',
         }}
       >
-        <div className="flex justify-between items-center p-4 border-b border-gray-800">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xl font-roboto text-white">
+        {/* Modal header */}
+        <div className="flex items-center justify-between p-4 pb-0">
+          <div className="flex items-center space-x-2">
+            <h2 className="title-font">
               {ONBOARDING_STEPS[currentStep].title}
             </h2>
             <span className="text-[#27F795]">✧</span>
           </div>
-          <button
+          <button 
             onClick={handleSkip}
-            className="text-gray-400 hover:text-white transition-colors"
+            className="settings-button"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4 text-white" />
           </button>
         </div>
 
-        <div className="p-6">
-          <p className="text-gray-400 mb-8 font-roboto">
+        {/* Description */}
+        <div className="px-4 pt-1">
+          <p className="text-[#8D8D8D] text-sm">
             {ONBOARDING_STEPS[currentStep].description}
           </p>
+        </div>
 
+        {/* Rest of modal content */}
+        <div className="p-6">
           <div className="bg-black/50 p-8 mb-8">
             {/* We'll replace this with actual components later */}
             <div className="h-64 flex items-center justify-center text-gray-500">
