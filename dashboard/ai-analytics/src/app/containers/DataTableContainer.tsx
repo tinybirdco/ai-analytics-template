@@ -70,7 +70,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
     <div className="flex flex-col h-full">
       <div className="p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-grow">
+          <div className="relative flex-grow" data-table-search>
             <button
               type="submit"
               className="absolute inset-y-0 left-0 flex items-center px-4 text-white hover:text-white"
@@ -80,7 +80,6 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
             <input
               type="text"
               placeholder="Search conversations semantically..."
-              data-table-search
               className="w-full h-[48px] px-4 pl-10 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D] placeholder:focus:opacity-0"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
