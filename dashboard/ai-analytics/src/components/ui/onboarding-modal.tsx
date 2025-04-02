@@ -10,21 +10,21 @@ interface OnboardingModalProps {
 
 const ONBOARDING_STEPS = [
   {
-    title: 'AI Calculator',
-    description: 'Visualize your expenses with a simple click',
+    title: 'AI Cost Calculator',
+    description: 'Visualize your AI costs using natural language and AI',
     component: 'CostCalculator',
     targetSelector: '[data-calculator-button]'
   },
   {
-    title: 'Analytics Dashboard',
-    description: 'Track your AI usage and costs in real-time',
-    component: 'AnalyticsDashboard',
+    title: 'Filter Chips',
+    description: 'Filter your data by multiple criteria using AI',
+    component: 'FilterChips',
     targetSelector: '[data-search-input]'
   },
   {
-    title: 'API Integration',
-    description: 'Seamlessly integrate with your existing infrastructure',
-    component: 'ApiIntegration',
+    title: 'Vector Search',
+    description: 'Search your LLM calls using vector search',
+    component: 'VectorSearch',
     targetSelector: '[data-table-search]'
   }
 ]
@@ -143,10 +143,14 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         {/* Rest of modal content */}
         <div className="flex flex-col h-[calc(540px-88px)] pt-8">
           <div className="flex-1 bg-black/50 mb-8">
-            {/* We'll replace this with actual components later */}
-            <div className="h-full flex items-center justify-center text-gray-500">
-              {ONBOARDING_STEPS[currentStep].component} Preview
-            </div>
+            <video
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+              src={`/onboarding/${ONBOARDING_STEPS[currentStep].component.toLowerCase()}.mp4`}
+            />
           </div>
 
           <div className="flex items-center justify-between bg-[#1C1C1C]">
