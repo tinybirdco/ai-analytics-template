@@ -123,7 +123,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
       <div className="fixed inset-0 bg-black/50" onClick={handleSkip} />
       <div
         data-onboarding-modal
-        className="fixed bg-[#1C1C1C] w-full max-w-md mx-4 overflow-hidden transition-all duration-300 ease-in-out"
+        className="fixed bg-[#1C1C1C] w-[573px] h-[540px] overflow-hidden transition-all duration-300 ease-in-out"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
@@ -154,10 +154,10 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         </div>
 
         {/* Rest of modal content */}
-        <div className="pt-6">
-          <div className="bg-black/50 mb-8">
+        <div className="flex flex-col h-[calc(540px-88px)] pt-8">
+          <div className="flex-1 bg-black/50 mb-8">
             {/* We'll replace this with actual components later */}
-            <div className="h-64 flex items-center justify-center text-gray-500">
+            <div className="h-full flex items-center justify-center text-gray-500">
               {ONBOARDING_STEPS[currentStep].component} Preview
             </div>
           </div>
