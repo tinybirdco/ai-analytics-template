@@ -2,6 +2,7 @@ import { X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useOnboarding } from '@/app/context/OnboardingContext'
 import { useEffect, useState } from 'react'
+import { Sparkles } from 'lucide-react'
 
 interface OnboardingModalProps {
   isOpen: boolean
@@ -28,24 +29,6 @@ const ONBOARDING_STEPS = [
     targetSelector: '[data-table-search]'
   }
 ]
-
-// Add this CSS at the top of the file, after the imports
-const highlightStyles = `
-  .onboarding-highlight {
-    position: relative;
-    z-index: 51;
-  }
-  
-  .onboarding-highlight::before {
-    content: '';
-    position: absolute;
-    inset: -4px;
-    background: rgba(39, 247, 149, 0.1);
-    border: 2px solid #27F795;
-    border-radius: 4px;
-    pointer-events: none;
-  }
-`;
 
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const { currentStep, setCurrentStep } = useOnboarding()
@@ -123,7 +106,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <h2 className="title-font">
               {ONBOARDING_STEPS[currentStep].title}
             </h2>
-            <span className="text-[#27F795]">✧</span>
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
           <button 
             onClick={handleSkip}
