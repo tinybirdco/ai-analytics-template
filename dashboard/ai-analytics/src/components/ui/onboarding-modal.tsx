@@ -74,12 +74,12 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     targetElement.classList.add('onboarding-highlight')
 
     const rect = targetElement.getBoundingClientRect()
-    const modalWidth = 400 // Approximate modal width
-    const modalHeight = 300 // Approximate modal height
+    const modalWidth = 573 // Exact modal width
+    const modalHeight = 540 // Exact modal height
     const padding = 20
 
     let top = rect.top - modalHeight - padding
-    let left = rect.left + (rect.width - modalWidth) / 2
+    let left = rect.left // Align with target's left edge
 
     // Adjust position if modal would go off screen
     if (top < padding) {
