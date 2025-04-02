@@ -162,31 +162,31 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
-            <div className="flex gap-2">
+          <div className="-mx-6 -mb-6 flex items-center justify-between bg-[#1C1C1C]">
+            <div className="flex gap-2 pl-4">
               {ONBOARDING_STEPS.map((_, index) => (
                 <div
                   key={index}
                   className={cn(
-                    'w-2 h-2 rounded-full transition-colors',
-                    currentStep === index ? 'bg-[#27F795]' : 'bg-gray-600'
+                    'w-2 h-2 rounded-full',
+                    currentStep === index ? 'bg-[#27F795]' : 'bg-[#404040]'
                   )}
                 />
               ))}
             </div>
 
-            <div className="flex gap-4">
+            <div className="flex">
               <button
                 onClick={handleSkip}
-                className="px-6 py-2 text-gray-400 hover:text-white transition-colors font-roboto"
+                className="h-[48px] px-6 text-[#8D8D8D] hover:text-white transition-colors"
               >
                 Skip tour
               </button>
               <button
                 onClick={handleNext}
-                className="px-6 py-2 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors font-roboto"
+                className="h-[48px] w-[96px] bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
               >
-                {currentStep === ONBOARDING_STEPS.length - 1 ? 'Finish' : 'Next'}
+                Next
               </button>
             </div>
           </div>
