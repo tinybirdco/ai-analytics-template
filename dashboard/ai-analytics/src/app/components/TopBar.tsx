@@ -132,6 +132,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={openCostPrediction}
+            data-calculator-button
             className="ai-calculator-button hover:bg-[var(--hover-accent)] hover:text-white group"
           >
             <span className="font-roboto text-base font-normal">
@@ -144,6 +145,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               ref={inputRef}
               type="text"
               placeholder="Ask AI..."
+              data-search-input
               className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
               onKeyDown={handleSearch}
               disabled={isLoading}

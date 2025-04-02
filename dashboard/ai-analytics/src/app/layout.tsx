@@ -4,6 +4,7 @@ import "./globals.css";
 import { TinybirdProvider } from '@/providers/TinybirdProvider';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ModalProvider } from './context/ModalContext';
+import { OnboardingProvider } from './context/OnboardingContext';
 import { RootLayoutContent } from './components/RootLayoutContent';
 
 const roboto = Roboto({
@@ -31,9 +32,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ClerkProvider>
           <TinybirdProvider>
             <ModalProvider>
-              <RootLayoutContent initialToken={token} initialOrgName={orgName}>
-                {children}
-              </RootLayoutContent>
+              <OnboardingProvider>
+                <RootLayoutContent initialToken={token} initialOrgName={orgName}>
+                  {children}
+                </RootLayoutContent>
+              </OnboardingProvider>
             </ModalProvider>
           </TinybirdProvider>
         </ClerkProvider>
