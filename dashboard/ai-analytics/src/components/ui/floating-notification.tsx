@@ -80,7 +80,7 @@ export function FloatingNotification({
       <div className="flex items-center gap-4">
         <div className="text-sm text-muted-foreground">ⓘ</div>
         {!isCollapsed && (
-          <div className="text-sm text-muted-foreground !-ml-2">{title}</div>
+          <div className="text-sm text-muted-foreground font-['Roboto'] !-ml-2">{title}</div>
         )}
       </div>
 
