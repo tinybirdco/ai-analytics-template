@@ -168,8 +168,8 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                 <div
                   key={index}
                   className={cn(
-                    'w-2 h-2 rounded-full',
-                    currentStep === index ? 'bg-[#27F795]' : 'bg-[#404040]'
+                    'w-3 h-3 rounded-full',
+                    currentStep === index ? 'bg-[#27F795]' : 'bg-[#C6C6C6]'
                   )}
                 />
               ))}
@@ -178,13 +178,13 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <div className="flex">
               <button
                 onClick={handleSkip}
-                className="h-[48px] px-6 text-[#8D8D8D] hover:text-white transition-colors"
+                className="h-[48px] px-6 text-[#F4F4F4] hover:text-white transition-colors"
               >
                 Skip tour
               </button>
               <button
                 onClick={handleNext}
-                className="h-[48px] w-[96px] bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
+                className="px-12 py-3 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
               >
                 Next
               </button>
