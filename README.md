@@ -71,6 +71,19 @@ Open the application in your browser:
 http://localhost:3000
 ```
 
+## Instrumentation
+
+Send your data to Tinybird. Some examples:
+
+- [LiteLLM (python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
+- [Vercel AI SDK (typescript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
+
+## Deployment
+
+- Fork and connect this repository to Vercel.
+- Set the environment variables in Vercel.
+- Configure the [CI/CD GitHub actions](https://github.com/tinybirdco/ai-analytics-template/tree/main/.github/workflows) to deploy to Tinybird.
+
 ## Multi-tenancy
 
 Create a Clerk project and set up these environment variables in your Next.js application:
@@ -96,6 +109,18 @@ The [middleware](https://github.com/tinybirdco/ai-analytics-template/blob/main/d
 
 [Watch a video of the Clerk + Tinybird JWT token flow](./assets/clerk-tinybird-jwt.mp4)
 
+## Mock Data
+
+For local testing, generate mock data with the following commands:
+
+```sh
+cd tinybird/mock
+npm install
+npm run generate -- --start-date 2025-02-01 --end-date 2025-03-31 --events-per-day 100 --output ../fixtures/llm_events.ndjson
+```
+
+The [generate-llm-events.js](https://github.com/tinybirdco/ai-analytics-template/blob/main/tinybird/mock/generate-llm-events.js) script generates the embeddings.
+
 ## AI features
 
 To use the AI features, click on Settings in the dashboard and input an Open AI API key.
@@ -115,31 +140,6 @@ The process is:
 - The embedding is sent to the Tinybird `llm_messages` as a query parameter.
 - `llm_messages` use `cosineDistance` to find the most similar vectors.
 - The frontend shows the table rows with the most similar vectors.
-
-## Deployment
-
-- Fork and connect this repository to Vercel.
-- Set the environment variables in Vercel.
-- Configure the [CI/CD GitHub actions](https://github.com/tinybirdco/ai-analytics-template/tree/main/.github/workflows) to deploy to Tinybird.
-
-## Instrumentation
-
-Check how to instrument your LLM usage with the following libraries:
-
-- [LiteLLM (python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
-- [Vercel AI SDK (typescript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
-
-## Mock Data
-
-For local testing, generate mock data with the following commands:
-
-```sh
-cd tinybird/mock
-npm install
-npm run generate -- --start-date 2025-02-01 --end-date 2025-03-31 --events-per-day 100 --output ../fixtures/llm_events.ndjson
-```
-
-The [generate-llm-events.js](https://github.com/tinybirdco/ai-analytics-template/blob/main/tinybird/mock/generate-llm-events.js) script generates the embeddings.
 
 ## Contributing
 

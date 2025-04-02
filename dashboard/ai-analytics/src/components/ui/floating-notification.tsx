@@ -18,35 +18,32 @@ interface FloatingNotificationProps {
 
 export function FloatingNotification({
   className,
-  title = 'Learn more:',
+  title = 'Build with your data',
   links = {},
 }: FloatingNotificationProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true)
-  const [position, setPosition] = useState({ x: 0, y: 0 })
+  const [isCollapsed, setIsCollapsed] = useState(false)
+  const [position, setPosition] = useState({ x: 16, y: 0 })
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [showOnboarding, setShowOnboarding] = useState(false)
   const [isHighlighted, setIsHighlighted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
+  // Set initial position and handle window resize
   useEffect(() => {
-    // Find the settings button in the TopBar using data attribute
-    const findSettingsButton = () => {
-      const settingsButton = document.querySelector('[data-settings-button]') as HTMLElement
-      if (settingsButton) {
-        const rect = settingsButton.getBoundingClientRect()
-        // Position to the left of the settings button
-        setPosition({
-          x: rect.left - 16 - (containerRef.current?.offsetWidth || 40), // 40px is the collapsed width
-          y: rect.top, // Align with the top of the button
-        })
-      } else {
-        // If button not found, try again in 100ms
-        setTimeout(findSettingsButton, 100)
-      }
+    const updatePosition = () => {
+      setPosition({
+        x: 16,
+        y: window.innerHeight - 64 // 64px is the height of the notification
+      })
     }
 
-    findSettingsButton()
+    // Set initial position
+    updatePosition()
+
+    // Add resize listener
+    window.addEventListener('resize', updatePosition)
+    return () => window.removeEventListener('resize', updatePosition)
   }, [])
 
   // Show onboarding modal on page load
@@ -109,7 +106,7 @@ export function FloatingNotification({
       <div
         ref={containerRef}
         className={cn(
-          'fixed flex items-center bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-0 font-["Roboto"] transition-[width] duration-150 ease-in-out w-auto',
+          'fixed flex items-center bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-0 font-["Roboto"] transition-all duration-150 ease-in-out w-auto',
           isCollapsed ? 'gap-0' : 'gap-4',
           isHighlighted && 'floating-notification-highlight',
           className
@@ -118,7 +115,6 @@ export function FloatingNotification({
           left: `${position.x}px`,
           top: `${position.y}px`,
           cursor: isDragging ? 'grabbing' : 'grab',
-          transform: isCollapsed ? 'none' : 'translateX(-66%)',
         }}
         onMouseDown={handleMouseDown}
       >
