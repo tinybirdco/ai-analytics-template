@@ -5,6 +5,7 @@ import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useModal } from '../context/ModalContext';
 import { useKeyboardShortcut } from '@/hooks/useKeyboardShortcut';
 import CostPredictionModal from './CostPredictionModal';
+import { FloatingNotification } from '@/components/ui/floating-notification';
 
 interface RootLayoutContentProps {
   children: ReactNode;
@@ -23,6 +24,12 @@ export function RootLayoutContent({ children, initialToken, initialOrgName }: Ro
     <>
       {children}
       <ModalController filters={{}} />
+      <FloatingNotification
+        links={{
+          github: 'https://github.com/tinybirdco/ai-analytics-template',
+          telegram: 'https://t.me/tinybirdco',
+        }}
+      />
     </>
   );
 }

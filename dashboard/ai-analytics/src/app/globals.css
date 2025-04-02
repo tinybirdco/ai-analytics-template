@@ -227,7 +227,7 @@ select::placeholder {
   opacity: 0.5;
 }
 
-.settings-button {
+.settings-button, .floating-notification-button {
   display: flex;
   flex-direction: row;
   align-items: center;
