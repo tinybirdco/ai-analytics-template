@@ -6,6 +6,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ModalProvider } from './context/ModalContext';
 import { OnboardingProvider } from './context/OnboardingContext';
 import { RootLayoutContent } from './components/RootLayoutContent';
+import Ribbons from '@/components/ui/ribbons';
 
 const roboto = Roboto({
   weight: ['400'],
@@ -40,6 +41,16 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </ModalProvider>
           </TinybirdProvider>
         </ClerkProvider>
+        <div style={{ position: 'fixed', inset: 0, zIndex: 9999, pointerEvents: 'none' }}>
+          <Ribbons
+            baseThickness={3}
+            colors={['#ffffff', '#27F795', '#000000']}
+            speedMultiplier={0.5}
+            maxAge={500}
+            enableFade={true}
+            enableShaderEffect={true}
+          />
+        </div>
       </body>
     </html>
   );
