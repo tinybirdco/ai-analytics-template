@@ -132,6 +132,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         <div className="flex items-center gap-4">
           <button
             onClick={openCostPrediction}
+            data-calculator-button
             className="ai-calculator-button hover:bg-[var(--hover-accent)] hover:text-white group"
           >
             <span className="font-roboto text-base font-normal">
@@ -144,6 +145,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               ref={inputRef}
               type="text"
               placeholder="Ask AI..."
+              data-search-input
               className="w-full h-[48px] px-4 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D]"
               onKeyDown={handleSearch}
               disabled={isLoading}
@@ -166,6 +168,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <button
             onClick={() => setIsSettingsOpen(true)}
             className="settings-button"
+            data-settings-button
           >
             <SettingsIcon />
           </button>
@@ -211,6 +214,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               <button 
                 onClick={() => setIsSettingsOpen(false)}
                 className="text-gray-500 hover:text-gray-700"
+                id="key-settings"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
