@@ -2,14 +2,15 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { Github, X, Send } from 'lucide-react'
+import { Github, X } from 'lucide-react'
+import { TinybirdIcon } from '@/app/components/icons'
 
 interface FloatingNotificationProps {
   className?: string
   title?: string
   links?: {
     github?: string
-    telegram?: string
+    tinybird?: string
     close?: () => void
   }
 }
@@ -85,21 +86,19 @@ export function FloatingNotification({
 
       {!isCollapsed && (
         <div className="flex items-center gap-0">
-          {links.telegram && (
+          {links.tinybird && (
             <a
-              href={links.telegram}
+              href={links.tinybird}
               target="_blank"
-              rel="noopener noreferrer"
               className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
             >
-              <Send className="h-4 w-4" />
+              <TinybirdIcon className="h-4 w-4" />
             </a>
           )}
           {links.github && (
             <a
               href={links.github}
               target="_blank"
-              rel="noopener noreferrer"
               className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
             >
               <Github className="h-4 w-4" />

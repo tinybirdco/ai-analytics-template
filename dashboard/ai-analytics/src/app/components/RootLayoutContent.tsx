@@ -27,7 +27,7 @@ export function RootLayoutContent({ children, initialToken, initialOrgName }: Ro
       <FloatingNotification
         links={{
           github: 'https://github.com/tinybirdco/ai-analytics-template',
-          telegram: 'https://t.me/tinybirdco',
+          tinybird: 'https://tinybird.co/templates/ai-analytics-template',
         }}
       />
     </>
