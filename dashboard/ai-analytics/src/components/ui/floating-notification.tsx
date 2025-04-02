@@ -106,7 +106,7 @@ export function FloatingNotification({
           left: `${position.x}px`,
           top: `${position.y}px`,
           cursor: isDragging ? 'grabbing' : 'grab',
-          transform: isCollapsed ? 'none' : 'translateX(-62%)',
+          transform: isCollapsed ? 'none' : 'translateX(-66%)',
         }}
         onMouseDown={handleMouseDown}
       >
@@ -118,7 +118,7 @@ export function FloatingNotification({
             <HelpCircle className="h-4 w-4" />
           </button>
           {!isCollapsed && (
-            <div className="text-sm text-muted-foreground !-ml-4">{title}</div>
+            <div className="text-sm text-muted-foreground !-ml-4 whitespace-nowrap">{title}</div>
           )}
         </div>
 
