@@ -1,12 +1,12 @@
-# AI Analytics Template
+# LLM Performance Tracker
 
-This is a template for an AI analytics dashboard and cost calculator. It is built with Next.js and [Tinybird](https://tinybird.co).
+This is a template for an LLM performance tracker dashboard and cost calculator. It is built with Next.js and [Tinybird](https://tinybird.co).
 
 Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator.
 
 Features:
 
-- Track costs, requests, tokens and duration by model, provider, organization, project, environment and user
+- Track LLM costs, requests, tokens and duration by model, provider, organization, project, environment and user
 - Multi-tenant user-facing dashboard
 - AI cost calculator
 - Vector search
@@ -143,7 +143,7 @@ The [generate-llm-events.js](https://github.com/tinybirdco/ai-analytics-template
 
 ## Contributing
 
-Please open an issue or submit a pull request.
+See [CONTRIBUTING.md](./CONTRIBUTING.md)
 
 ## Support
 

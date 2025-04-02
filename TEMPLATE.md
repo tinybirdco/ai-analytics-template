@@ -1,4 +1,4 @@
-This is a template for an AI analytics dashboard and LLM cost calculator. It is built with Next.js, [Tinybird](https://tinybird.co) and [Clerk](https://clerk.com)
+This is a template for an LLM performance tracker dashboard and LLM cost calculator. It is built with Next.js, [Tinybird](https://tinybird.co) and [Clerk](https://clerk.com)
 
 Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator.
 
@@ -28,7 +28,7 @@ Tech stack:
 
 ## Quick Start
 
-Get started by forking the [GitHub repository](https://github.com/tinybird.co/ai-analytics-template) and then customizing it to your needs.
+Get started by forking the [GitHub repository](https://github.com/tinybirdco/llm-performance-tracker) and then customizing it to your needs.
 
 Start Tinybird locally:
 
@@ -90,7 +90,7 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
 NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 ```
 
-The [middleware](https://github.com/tinybirdco/ai-analytics-template/blob/main/dashboard/ai-analytics/src/middleware.ts) will get the `org:name` permission from the Clerk user and use it to create a Tinybird JWT token with the `organization` dimension fixed to that value. Read more about Tinybird JWT tokens [here](https://www.tinybird.co/docs/forward/get-started/authentication#json-web-tokens-jwts).
+The [middleware](https://github.com/tinybirdco/llm-performance-tracker/blob/main/dashboard/ai-analytics/src/middleware.ts) will get the `org:name` permission from the Clerk user and use it to create a Tinybird JWT token with the `organization` dimension fixed to that value. Read more about Tinybird JWT tokens [here](https://www.tinybird.co/docs/forward/get-started/authentication#json-web-tokens-jwts).
 
 [Watch a video of the Clerk + Tinybird JWT token flow](./assets/clerk-tinybird-jwt.mp4)
 
@@ -98,13 +98,13 @@ The [middleware](https://github.com/tinybirdco/ai-analytics-template/blob/main/d
 
 To use the AI features, click on Settings in the dashboard and input an Open AI API key.
 
-See the `search` and `extract-cost-parameters` [API routes](https://github.com/tinybirdco/ai-analytics-template/tree/main/dashboard/ai-analytics/src/app/api) for more details on how the AI features work.
+See the `search` and `extract-cost-parameters` [API routes](https://github.com/tinybirdco/llm-performance-tracker/tree/main/dashboard/ai-analytics/src/app/api) for more details on how the AI features work.
 
 [Watch a video of the AI cost calculator](./assets/ai-cost-calculator.mp4)
 
 ## Vector search
 
-The vector search is powered by Tinybird, but embeddings need to be calculated in a separate process. See the [generate-embedding](https://github.com/tinybirdco/ai-analytics-template/blob/main/dashboard/ai-analytics/src/app/api/generate-embedding/route.ts) route for more details.
+The vector search is powered by Tinybird, but embeddings need to be calculated in a separate process. See the [generate-embedding](https://github.com/tinybirdco/llm-performance-tracker/blob/main/dashboard/ai-analytics/src/app/api/generate-embedding/route.ts) route for more details.
 
 The process is:
 
@@ -118,7 +118,7 @@ The process is:
 
 - Fork and connect this repository to Vercel.
 - Set the environment variables in Vercel.
-- Configure the [CI/CD GitHub actions](https://github.com/tinybirdco/ai-analytics-template/tree/main/.github/workflows) to deploy to Tinybird.
+- Configure the [CI/CD GitHub actions](https://github.com/tinybirdco/llm-performance-tracker/tree/main/.github/workflows) to deploy to Tinybird.
 
 ## Instrumentation
 
@@ -137,4 +137,4 @@ npm install
 npm run generate -- --start-date 2025-02-01 --end-date 2025-03-31 --events-per-day 100 --output ../fixtures/llm_events.ndjson
 ```
 
-The [generate-llm-events.js](https://github.com/tinybirdco/ai-analytics-template/blob/main/tinybird/mock/generate-llm-events.js) script generates the embeddings.
+The [generate-llm-events.js](https://github.com/tinybirdco/llm-performance-tracker/blob/main/tinybird/mock/generate-llm-events.js) script generates the embeddings.
