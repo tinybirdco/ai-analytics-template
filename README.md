@@ -26,7 +26,7 @@ Stack:
 
 ## Live Demo
 
-- https://ai.tinybird.app
+- https://llm-tracker.tinybird.live
 
 ## Quick Start
 
