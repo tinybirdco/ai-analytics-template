@@ -145,7 +145,7 @@ export function FloatingNotification({
                 <span className="text-[11px] font-medium">FEATURED ON</span>
                 <span className="text-[18px] font-semibold -mt-[1px]">Product Hunt</span>
               </div>
-              <div className="flex items-center gap-1.5 bg-white/10 px-2 py-1 rounded ml-2">
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded ml-2">
                 <span className="text-[15px]">▲</span>
                 <span className="font-medium">{upvotes}</span>
               </div>
