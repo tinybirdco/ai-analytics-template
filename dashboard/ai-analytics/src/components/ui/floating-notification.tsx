@@ -26,43 +26,7 @@ export function FloatingNotification({
   const [isDragging, setIsDragging] = useState(false)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const [upvotes, setUpvotes] = useState<number>(1)
   const containerRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const fetchUpvotes = async () => {
-      try {
-        const response = await fetch('https://api.producthunt.com/v2/api/graphql', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization': 'Bearer ' + process.env.NEXT_PUBLIC_PRODUCT_HUNT_TOKEN,
-          },
-          body: JSON.stringify({
-            query: `
-              query {
-                post(id: "llm-performance-tracker") {
-                  votesCount
-                }
-              }
-            `
-          })
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          if (data?.data?.post?.votesCount) {
-            setUpvotes(data.data.post.votesCount);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching Product Hunt upvotes:', error);
-      }
-    };
-
-    fetchUpvotes();
-  }, []);
 
   // Set initial position and handle window resize
   useEffect(() => {
@@ -144,10 +108,6 @@ export function FloatingNotification({
               <div className="flex flex-col leading-none">
                 <span className="text-[11px] font-medium">FEATURED ON</span>
                 <span className="text-[18px] font-semibold -mt-[1px]">Product Hunt</span>
-              </div>
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded ml-2">
-                <span className="text-[15px]">▲</span>
-                <span className="font-medium">{upvotes}</span>
               </div>
             </div>
           </a>
