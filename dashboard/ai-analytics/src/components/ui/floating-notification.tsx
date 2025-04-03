@@ -106,7 +106,7 @@ export function FloatingNotification({
       <div
         ref={containerRef}
         className={cn(
-          'fixed flex items-center bg-[#262626] shadow-lg border-l-[3px] border-l-[#27F795] pl-0 font-["Roboto"] transition-all duration-150 ease-in-out w-auto',
+          'fixed flex items-center bg-[var(--accent)] shadow-lg border-l-[3px] border-l-[#27F795] pl-0 font-["Roboto"] transition-all duration-150 ease-in-out w-auto',
           isCollapsed ? 'gap-0' : 'gap-4',
           isHighlighted && 'floating-notification-highlight',
           className
@@ -121,12 +121,12 @@ export function FloatingNotification({
         <div className={`flex items-center ${isCollapsed ? 'gap-0' : 'gap-4'}`}>
           <button
             onClick={() => setShowOnboarding(true)}
-            className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
+            className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white"
           >
             <HelpCircle className="h-4 w-4" />
           </button>
           {!isCollapsed && (
-            <div className="text-sm text-muted-foreground !-ml-4 whitespace-nowrap">{title}</div>
+            <div className="text-sm text-[#262626] !-ml-4 whitespace-nowrap">{title}</div>
           )}
         </div>
 
@@ -136,7 +136,7 @@ export function FloatingNotification({
               <a
                 href={links.tinybird}
                 target="_blank"
-                className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
+                className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white"
               >
                 <TinybirdIcon className="h-4 w-4" />
               </a>
@@ -145,14 +145,14 @@ export function FloatingNotification({
               <a
                 href={links.github}
                 target="_blank"
-                className="p-4 text-muted-foreground transition-colors hover:bg-transparent hover:text-[var(--accent)] active:text-white"
+                className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white"
               >
                 <Github className="h-4 w-4" />
               </a>
             )}
             <button
               onClick={() => setIsCollapsed(true)}
-              className="floating-notification-button text-muted-foreground transition-colors hover:bg-[#27F795] hover:text-[#262626] active:bg-[#267A52] active:border-none active:text-[#FFFFFF] ml-4"
+              className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white ml-4"
             >
               <X className="h-4 w-4" />
             </button>
@@ -161,7 +161,7 @@ export function FloatingNotification({
         {isCollapsed && (
           <button
             onClick={() => setIsCollapsed(false)}
-            className="floating-notification-button text-muted-foreground transition-colors hover:bg-[#27F795] hover:text-[#262626] active:bg-[#267A52] active:border-none active:text-[#FFFFFF]"
+            className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white"
           >
             <div className="h-4 w-4 flex items-center justify-center">+</div>
           </button>
