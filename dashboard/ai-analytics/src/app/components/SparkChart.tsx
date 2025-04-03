@@ -8,6 +8,7 @@ import {
     AreaChart,
   } from '@tremor/react';
 import CustomTooltip from './CustomTooltip';
+import { useState } from 'react';
 
   // Default colors for all categories
   const defaultColors = [
@@ -43,6 +44,15 @@ import CustomTooltip from './CustomTooltip';
     className,
     unit = ''
   }: SparkChartProps) {
+    const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+    const handleMouseMove = (e: React.MouseEvent) => {
+      setMousePosition({
+        x: e.clientX + 10, // Add 10px offset to prevent tooltip from covering cursor
+        y: e.clientY - 10
+      });
+    };
+
     const ChartComponent = {
       'stacked-bar': BarChart,
       'stacked-area': AreaChart,
@@ -66,7 +76,7 @@ import CustomTooltip from './CustomTooltip';
         <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong pt-[6px]">
           {value}
         </p>
-        <div className="mt-[20px] relative">
+        <div className="mt-[20px] relative" onMouseMove={handleMouseMove}>
           <ChartComponent
             data={data}
             index="date"
@@ -84,6 +94,8 @@ import CustomTooltip from './CustomTooltip';
             customTooltip={(props) => (
               <div style={{ 
                 position: 'fixed', 
+                left: `${mousePosition.x}px`,
+                top: `${mousePosition.y}px`,
                 zIndex: 9999,
                 pointerEvents: 'none'
               }}>

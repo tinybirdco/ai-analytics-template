@@ -55,6 +55,6 @@ export const TinybirdIcon = ({ className }: { className?: string }) => (
   <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
     <path opacity="0.6" d="M7.05159 10.414L11.2756 11.9144L4.08252 17.0005L7.05159 10.414Z" fill="currentColor"/>
     <path d="M13.6022 3.45169L11.2812 11.9338L0.71582 8.11861L13.6022 3.45169Z" fill="currentColor"/>
-    <path opacity="0.6" d="M11.217 0.965287L15.8661 2.63556L9.47225 4.94605L11.217 0.965287Z" fill="white"/>
+    <path opacity="0.6" d="M11.217 0.965287L15.8661 2.63556L9.47225 4.94605L11.217 0.965287Z" fill="currentColor"/>
   </svg>
 )
