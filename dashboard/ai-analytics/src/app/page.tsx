@@ -9,8 +9,6 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { tabs } from './constants';
 import { useLLMUsage } from '@/hooks/useTinybirdData';
-import Ribbons from '@/components/ui/ribbons';
-import { createPortal } from 'react-dom';
 
 interface Selection {
   dimension: string;
