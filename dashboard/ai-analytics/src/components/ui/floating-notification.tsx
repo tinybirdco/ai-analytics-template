@@ -130,7 +130,7 @@ export function FloatingNotification({
             href="https://www.producthunt.com/posts/llm-performance-tracker?comment=4513799"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center bg-[#FF6153] text-white h-[48px] border-r-[2px] border-r-transparent hover:opacity-90 transition-opacity border-l-[3px] border-l-[#FF6153]"
+            className="flex items-center bg-[#FF6153] text-white h-[48px] border-r-[2px] border-r-[#0a0a0a] hover:opacity-90 transition-opacity"
           >
             <div className="flex items-center gap-3 px-4">
               <div className="w-8 h-8">
@@ -156,7 +156,7 @@ export function FloatingNotification({
         <div
           ref={containerRef}
           className={cn(
-            'flex items-center bg-[var(--accent)] shadow-lg pl-0 font-["Roboto"] transition-all duration-150 ease-in-out',
+            'flex items-center bg-[var(--accent)] shadow-lg border-l-[3px] border-l-[#FF6153] pl-0 font-["Roboto"] transition-all duration-150 ease-in-out',
             isCollapsed ? 'w-auto' : 'w-auto gap-4',
             className
           )}
