@@ -66,7 +66,7 @@ import CustomTooltip from './CustomTooltip';
         <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong pt-[6px]">
           {value}
         </p>
-        <div className="mt-[20px]">
+        <div className="mt-[20px] relative">
           <ChartComponent
             data={data}
             index="date"
@@ -82,15 +82,21 @@ import CustomTooltip from './CustomTooltip';
             curveType="monotone"
             stack={isStacked}
             customTooltip={(props) => (
-              <CustomTooltip
-                date={props.payload?.[0]?.payload.date}
-                unit={unit}
-                entries={props.payload?.map(entry => ({
-                  name: String(entry.name),
-                  value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
-                  color: entry.color || '#27F795'
-                })) || []}
-              />
+              <div style={{ 
+                position: 'fixed', 
+                zIndex: 9999,
+                pointerEvents: 'none'
+              }}>
+                <CustomTooltip
+                  date={props.payload?.[0]?.payload.date}
+                  unit={unit}
+                  entries={props.payload?.map(entry => ({
+                    name: String(entry.name),
+                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                    color: entry.color || '#27F795'
+                  })) || []}
+                />
+              </div>
             )}
           />
         </div>
