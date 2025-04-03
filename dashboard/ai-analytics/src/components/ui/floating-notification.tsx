@@ -2,8 +2,8 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { Github, X, HelpCircle } from 'lucide-react'
-import { TinybirdIcon } from '@/app/components/icons'
+import { X, HelpCircle } from 'lucide-react'
+import { TinybirdIcon, GithubIcon } from '@/app/components/icons'
 import { OnboardingModal } from './onboarding-modal'
 
 interface FloatingNotificationProps {
@@ -130,7 +130,7 @@ export function FloatingNotification({
             href="https://www.producthunt.com/posts/llm-performance-tracker?comment=4513799"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center bg-[#FF6153] text-white h-[48px] border-r-[2px] border-r-[#0a0a0a] hover:opacity-90 transition-opacity"
+            className="flex items-center bg-[#FF6153] text-white h-[48px] border-r-[2px] border-r-[#0a0a0a]"
           >
             <div className="flex items-center gap-3 px-4">
               <div className="w-8 h-8">
@@ -191,7 +191,7 @@ export function FloatingNotification({
                     target="_blank"
                     className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white"
                   >
-                    <Github className="h-4 w-4" />
+                    <GithubIcon className="h-4 w-4" />
                   </a>
                 )}
               </div>
@@ -200,7 +200,7 @@ export function FloatingNotification({
           
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white"
+            className="p-4 text-[#262626] transition-colors hover:bg-[#267A52] hover:text-white active:text-white -ml-4"
           >
             {isCollapsed ? (
               <div className="h-4 w-4 flex items-center justify-center">+</div>
