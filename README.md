@@ -6,6 +6,8 @@ This is a template for an LLM performance tracker dashboard and cost calculator.
 
 Use this template to bootstrap a multi-tenant, user-facing LLM analytics dashboard and cost calculator.
 
+Check the [demo video](https://youtu.be/34AF33EysTg)
+
 Features:
 
 - Track LLM costs, requests, tokens and duration by model, provider, organization, project, environment and user
