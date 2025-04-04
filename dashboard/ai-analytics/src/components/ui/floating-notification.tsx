@@ -18,7 +18,7 @@ interface FloatingNotificationProps {
 
 export function FloatingNotification({
   className,
-  title = 'Fork and build your own LLM tracker',
+  title = 'Fork and deploy your own LLM tracker',
   links = {},
 }: FloatingNotificationProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
@@ -89,34 +89,10 @@ export function FloatingNotification({
   return (
     <>
       <div className="fixed flex" style={{ left: `${position.x}px`, top: `${position.y}px` }}>
-        {!isCollapsed && (
-          <a 
-            href="https://www.producthunt.com/posts/llm-performance-tracker?comment=4513799"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center bg-[#FF6153] text-white h-[48px] border-r-[2px] border-r-[#0a0a0a]"
-          >
-            <div className="flex items-center gap-3 px-4">
-              <div className="w-8 h-8">
-                <svg width="32" height="32" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
-                  <g fill="none" fillRule="evenodd">
-                    <path d="M40 20c0 11.046-8.954 20-20 20S0 31.046 0 20 8.954 0 20 0s20 8.954 20 20" fill="#fff"/>
-                    <path d="M22.667 20H17v-6h5.667a3 3 0 0 1 0 6m0-10H13v20h4v-6h5.667a7 7 0 1 0 0-14" fill="#FF6154"/>
-                  </g>
-                </svg>
-              </div>
-              <div className="flex flex-col leading-none">
-                <span className="text-[11px] font-medium">FEATURED ON</span>
-                <span className="text-[18px] font-semibold -mt-[1px]">Product Hunt</span>
-              </div>
-            </div>
-          </a>
-        )}
-
         <div
           ref={containerRef}
           className={cn(
-            'flex items-center bg-[var(--accent)] shadow-lg border-l-[3px] border-l-[#FF6153] pl-0 font-["Roboto"] transition-all duration-150 ease-in-out',
+            'flex items-center bg-[var(--accent)] shadow-lg pl-0 font-["Roboto"] transition-all duration-150 ease-in-out',
             isCollapsed ? 'w-auto' : 'w-auto gap-4',
             className
           )}
