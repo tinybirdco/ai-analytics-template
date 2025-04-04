@@ -33,6 +33,7 @@ import { useState } from 'react';
     value: string;
     className?: string;
     unit?: string;
+    isLoading?: boolean;
   }
 
   export default function SparkChart({ 
@@ -42,7 +43,8 @@ import { useState } from 'react';
     title,
     value,
     className,
-    unit = ''
+    unit = '',
+    isLoading = false
   }: SparkChartProps) {
     const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -70,48 +72,60 @@ import { useState } from 'react';
 
     return (
       <Card className={`h-full w-full rounded-none p-4 pb-5 ${className}`} style={{ boxShadow: 'none' }}>
-        <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>
-          {title}
-        </p>
-        <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong pt-[6px]">
-          {value}
-        </p>
-        <div className="mt-[20px] relative" onMouseMove={handleMouseMove}>
-          <ChartComponent
-            data={data}
-            index="date"
-            categories={categories}
-            showGradient={true}
-            colors={colors}
-            className="h-28 w-full"
-            showXAxis={true}
-            showYAxis={true}
-            showLegend={false}
-            showGridLines={true}
-            showAnimation={false}
-            curveType="monotone"
-            stack={isStacked}
-            customTooltip={(props) => (
-              <div style={{ 
-                position: 'fixed', 
-                left: `${mousePosition.x}px`,
-                top: `${mousePosition.y}px`,
-                zIndex: 9999,
-                pointerEvents: 'none'
-              }}>
-                <CustomTooltip
-                  date={props.payload?.[0]?.payload.date}
-                  unit={unit}
-                  entries={props.payload?.map(entry => ({
-                    name: String(entry.name),
-                    value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
-                    color: entry.color || '#27F795'
-                  })) || []}
-                />
-              </div>
-            )}
-          />
-        </div>
+        {isLoading ? (
+          <div className="h-[148px] w-full flex items-center justify-center bg-[#262626]">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent)]"></div>
+          </div>
+        ) : !data?.length ? (
+          <div className="h-[148px] w-full flex items-center justify-center">
+            <p className="text-[#C6C6C6]">No data available</p>
+          </div>
+        ) : (
+          <>
+            <p className="text-tremor-default text-tremor-content dark:text-dark-tremor-content" style={{ fontFamily: 'var(--font-family-base)' }}>
+              {title}
+            </p>
+            <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong pt-[6px]">
+              {value}
+            </p>
+            <div className="mt-[20px] relative" onMouseMove={handleMouseMove}>
+              <ChartComponent
+                data={data}
+                index="date"
+                categories={categories}
+                showGradient={true}
+                colors={colors}
+                className="h-28 w-full"
+                showXAxis={true}
+                showYAxis={true}
+                showLegend={false}
+                showGridLines={true}
+                showAnimation={false}
+                curveType="monotone"
+                stack={isStacked}
+                customTooltip={(props) => (
+                  <div style={{ 
+                    position: 'fixed', 
+                    left: `${mousePosition.x}px`,
+                    top: `${mousePosition.y}px`,
+                    zIndex: 9999,
+                    pointerEvents: 'none'
+                  }}>
+                    <CustomTooltip
+                      date={props.payload?.[0]?.payload.date}
+                      unit={unit}
+                      entries={props.payload?.map(entry => ({
+                        name: String(entry.name),
+                        value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                        color: entry.color || '#27F795'
+                      })) || []}
+                    />
+                  </div>
+                )}
+              />
+            </div>
+          </>
+        )}
       </Card>
     );
   }
