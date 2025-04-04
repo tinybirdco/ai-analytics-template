@@ -3,7 +3,7 @@ import { fetchLLMUsage, fetchGenericCounter, fetchLLMMessages } from '@/services
 import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useState, useEffect } from 'react';
 
-export function useLLMUsage(filters: Record<string, string>) {
+export function useLLMUsage(filters: Record<string, string | undefined> = {}) {
   const { token } = useTinybirdToken();
 
   return useQuery({

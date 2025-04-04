@@ -97,8 +97,8 @@ const getEnvironmentIcon = (env: string) => {
 };
 
 interface TabbedPaneProps {
-  filters: Record<string, string>;
-  onFilterUpdate: (dimension: string, name: string, values: string[]) => void;
+  filters: Record<string, string | undefined>;
+  onFilterUpdate: (dimension: string, dimensionName: string, values: string[]) => void;
 }
 
 export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps) {
@@ -112,7 +112,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // Pass all filters to the query
-  const { data, isLoading, error } = useGenericCounter(selectedTab, filters);
+  const { data, isLoading, error } = useGenericCounter(selectedTab, filters as Record<string, string>);
 
   // Add effect to sync with URL params
   useEffect(() => {

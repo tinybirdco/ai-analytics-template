@@ -2,27 +2,39 @@
 
 import TimeseriesChart from '../components/TimeseriesChart';
 
+interface TimeseriesData {
+  date: string;
+  category: string;  // model name
+  total_requests: number;
+  total_errors: number;
+  total_tokens: number;
+  total_completion_tokens: number;
+  total_prompt_tokens: number;
+  total_cost: number;
+  avg_duration: number;
+  avg_response_time: number;
+}
+
 interface TimeseriesChartContainerProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+  data: { data: TimeseriesData[] };
   isLoading: boolean;
-  filters: Record<string, string>;
-  onFiltersChange: (filters: Record<string, string>) => void;
+  filters: Record<string, string | undefined>;
+  onFiltersChange: (filters: Record<string, string | undefined>) => void;
 }
 
 export default function TimeseriesChartContainer({ 
   data, 
   isLoading, 
   filters,
-  onFiltersChange 
+  onFiltersChange
 }: TimeseriesChartContainerProps) {
-  if (isLoading) return <div>Loading...</div>;
-
+  // Return the original TimeseriesChart component
   return (
-    <div className="h-[60vh] overflow-hidden">
+    <div className="w-full h-full">
       <TimeseriesChart 
         data={data} 
-        filters={filters} 
+        isLoading={isLoading}
+        filters={filters as Record<string, string>} 
         onFiltersChange={onFiltersChange}
       />
     </div>

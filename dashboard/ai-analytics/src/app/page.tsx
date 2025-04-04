@@ -9,6 +9,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { tabs } from './constants';
 import { useLLMUsage } from '@/hooks/useTinybirdData';
+import ResizableSplitView from './components/ResizableSplitView';
 
 interface Selection {
   dimension: string;
@@ -25,8 +26,8 @@ export default function Dashboard() {
 }
 
 function DashboardContent() {
-  const [filters, setFilters] = useState<Record<string, string>>({
-    column_name: 'model'
+  const [filters, setFilters] = useState<Record<string, string | undefined>>({
+    column_name: 'model'  // Set default column_name
   });
   const [selections, setSelections] = useState<Selection[]>([]);
   const searchParams = useSearchParams();
@@ -116,7 +117,7 @@ function DashboardContent() {
     });
   };
 
-  const handleTimeseriesFilterChange = (newFilters: Record<string, string>) => {
+  const handleTimeseriesFilterChange = (newFilters: Record<string, string | undefined>) => {
     setFilters(newFilters);
   };
 
@@ -130,18 +131,25 @@ function DashboardContent() {
       <main className="flex-1 flex min-h-0">
         {/* Main Content - 2/3 width */}
         <div className="w-2/3 flex flex-col min-h-0">
-          <div className="h-[60vh]">
-            <TimeseriesChartContainer 
-              data={llmData} 
-              isLoading={isLoading}
-              filters={filters}
-              onFiltersChange={handleTimeseriesFilterChange}
-            />
-          </div>
-          <div className="h-[35vh] overflow-hidden">
-            <DataTableContainer 
-              isLoading={isLoading}
-              filters={filters} 
+          <div className="flex-1 w-full min-h-0 h-[calc(100vh-200px)]">
+            <ResizableSplitView
+              topComponent={
+                <TimeseriesChartContainer 
+                  data={llmData || { data: [] }} 
+                  filters={filters}
+                  onFiltersChange={handleTimeseriesFilterChange}
+                  isLoading={isLoading}
+                />
+              }
+              bottomComponent={
+                <DataTableContainer 
+                  isLoading={isLoading}
+                  filters={filters} 
+                />
+              }
+              initialTopHeight="60vh"
+              minTopHeight="30vh"
+              minBottomHeight="20vh"
             />
           </div>
         </div>

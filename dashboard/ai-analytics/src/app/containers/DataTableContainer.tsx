@@ -7,11 +7,11 @@ import { useLLMMessages } from '@/hooks/useTinybirdData';
 import { Search, Sparkles } from 'lucide-react';
 
 interface DataTableContainerProps {
-  filters: Record<string, string>;
-  isLoading?: boolean;
+  isLoading: boolean;
+  filters: Record<string, string | undefined>;
 }
 
-export default function DataTableContainer({ filters, isLoading = false }: DataTableContainerProps) {
+export default function DataTableContainer({ isLoading, filters }: DataTableContainerProps) {
   const [searchText, setSearchText] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [embedding, setEmbedding] = useState<number[] | null>(null);
@@ -66,8 +66,19 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
     setSearchText(searchInput.trim() || null);
   };
   
+  // Handle input change and trigger search when input becomes empty
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSearchInput(newValue);
+    
+    // If the input becomes empty, clear the search
+    if (!newValue.trim()) {
+      setSearchText(null);
+    }
+  };
+  
   return (
-    <div className="flex flex-col h-full">
+    <div className="w-full h-full flex flex-col">
       <div className="p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-grow" data-table-search>
@@ -82,7 +93,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
               placeholder="Search conversations semantically..."
               className="w-full h-[48px] px-4 pl-10 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D] placeholder:focus:opacity-0"
               value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
+              onChange={handleInputChange}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -112,12 +123,19 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
         </form>
       </div>
       
-      <div className="flex-grow overflow-hidden">
-        <DataTable 
-          data={messagesQuery.data} 
-          isLoading={isLoading || messagesQuery.isLoading || isGeneratingEmbedding} 
-          searchHighlight={searchText}
-        />
+      {/* Table container - make it fill the available space */}
+      <div className="flex-1 w-full min-h-0 overflow-auto">
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent)]"></div>
+          </div>
+        ) : (
+          <DataTable 
+            data={messagesQuery.data} 
+            isLoading={isLoading || messagesQuery.isLoading || isGeneratingEmbedding} 
+            searchHighlight={searchText}
+          />
+        )}
       </div>
     </div>
   );

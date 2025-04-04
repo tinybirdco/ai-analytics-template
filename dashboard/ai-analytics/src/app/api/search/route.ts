@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       model: z.enum((availableDimensions?.data?.[0]?.model || ['gpt-4']) as [string, ...string[]]).optional(),
       provider: z.enum((availableDimensions?.data?.[0]?.provider || ['openai']) as [string, ...string[]]).optional(),
       environment: z.enum((availableDimensions?.data?.[0]?.environment || ['production']) as [string, ...string[]]).optional(),
-      organization: z.enum((availableDimensions?.data?.[0]?.organization || ['']) as [string, ...string[]]).optional(),
+      organization: z.enum((availableDimensions?.data?.[0]?.organizations || ['']) as [string, ...string[]]).optional(),
       project: z.enum((availableDimensions?.data?.[0]?.project || ['']) as [string, ...string[]]).optional(),
       date_range: z.enum(['last month', 'last week'] as [string, ...string[]]).optional(),
     });
@@ -43,6 +43,7 @@ export async function POST(req: Request) {
     Common values: ${JSON.stringify(availableDimensions?.data?.[0] || {}, null, 2)}.
     Return only valid values from the provided dimensions, fix typos when necessary.`;
     console.log(systemPromptText);
+    
 
     const result = await generateObject({
       model: wrappedOpenAI,
