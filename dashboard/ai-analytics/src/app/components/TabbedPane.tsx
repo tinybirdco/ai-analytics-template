@@ -97,8 +97,8 @@ const getEnvironmentIcon = (env: string) => {
 };
 
 interface TabbedPaneProps {
-  filters: Record<string, string>;
-  onFilterUpdate: (dimension: string, name: string, values: string[]) => void;
+  filters: Record<string, string | undefined>;
+  onFilterUpdate: (dimension: string, dimensionName: string, values: string[]) => void;
 }
 
 export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps) {

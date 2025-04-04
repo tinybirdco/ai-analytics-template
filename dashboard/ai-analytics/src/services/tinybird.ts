@@ -23,7 +23,7 @@ export interface LLMMessagesParams {
   similarity_threshold?: number | undefined;
 }
 
-export async function fetchLLMUsage(token: string, params: TinybirdParams = {}) {
+export async function fetchLLMUsage(token: string, filters: Record<string, string | undefined> = {}) {
   console.log('Tinybird token in service:', token);
   
   if (!token) throw new Error('No Tinybird token available');
@@ -31,21 +31,21 @@ export async function fetchLLMUsage(token: string, params: TinybirdParams = {}) 
   const searchParams = new URLSearchParams();
   
   // Handle column_name separately as it's used for grouping
-  if (params.column_name) {
-    searchParams.set('column_name', params.column_name);
+  if (filters.column_name) {
+    searchParams.set('column_name', filters.column_name);
   }
 
   // Handle all other filter parameters
   const filterParams = ['model', 'provider', 'organization', 'project', 'environment', 'user'];
   filterParams.forEach(param => {
-    if (params[param as keyof TinybirdParams]) {
-      searchParams.set(param, params[param as keyof TinybirdParams]!);
+    if (filters[param as keyof Record<string, string | undefined>]) {
+      searchParams.set(param, filters[param as keyof Record<string, string | undefined>]!);
     }
   });
 
   // Handle date range
-  if (params.start_date) searchParams.set('start_date', params.start_date);
-  if (params.end_date) searchParams.set('end_date', params.end_date);
+  if (filters.start_date) searchParams.set('start_date', filters.start_date);
+  if (filters.end_date) searchParams.set('end_date', filters.end_date);
 
   const url = `${TINYBIRD_API_URL}/v0/pipes/llm_usage.json?${searchParams.toString()}`;
   console.log('Tinybird request URL:', url);

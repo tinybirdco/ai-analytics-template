@@ -7,11 +7,11 @@ import { useLLMMessages } from '@/hooks/useTinybirdData';
 import { Search, Sparkles } from 'lucide-react';
 
 interface DataTableContainerProps {
-  filters: Record<string, string>;
-  isLoading?: boolean;
+  isLoading: boolean;
+  filters: Record<string, string | undefined>;
 }
 
-export default function DataTableContainer({ filters, isLoading = false }: DataTableContainerProps) {
+export default function DataTableContainer({ isLoading, filters }: DataTableContainerProps) {
   const [searchText, setSearchText] = useState<string | null>(null);
   const [searchInput, setSearchInput] = useState('');
   const [embedding, setEmbedding] = useState<number[] | null>(null);
@@ -78,7 +78,7 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
   };
   
   return (
-    <div className="flex flex-col h-full">
+    <div className="w-full h-full flex flex-col">
       <div className="p-4">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-grow" data-table-search>
@@ -123,12 +123,19 @@ export default function DataTableContainer({ filters, isLoading = false }: DataT
         </form>
       </div>
       
-      <div className="flex-grow overflow-hidden">
-        <DataTable 
-          data={messagesQuery.data} 
-          isLoading={isLoading || messagesQuery.isLoading || isGeneratingEmbedding} 
-          searchHighlight={searchText}
-        />
+      {/* Table container - make it fill the available space */}
+      <div className="flex-1 w-full min-h-0 overflow-auto">
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent)]"></div>
+          </div>
+        ) : (
+          <DataTable 
+            data={messagesQuery.data} 
+            isLoading={isLoading || messagesQuery.isLoading || isGeneratingEmbedding} 
+            searchHighlight={searchText}
+          />
+        )}
       </div>
     </div>
   );
