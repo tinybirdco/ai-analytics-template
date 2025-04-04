@@ -323,11 +323,20 @@ export default function CostPredictionModal({
     }
   };
 
+  const calculateButtonRef = useRef<HTMLButtonElement>(null);
+
   const handleExampleClick = (example: string) => {
     setQuery(example);
     if (inputRef.current) {
       inputRef.current.focus();
     }
+    
+    // Use setTimeout to ensure the query state is updated before clicking the button
+    setTimeout(() => {
+      if (calculateButtonRef.current) {
+        calculateButtonRef.current.click();
+      }
+    }, 0);
   };
 
   const calculateCosts = (usageData: UsageDataItem[], params: CostParameters) => {
@@ -1055,6 +1064,7 @@ export default function CostPredictionModal({
                   
                   <div className="-mx-4 mt-4"> {/* Changed pt-4 to mt-4 */}
                     <button
+                      ref={calculateButtonRef}
                       type="submit"
                       disabled={isLoading || !query.trim()}
                       className={`w-full py-4 transition-colors ${

@@ -74,7 +74,7 @@ export async function POST(req: Request) {
       model: z.enum((availableDimensions?.data?.[0]?.model || ['gpt-4']) as [string, ...string[]]).optional(),
       provider: z.enum((availableDimensions?.data?.[0]?.provider || ['openai']) as [string, ...string[]]).optional(),
       environment: z.enum((availableDimensions?.data?.[0]?.environment || ['production']) as [string, ...string[]]).optional(),
-      organization: z.enum((availableDimensions?.data?.[0]?.organization || ['']) as [string, ...string[]]).optional(),
+      organization: z.enum((availableDimensions?.data?.[0]?.organizations || ['']) as [string, ...string[]]).optional(),
       project: z.enum((availableDimensions?.data?.[0]?.project || ['']) as [string, ...string[]]).optional(),
       user: z.string().optional()
     });
