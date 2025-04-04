@@ -112,7 +112,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
   // Pass all filters to the query
-  const { data, isLoading, error } = useGenericCounter(selectedTab, filters);
+  const { data, isLoading, error } = useGenericCounter(selectedTab, filters as Record<string, string>);
 
   // Add effect to sync with URL params
   useEffect(() => {
