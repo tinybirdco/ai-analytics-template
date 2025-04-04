@@ -62,6 +62,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
   interface TabData {
     name: string;
     key: string;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: any[];
     categories: string[];
     colors: string[];
