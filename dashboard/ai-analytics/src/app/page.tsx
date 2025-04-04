@@ -136,9 +136,9 @@ function DashboardContent() {
               topComponent={
                 <TimeseriesChartContainer 
                   data={llmData || { data: [] }} 
-                  isLoading={isLoading}
                   filters={filters}
                   onFiltersChange={handleTimeseriesFilterChange}
+                  isLoading={isLoading}
                 />
               }
               bottomComponent={

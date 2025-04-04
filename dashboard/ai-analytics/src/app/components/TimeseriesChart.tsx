@@ -40,21 +40,14 @@ interface TimeseriesChartProps {
   };
   filters: Record<string, string>;
   onFiltersChange?: (filters: Record<string, string>) => void;
+  isLoading?: boolean;
 }
 
-export default function TimeseriesChart({ data, filters, onFiltersChange }: TimeseriesChartProps) {
+export default function TimeseriesChart({ data, filters, onFiltersChange, isLoading = false }: TimeseriesChartProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { orgName } = useTinybirdToken();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
-
-  // Add null check for data
-  if (!data?.data) {
-    return <div>Loading...</div>;
-  }
-
-  const dates = [...new Set(data.data.map(d => d.date))].sort();
-  const models = [...new Set(data.data.map(d => d.category))];
 
   // Default colors for unknown models
   const defaultColors = [
@@ -65,69 +58,46 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     '#27F79533'  // 20% opacity
   ];
 
-  // Use the same approach for all tabs - just use default colors in sequence
-  const transformedData = dates.map(date => {
-    const dayData = data.data.filter(d => d.date === date);
-    const formattedDate = new Date(date).toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: '2-digit' 
-    });
-    return {
-      date: formattedDate,
-      originalDate: date,
-      ...models.reduce((acc, model) => ({
-        ...acc,
-        [model]: dayData.find(d => d.category === model)?.total_cost || 0,
-        [`${model}_opacity`]: selectedDate === null || selectedDate === formattedDate ? 1 : 0.3
-      }), {})
-    };
-  });
+  // Define tab interface
+  interface TabData {
+    name: string;
+    key: string;
+    data: any[];
+    categories: string[];
+    colors: string[];
+    summary: Array<{
+      name: string;
+      total: number;
+      color: string;
+      opacity: number;
+    }>;
+  }
 
-  const tabs = [
+  // Define tabs regardless of loading state
+  const tabs: TabData[] = [
     {
       name: 'Model',
       key: 'model',
-      data: transformedData,
-      categories: models,
+      data: [],
+      categories: [],
       colors: defaultColors,
-      summary: models.map((model, index) => ({
-        name: model,
-        total: data.data
-          .filter(d => d.category === model)
-          .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
-        opacity: selectedDate ? 0.3 : 1
-      })),
+      summary: [],
     },
     {
       name: 'Provider',
       key: 'provider',
-      data: transformedData,
-      categories: models,
+      data: [],
+      categories: [],
       colors: defaultColors,
-      summary: models.map((model, index) => ({
-        name: model,
-        total: data.data
-          .filter(d => d.category === model)
-          .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
-        opacity: selectedDate ? 0.3 : 1
-      })),
+      summary: [],
     },
     {
       name: 'Environment',
       key: 'environment',
-      data: transformedData,
-      categories: models,
+      data: [],
+      categories: [],
       colors: defaultColors,
-      summary: models.map((model, index) => ({
-        name: model,
-        total: data.data
-          .filter(d => d.category === model)
-          .reduce((sum, item) => sum + item.total_cost, 0),
-        color: `bg-[${defaultColors[index % defaultColors.length]}]`,
-        opacity: selectedDate ? 0.3 : 1
-      })),
+      summary: [],
     }
   ];
 
@@ -135,26 +105,60 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
     tabs.push({
       name: 'Organization',
       key: 'organization',
-      data: transformedData,
-      categories: models,
+      data: [],
+      categories: [],
       colors: defaultColors,
-      summary: models.map((model, index) => ({
+      summary: [],
+    });
+  }
+
+  // Determine the default index - use 'model' if no column_name is specified
+  const defaultIndex = tabs.findIndex(t => t.key === (searchParams.get('column_name') || 'model'));
+
+  // Only process data if we're not loading and data is available
+  if (!isLoading && data?.data) {
+    const dates = [...new Set(data.data.map(d => d.date))].sort();
+    const models = [...new Set(data.data.map(d => d.category))];
+
+    // Use the same approach for all tabs - just use default colors in sequence
+    const transformedData = dates.map(date => {
+      const dayData = data.data.filter(d => d.date === date);
+      const formattedDate = new Date(date).toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: '2-digit' 
+      });
+      return {
+        date: formattedDate,
+        originalDate: date,
+        ...models.reduce((acc, model) => ({
+          ...acc,
+          [model]: dayData.find(d => d.category === model)?.total_cost || 0,
+          [`${model}_opacity`]: selectedDate === null || selectedDate === formattedDate ? 1 : 0.3
+        }), {})
+      };
+    });
+
+    // Update tabs with real data
+    tabs.forEach(tab => {
+      tab.data = transformedData;
+      tab.categories = models;
+      tab.summary = models.map((model, index) => ({
         name: model,
         total: data.data
           .filter(d => d.category === model)
           .reduce((sum, item) => sum + item.total_cost, 0),
         color: `bg-[${defaultColors[index % defaultColors.length]}]`,
         opacity: selectedDate ? 0.3 : 1
-      })),
-    })
+      }));
+    });
   }
 
   const handleTabChange = (index: number) => {
     const tab = tabs[index];
-    // Update URL
+    // Update URL without causing a page reload
     const params = new URLSearchParams(searchParams);
     params.set('column_name', tab.key);
-    router.push(`?${params.toString()}`);
+    router.replace(`?${params.toString()}`, { scroll: false });
     
     // Create new filters object
     const newFilters = { ...filters, column_name: tab.key };
@@ -170,9 +174,6 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
       setSelectedDate(null);
     }
   };
-
-  // Determine the default index - use 'model' if no column_name is specified
-  const defaultIndex = tabs.findIndex(t => t.key === (searchParams.get('column_name') || 'model'));
   
   // Add $ sign to the value formatter for costs
   const costValueFormatter = (number: number) => 
@@ -217,55 +218,69 @@ export default function TimeseriesChart({ data, filters, onFiltersChange }: Time
             <TabPanels className="flex-1 min-h-0 overflow-hidden px-6 pt-8">
               {tabs.map((tab) => (
                 <TabPanel key={tab.name} className="h-full flex flex-col">
-                  <ul className="flex-none flex flex-wrap gap-8">
-                    {tab.summary.map((item) => (
-                      <li key={item.name}>
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={classNames(
-                              item.color,
-                              'w-4 h-4 shrink-0',
-                            )}
-                            aria-hidden={true}
-                          />
-                          <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong" style={{ fontFamily: 'var(--font-family-mono)' }}>
-                            ${valueFormatter(item.total)}
-                          </p>
-                        </div>
-                        <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
-                          {item.name}
-                        </p>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex-1 min-h-0 pb-6">
-                    <BarChart
-                      data={tab.data}
-                      index="date"
-                      categories={tab.categories}
-                      colors={tab.colors}
-                      stack={true}
-                      showLegend={false}
-                      yAxisWidth={45}
-                      valueFormatter={costValueFormatter}
-                      className="h-[calc(100%-24px)] mt-10 hidden md:block"
-                      showTooltip={true}
-                      showAnimation={false}
-                      showXAxis={true}
-                      onValueChange={handleValueChange}
-                      customTooltip={(props) => (
-                        <CustomTooltip
-                          date={props.payload?.[0]?.payload.date}
-                          unit="$"
-                          entries={props.payload?.map(entry => ({
-                            name: String(entry.name || ''),
-                            value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
-                            color: entry.color || '#27F795'
-                          })) || []}
+                  {isLoading && (
+                    <div className="w-full h-full flex items-center justify-center bg-[#262626]">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[var(--accent)]"></div>
+                    </div>
+                  )}
+                  {!isLoading && !data?.data && (
+                    <div className="w-full h-full flex items-center justify-center">
+                      <p className="text-[#C6C6C6]">No data available</p>
+                    </div>
+                  )}
+                  {!isLoading && data?.data && (
+                    <>
+                      <ul className="flex-none flex flex-wrap gap-8">
+                        {tab.summary.map((item) => (
+                          <li key={item.name}>
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={classNames(
+                                  item.color,
+                                  'w-4 h-4 shrink-0',
+                                )}
+                                aria-hidden={true}
+                              />
+                              <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong" style={{ fontFamily: 'var(--font-family-mono)' }}>
+                                ${valueFormatter(item.total)}
+                              </p>
+                            </div>
+                            <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
+                              {item.name}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                      <div className="flex-1 min-h-0 pb-6">
+                        <BarChart
+                          data={tab.data}
+                          index="date"
+                          categories={tab.categories}
+                          colors={tab.colors}
+                          stack={true}
+                          showLegend={false}
+                          yAxisWidth={45}
+                          valueFormatter={costValueFormatter}
+                          className="h-[calc(100%-24px)] mt-10 hidden md:block"
+                          showTooltip={true}
+                          showAnimation={false}
+                          showXAxis={true}
+                          onValueChange={handleValueChange}
+                          customTooltip={(props) => (
+                            <CustomTooltip
+                              date={props.payload?.[0]?.payload.date}
+                              unit="$"
+                              entries={props.payload?.map(entry => ({
+                                name: String(entry.name || ''),
+                                value: Array.isArray(entry.value) ? entry.value[0] || 0 : entry.value || 0,
+                                color: entry.color || '#27F795'
+                              })) || []}
+                            />
+                          )}
                         />
-                      )}
-                    />
-                  </div>
+                      </div>
+                    </>
+                  )}
                 </TabPanel>
               ))}
             </TabPanels>
