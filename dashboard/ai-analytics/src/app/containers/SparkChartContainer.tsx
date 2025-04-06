@@ -34,6 +34,7 @@ export default function SparkChartContainer({
   className,
   unit = ''
 }: SparkChartContainerProps) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let transformedData: any;
   let categories: string[] = [];
   let formattedValue: string = '';
