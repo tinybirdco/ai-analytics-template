@@ -34,6 +34,7 @@ export function wrapModelWithTinybird(
       start_time: startTime.toISOString(),
       end_time: endTime.toISOString(),
       message_id: messageId,
+      cost: calculateCost(model.modelId || 'unknown', result?.usage),
       model: model.modelId || 'unknown',
       provider: 'openai',
       duration,
@@ -111,4 +112,59 @@ export function wrapModelWithTinybird(
   };
 
   return model;
+}
+
+// Function to calculate cost based on model and token usage
+function calculateCost(
+  modelId: string, 
+  usage?: { promptTokens?: number; completionTokens?: number }
+): number {
+  if (!usage) return 0;
+  
+  // Default to 0 if no tokens used
+  const promptTokens = usage.promptTokens || 0;
+  const completionTokens = usage.completionTokens || 0;
+  
+  // Cost per 1K tokens (in USD)
+  // These values are approximate and may need to be updated
+  const modelCosts: Record<string, { prompt: number; completion: number }> = {
+    'gpt-4o': { prompt: 0.03, completion: 0.06 },
+    'gpt-4o-mini': { prompt: 0.015, completion: 0.03 },
+    'gpt-4': { prompt: 0.03, completion: 0.06 },
+    'gpt-4-turbo': { prompt: 0.01, completion: 0.03 },
+    'gpt-4-turbo-preview': { prompt: 0.01, completion: 0.03 },
+    'gpt-3.5-turbo': { prompt: 0.0015, completion: 0.002 },
+    'gpt-3.5-turbo-16k': { prompt: 0.003, completion: 0.004 },
+    'gpt-3.5-turbo-0125': { prompt: 0.0015, completion: 0.002 },
+    'gpt-3.5-turbo-1106': { prompt: 0.0015, completion: 0.002 },
+    'gpt-3.5-turbo-instruct': { prompt: 0.0015, completion: 0.002 },
+    'claude-3-opus': { prompt: 0.015, completion: 0.075 },
+    'claude-3-sonnet': { prompt: 0.003, completion: 0.015 },
+    'claude-3-haiku': { prompt: 0.00025, completion: 0.00125 },
+    'claude-2.1': { prompt: 0.008, completion: 0.024 },
+    'claude-2.0': { prompt: 0.008, completion: 0.024 },
+    'claude-instant': { prompt: 0.0008, completion: 0.0024 },
+    'gemini-pro': { prompt: 0.00025, completion: 0.0005 },
+    'gemini-1.5-pro': { prompt: 0.00025, completion: 0.0005 },
+    'gemini-1.5-flash': { prompt: 0.00025, completion: 0.0005 },
+    'mixtral-8x7b': { prompt: 0.00027, completion: 0.00027 },
+    'llama-3-70b': { prompt: 0.0009, completion: 0.0009 },
+    'llama-3-8b': { prompt: 0.0002, completion: 0.0002 },
+    'llama-2-70b': { prompt: 0.0009, completion: 0.0009 },
+    'llama-2-13b': { prompt: 0.0002, completion: 0.0002 },
+    'llama-2-7b': { prompt: 0.0002, completion: 0.0002 },
+    'mistral-large': { prompt: 0.008, completion: 0.024 },
+    'mistral-medium': { prompt: 0.0027, completion: 0.0081 },
+    'mistral-small': { prompt: 0.002, completion: 0.006 },
+    'unknown': { prompt: 0.001, completion: 0.002 }, // Default fallback
+  };
+  
+  // Get the cost rates for this model, or use the default
+  const rates = modelCosts[modelId] || modelCosts['unknown'];
+  
+  // Calculate total cost
+  const promptCost = (promptTokens / 1000) * rates.prompt;
+  const completionCost = (completionTokens / 1000) * rates.completion;
+  
+  return Number((promptCost + completionCost).toFixed(6));
 } 
