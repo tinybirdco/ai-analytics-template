@@ -20,8 +20,10 @@ export async function POST(req: Request) {
       {
         event: 'search_filter',
         environment: process.env.NODE_ENV,
-        project: 'ai-analytics',
-        organization: 'your-org',
+        project: 'llm-tracker',
+        organization: 'llm-tracker',
+        chatId: generateRandomChatId(),
+        user: hashApiKeyUser(apiKey),
       }
     );
 
@@ -64,4 +66,29 @@ export async function POST(req: Request) {
     
     return Response.json({ error: 'Failed to process search query' }, { status: 500 });
   }
+}
+
+// Function to generate a random chatId
+function generateRandomChatId(): string {
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2, 8);
+  return `search_${timestamp}_${randomPart}`;
+}
+
+// Function to hash the last 10 characters of the API key for user identification
+function hashApiKeyUser(apiKey: string): string {
+  // Get the last 10 characters of the API key
+  const lastTenChars = apiKey.slice(-10);
+  
+  // Simple hash function (not cryptographically secure, but sufficient for this purpose)
+  let hash = 0;
+  for (let i = 0; i < lastTenChars.length; i++) {
+    const char = lastTenChars.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Convert to a positive hex string and take first 8 characters
+  const positiveHash = Math.abs(hash).toString(16);
+  return `user_${positiveHash.substring(0, 8)}`;
 }
