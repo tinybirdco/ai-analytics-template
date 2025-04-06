@@ -134,12 +134,12 @@ function DashboardContent() {
           <div className="flex-1 w-full min-h-0 h-[calc(100vh-200px)]">
             <ResizableSplitView
               topComponent={
-                <TimeseriesChartContainer 
-                  data={llmData || { data: [] }} 
-                  filters={filters}
-                  onFiltersChange={handleTimeseriesFilterChange}
-                  isLoading={isLoading}
-                />
+                <div className="h-full">
+                  <TabbedPane 
+                    filters={filters}
+                    onFilterUpdate={handleFilterUpdate} 
+                  />
+                </div>
               }
               bottomComponent={
                 <DataTableContainer 
@@ -160,12 +160,6 @@ function DashboardContent() {
             <MetricsCards 
               data={llmData} 
               isLoading={isLoading} 
-            />
-          </div>
-          <div>
-            <TabbedPane 
-              filters={filters}
-              onFilterUpdate={handleFilterUpdate} 
             />
           </div>
         </div>

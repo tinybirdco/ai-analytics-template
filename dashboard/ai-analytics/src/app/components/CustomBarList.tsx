@@ -1,10 +1,10 @@
 'use client';
 
 import { Card } from '@tremor/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { RiSearchLine } from '@remixicon/react';
 import { Dialog, DialogPanel } from '@tremor/react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 interface BarListItem {
   name: string;
@@ -16,6 +16,7 @@ interface CustomBarListProps {
   data: BarListItem[];
   valueFormatter?: (value: number) => string;
   onSelectionChange?: (selectedItems: string[]) => void;
+  initialSelectedItems?: string[];
 }
 
 const defaultFormatter = (number: number) =>
@@ -24,11 +25,17 @@ const defaultFormatter = (number: number) =>
 export default function CustomBarList({
   data,
   valueFormatter = defaultFormatter,
-  onSelectionChange
+  onSelectionChange,
+  initialSelectedItems = []
 }: CustomBarListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>(initialSelectedItems);
+
+  // Update selected items when initialSelectedItems changes
+  useEffect(() => {
+    setSelectedItems(initialSelectedItems);
+  }, [initialSelectedItems]);
 
   // Memoize filtered items to prevent unnecessary recalculations
   const filteredItems = useMemo(() => {
@@ -87,6 +94,9 @@ export default function CustomBarList({
                 <p className="truncate small-font" style={{ fontFamily: 'var(--font-family-base)' }}>
                   {item.name}
                 </p>
+                {isSelected && (
+                  <Check className="ml-2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                )}
               </div>
               <p className={`flex-shrink-0 text-right ${
                 isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'small-font'
@@ -115,7 +125,14 @@ export default function CustomBarList({
         style={{ boxShadow: 'none' }}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="small-font" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
+          <div className="flex items-center">
+            <h3 className="small-font" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
+            {selectedItems.length > 0 && (
+              <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-full">
+                {selectedItems.length} selected
+              </span>
+            )}
+          </div>
           <p className="text-tremor-metric">
             {valueFormatter(totalValue)}
           </p>
@@ -130,6 +147,11 @@ export default function CustomBarList({
               onClick={() => setIsOpen(true)}
             >
               View All ({data.length})
+              {selectedItems.length > 0 && (
+                <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-full">
+                  {selectedItems.length} selected
+                </span>
+              )}
             </button>
           </div>
         )}
@@ -147,7 +169,14 @@ export default function CustomBarList({
           <DialogPanel className="!bg-[#262626] flex flex-col relative z-10 rounded-none p-0" style={{ width: '575px', minWidth: '575px' }}>
             {/* Header */}
             <div className="flex items-center justify-between p-4 pb-0">
-              <h2 className="title-font">All Items</h2>
+              <div className="flex items-center">
+                <h2 className="title-font">All Items</h2>
+                {selectedItems.length > 0 && (
+                  <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-full">
+                    {selectedItems.length} selected
+                  </span>
+                )}
+              </div>
               <button 
                 onClick={() => {
                   setIsOpen(false);
