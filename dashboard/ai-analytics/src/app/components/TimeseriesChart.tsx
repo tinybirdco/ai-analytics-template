@@ -231,9 +231,9 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
                   )}
                   {!isLoading && data?.data && (
                     <>
-                      <ul className="flex-none flex flex-wrap gap-8">
+                      <ul className="flex-none flex overflow-x-auto gap-8 pb-2">
                         {tab.summary.map((item) => (
-                          <li key={item.name}>
+                          <li key={item.name} className="flex-shrink-0">
                             <div className="flex items-center gap-2">
                               <span
                                 className={classNames(
