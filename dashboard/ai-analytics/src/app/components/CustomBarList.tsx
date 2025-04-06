@@ -77,11 +77,7 @@ export default function CustomBarList({
         return (
           <div 
             key={item.name} 
-            className={`flex flex-col cursor-pointer py-2 transition-all duration-200 ${
-              isSelected 
-                ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-600' 
-                : 'hover:bg-tremor-brand-subtle dark:hover:bg-dark-tremor-brand-subtle border-l-4 border-transparent'
-            }`}
+            className={`flex flex-col cursor-pointer py-2 transition-all duration-200 hover:bg-tremor-brand-subtle dark:hover:bg-dark-tremor-brand-subtle`}
             onClick={() => handleBarClick(item.name)}
           >
             <div className="flex items-center w-full py-1">
@@ -95,20 +91,16 @@ export default function CustomBarList({
                   {item.name}
                 </p>
                 {isSelected && (
-                  <Check className="ml-2 h-4 w-4 text-indigo-600 dark:text-indigo-400" />
+                  <Check className="ml-2 h-4 w-4 text-[var(--accent)]" />
                 )}
               </div>
-              <p className={`flex-shrink-0 text-right ${
-                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'small-font'
-              }`}>
+              <p className="flex-shrink-0 text-right small-font">
                 {valueFormatter(item.value)}
               </p>
             </div>
             <div className="w-full h-1.5 bg-tremor-brand-emphasis dark:bg-dark-tremor-brand-emphasis overflow-hidden">
               <div 
-                className={`h-full ${
-                  isSelected ? 'bg-indigo-600' : 'bg-[var(--accent)]'
-                }`}
+                className="h-full bg-[var(--accent)]"
                 style={{ width: `${percentage}%` }}
               />
             </div>
