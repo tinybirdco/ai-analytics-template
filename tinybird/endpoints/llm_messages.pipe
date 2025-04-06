@@ -38,29 +38,29 @@ SQL >
         {% end %}
     FROM (select * from llm_events where organization != 'your-org')
     WHERE 1
-        {% if defined(organization) %}
-        AND organization = {{String(organization, '')}}
+        {% if defined(organization) and organization != [''] %}
+        AND organization IN {{Array(organization)}}
         {% end %}
-        {% if defined(project) %}
-        AND project = {{String(project, '')}}
+        {% if defined(project) and project != [''] %}
+        AND project IN {{Array(project)}}
         {% end %}
-        {% if defined(environment) %}
-        AND environment = {{String(environment, '')}}
+        {% if defined(environment) and environment != [''] %}
+        AND environment IN {{Array(environment)}}
         {% end %}
-        {% if defined(user) %}
-        AND user = {{String(user, '')}}
+        {% if defined(user) and user != [''] %}
+        AND user IN {{Array(user)}}
         {% end %}
-        {% if defined(model) %}
-        AND model = {{String(model, '')}}
+        {% if defined(model) and model != [''] %}
+        AND model IN {{Array(model)}}
         {% end %}
-        {% if defined(provider) %}
-        AND provider = {{String(provider, '')}}
+        {% if defined(provider) and provider != [''] %}
+        AND provider IN {{Array(provider)}}
         {% end %}
-        {% if defined(chat_id) %}
-        AND chat_id = {{String(chat_id, '')}}
+        {% if defined(chat_id) and chat_id != [''] %}
+        AND chat_id IN {{Array(chat_id)}}
         {% end %}
-        {% if defined(message_id) %}
-        AND message_id = {{String(message_id, '')}}
+        {% if defined(message_id) and message_id != [''] %}
+        AND message_id IN {{Array(message_id)}}
         {% end %}
         {% if defined(start_date) %}
         AND timestamp >= {{DateTime(start_date)}}
