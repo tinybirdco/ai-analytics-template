@@ -65,6 +65,11 @@ export default function CustomBarList({
     });
   };
 
+  const handleClearSelection = () => {
+    setSelectedItems([]);
+    onSelectionChange?.([]);
+  };
+
   // Custom bar rendering with icons and improved styling
   const renderCustomBarList = (items: BarListItem[]) => (
     <div className="mt-4">
@@ -120,9 +125,18 @@ export default function CustomBarList({
           <div className="flex items-center">
             <h3 className="small-font" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
             {selectedItems.length > 0 && (
-              <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-full">
-                {selectedItems.length} selected
-              </span>
+              <div className="inline-flex items-center gap-2 px-[10px] py-1.5 ml-2 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+                <span>{selectedItems.length} selected</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClearSelection();
+                  }}
+                  aria-label="Clear selection"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             )}
           </div>
           <p className="text-tremor-metric">
@@ -140,9 +154,18 @@ export default function CustomBarList({
             >
               View All ({data.length})
               {selectedItems.length > 0 && (
-                <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-full">
-                  {selectedItems.length} selected
-                </span>
+                <div className="inline-flex items-center gap-2 px-[10px] py-1.5 ml-2 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+                  <span>{selectedItems.length} selected</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClearSelection();
+                    }}
+                    aria-label="Clear selection"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
               )}
             </button>
           </div>
@@ -164,9 +187,18 @@ export default function CustomBarList({
               <div className="flex items-center">
                 <h2 className="title-font">All Items</h2>
                 {selectedItems.length > 0 && (
-                  <span className="ml-2 px-2 py-0.5 text-xs bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300 rounded-full">
-                    {selectedItems.length} selected
-                  </span>
+                  <div className="inline-flex items-center gap-2 px-[10px] py-1.5 ml-2 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+                    <span>{selectedItems.length} selected</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleClearSelection();
+                      }}
+                      aria-label="Clear selection"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 )}
               </div>
               <button 
