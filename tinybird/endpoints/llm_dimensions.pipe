@@ -14,8 +14,8 @@ SQL >
         SELECT organization, project, environment, model, provider
         FROM 
         llm_events WHERE timestamp > now() - interval '1 month' 
-        {% if defined(organization) and organization != '' %}
-            AND organization = {{String(organization, '')}}
+        {% if defined(organization) and organization != [''] %}
+            AND organization IN {{Array(organization)}}
         {% end %}
       )
       

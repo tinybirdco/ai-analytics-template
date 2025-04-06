@@ -1,10 +1,10 @@
 'use client';
 
 import { Card } from '@tremor/react';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { RiSearchLine } from '@remixicon/react';
 import { Dialog, DialogPanel } from '@tremor/react';
-import { X } from 'lucide-react';
+import { X, Check } from 'lucide-react';
 
 interface BarListItem {
   name: string;
@@ -16,6 +16,7 @@ interface CustomBarListProps {
   data: BarListItem[];
   valueFormatter?: (value: number) => string;
   onSelectionChange?: (selectedItems: string[]) => void;
+  initialSelectedItems?: string[];
 }
 
 const defaultFormatter = (number: number) =>
@@ -24,11 +25,17 @@ const defaultFormatter = (number: number) =>
 export default function CustomBarList({
   data,
   valueFormatter = defaultFormatter,
-  onSelectionChange
+  onSelectionChange,
+  initialSelectedItems = []
 }: CustomBarListProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>(initialSelectedItems);
+
+  // Update selected items when initialSelectedItems changes
+  useEffect(() => {
+    setSelectedItems(initialSelectedItems);
+  }, [initialSelectedItems]);
 
   // Memoize filtered items to prevent unnecessary recalculations
   const filteredItems = useMemo(() => {
@@ -58,6 +65,11 @@ export default function CustomBarList({
     });
   };
 
+  const handleClearSelection = () => {
+    setSelectedItems([]);
+    onSelectionChange?.([]);
+  };
+
   // Custom bar rendering with icons and improved styling
   const renderCustomBarList = (items: BarListItem[]) => (
     <div className="mt-4">
@@ -70,11 +82,7 @@ export default function CustomBarList({
         return (
           <div 
             key={item.name} 
-            className={`flex flex-col cursor-pointer py-2 transition-all duration-200 ${
-              isSelected 
-                ? 'bg-indigo-50 dark:bg-indigo-900/30 border-l-4 border-indigo-600' 
-                : 'hover:bg-tremor-brand-subtle dark:hover:bg-dark-tremor-brand-subtle border-l-4 border-transparent'
-            }`}
+            className={`flex flex-col cursor-pointer py-2 transition-all duration-200 hover:bg-tremor-brand-subtle dark:hover:bg-dark-tremor-brand-subtle`}
             onClick={() => handleBarClick(item.name)}
           >
             <div className="flex items-center w-full py-1">
@@ -87,18 +95,17 @@ export default function CustomBarList({
                 <p className="truncate small-font" style={{ fontFamily: 'var(--font-family-base)' }}>
                   {item.name}
                 </p>
+                {isSelected && (
+                  <Check className="ml-2 h-4 w-4 text-[var(--accent)]" />
+                )}
               </div>
-              <p className={`flex-shrink-0 text-right ${
-                isSelected ? 'text-indigo-600 dark:text-indigo-400' : 'small-font'
-              }`}>
+              <p className="flex-shrink-0 text-right small-font">
                 {valueFormatter(item.value)}
               </p>
             </div>
             <div className="w-full h-1.5 bg-tremor-brand-emphasis dark:bg-dark-tremor-brand-emphasis overflow-hidden">
               <div 
-                className={`h-full ${
-                  isSelected ? 'bg-indigo-600' : 'bg-[var(--accent)]'
-                }`}
+                className="h-full bg-[var(--accent)]"
                 style={{ width: `${percentage}%` }}
               />
             </div>
@@ -115,7 +122,23 @@ export default function CustomBarList({
         style={{ boxShadow: 'none' }}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="small-font" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
+          <div className="flex items-center">
+            <h3 className="small-font" style={{ fontFamily: 'var(--font-family-base)' }}>Cost Breakdown</h3>
+            {selectedItems.length > 0 && (
+              <div className="inline-flex items-center gap-2 px-[10px] py-1.5 ml-2 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+                <span>{selectedItems.length} selected</span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleClearSelection();
+                  }}
+                  aria-label="Clear selection"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
           <p className="text-tremor-metric">
             {valueFormatter(totalValue)}
           </p>
@@ -130,6 +153,20 @@ export default function CustomBarList({
               onClick={() => setIsOpen(true)}
             >
               View All ({data.length})
+              {selectedItems.length > 0 && (
+                <div className="inline-flex items-center gap-2 px-[10px] py-1.5 ml-2 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+                  <span>{selectedItems.length} selected</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleClearSelection();
+                    }}
+                    aria-label="Clear selection"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </button>
           </div>
         )}
@@ -147,7 +184,23 @@ export default function CustomBarList({
           <DialogPanel className="!bg-[#262626] flex flex-col relative z-10 rounded-none p-0" style={{ width: '575px', minWidth: '575px' }}>
             {/* Header */}
             <div className="flex items-center justify-between p-4 pb-0">
-              <h2 className="title-font">All Items</h2>
+              <div className="flex items-center">
+                <h2 className="title-font">All Items</h2>
+                {selectedItems.length > 0 && (
+                  <div className="inline-flex items-center gap-2 px-[10px] py-1.5 ml-2 rounded-full bg-[#393939] font-['Roboto'] text-xs text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)] transition-colors">
+                    <span>{selectedItems.length} selected</span>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleClearSelection();
+                      }}
+                      aria-label="Clear selection"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
               <button 
                 onClick={() => {
                   setIsOpen(false);

@@ -135,9 +135,9 @@ function DashboardContent() {
             <ResizableSplitView
               topComponent={
                 <TimeseriesChartContainer 
-                  data={llmData || { data: [] }} 
                   filters={filters}
                   onFiltersChange={handleTimeseriesFilterChange}
+                  data={llmData}
                   isLoading={isLoading}
                 />
               }
@@ -156,13 +156,13 @@ function DashboardContent() {
 
         {/* Sidebar - 1/3 width */}
         <div className="w-1/3 overflow-auto">
-          <div>
+          <div className="mb-4">
             <MetricsCards 
               data={llmData} 
               isLoading={isLoading} 
             />
           </div>
-          <div>
+          <div className="h-[calc(100vh-400px)]">
             <TabbedPane 
               filters={filters}
               onFilterUpdate={handleFilterUpdate} 

@@ -34,34 +34,41 @@ export default function SparkChartContainer({
   className,
   unit = ''
 }: SparkChartContainerProps) {
-  if (isLoading) return <div>Loading...</div>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let transformedData: any;
+  let categories: string[] = [];
+  let formattedValue: string = '';
+  let metricValue: number = 0;
+  let dates: string[] = [];
 
-  // Get unique dates and categories
-  const dates = [...new Set(data.data.map((d: DataPoint) => d.date))].sort();
-  const categories = [...new Set(data.data.map((d: DataPoint) => d.category))];
+  if (!isLoading) {
+    // Get unique dates and categories
+    dates = [...new Set(data.data.map((d: DataPoint) => d.date))].sort();
+    categories = [...new Set(data.data.map((d: DataPoint) => d.category))];
 
-  // Transform data for the chart
-  const transformedData = dates.map(date => {
-    const dayData = data.data.filter((d: DataPoint) => d.date === date);
-    return {
-      date: new Date(date).toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: '2-digit' 
-      }),
-      ...categories.reduce((acc, category) => ({
-        ...acc,
-        [category]: dayData.find(d => d.category === category)?.[metric] || 0
-      }), {})
-    };
-  });
+    // Transform data for the chart
+    transformedData = dates.map(date => {
+      const dayData = data.data.filter((d: DataPoint) => d.date === date);
+      return {
+        date: new Date(date).toLocaleDateString('en-US', { 
+          month: 'short', 
+          day: '2-digit' 
+        }),
+        ...categories.reduce((acc, category) => ({
+          ...acc,
+          [category]: dayData.find(d => d.category === category)?.[metric] || 0
+        }), {})
+      };
+    });
 
-  // Calculate metric average/total
-  const metricValue = data.data.reduce((sum, curr) => sum + curr[metric], 0);
-  const formattedValue = metric === 'avg_duration' 
-    ? `${(metricValue / data.data.length).toFixed(2)} s`
-    : metric === 'total_tokens'
-      ? `${metricValue.toLocaleString()} tokens`
-      : metricValue.toLocaleString();
+    // Calculate metric average/total
+    metricValue = data.data.reduce((sum, curr) => sum + curr[metric], 0);
+    formattedValue = metric === 'avg_duration' 
+      ? `${(metricValue / data.data.length).toFixed(2)} s`
+      : metric === 'total_tokens'
+        ? `${metricValue.toLocaleString()} tokens`
+        : metricValue.toLocaleString();
+  }
 
   return (
     <SparkChart 
@@ -72,6 +79,7 @@ export default function SparkChartContainer({
       chartType={chartType}
       className={className}
       unit={unit}
+      isLoading={isLoading}
     />
   );
 } 

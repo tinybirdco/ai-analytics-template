@@ -39,6 +39,7 @@ export async function fetchLLMUsage(token: string, filters: Record<string, strin
   const filterParams = ['model', 'provider', 'organization', 'project', 'environment', 'user'];
   filterParams.forEach(param => {
     if (filters[param as keyof Record<string, string | undefined>]) {
+      // Pass the comma-separated string directly - Tinybird will handle it as an array
       searchParams.set(param, filters[param as keyof Record<string, string | undefined>]!);
     }
   });
@@ -74,7 +75,10 @@ export async function fetchGenericCounter(token: string, params: TinybirdParams)
   
   // Add all params to search params
   Object.entries(params).forEach(([key, value]) => {
-    if (value) searchParams.set(key, value.toString());
+    if (value) {
+      // Pass the comma-separated string directly - Tinybird will handle it as an array
+      searchParams.set(key, value.toString());
+    }
   });
 
   const response = await fetch(
@@ -118,6 +122,7 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
         if (key === 'embedding') {
           requestBody[key] = value as number[];
         } else {
+          // Pass the comma-separated string directly - Tinybird will handle it as an array
           requestBody[key] = value.toString();
         }
       }
@@ -138,6 +143,7 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
     // Add all params to search params
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined) {
+        // Pass the comma-separated string directly - Tinybird will handle it as an array
         searchParams.set(key, value.toString());
       }
     });
@@ -193,6 +199,7 @@ export async function searchLLMMessagesByVector(
   // Add all other params
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && key !== 'embedding' && key !== 'similarity_threshold') {
+      // Pass the comma-separated string directly - Tinybird will handle it as an array
       searchParams.set(key, value.toString());
     }
   });

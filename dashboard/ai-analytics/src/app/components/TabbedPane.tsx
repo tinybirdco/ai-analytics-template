@@ -108,11 +108,14 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   const initialDimension = searchParams.get('dimension') || filteredTabs[0].key;
   const [selectedTab, setSelectedTab] = useState<string>(initialDimension);
   const [barListData, setBarListData] = useState<Array<{ name: string; value: number; icon?: React.ReactNode }>>([]);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
 
-  // Pass all filters to the query
-  const { data, isLoading, error } = useGenericCounter(selectedTab, filters as Record<string, string>);
+  // Create a copy of filters without the current dimension to avoid filtering by it
+  const queryFilters = { ...filters };
+  delete queryFilters[selectedTab];
+
+  // Pass all filters to the query, but exclude the current dimension
+  const { data, isLoading, error } = useGenericCounter(selectedTab, queryFilters as Record<string, string>);
 
   // Add effect to sync with URL params
   useEffect(() => {
@@ -143,11 +146,6 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
     // Notify parent to update filters
     onFilterUpdate(selectedTab, filteredTabs.find(t => t.key === selectedTab)?.name || selectedTab, newSelection);
   };
-
-  // const handleRemoveFilter = (dimension: string, value: string) => {
-  //   const newSelection = selectedValues.filter(v => v !== value);
-  //   handleSelectionChange(newSelection);
-  // };
 
   const handleTabChange = (index: number) => {
     const tab = filteredTabs[index];
@@ -240,6 +238,7 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
               data={barListData}
               valueFormatter={(value: number) => `$${value.toLocaleString()}`}
               onSelectionChange={handleSelectionChange}
+              initialSelectedItems={selectedValues}
             />
           )}
         </div>
