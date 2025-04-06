@@ -28,7 +28,7 @@ export function wrapModelWithTinybird(
     error?: Error
   ) => {
     const endTime = new Date();
-    const duration = endTime.getTime() - startTime.getTime();
+    const duration = (endTime.getTime() - startTime.getTime()) / 1000;
 
     const event = {
       start_time: startTime.toISOString(),

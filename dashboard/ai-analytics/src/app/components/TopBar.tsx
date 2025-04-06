@@ -3,7 +3,8 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import FilterChips from './FilterChips';
-import { useRef, useState } from 'react';
+import UserFilterChip from './UserFilterChip';
+import { useRef, useState, useEffect } from 'react';
 import DateRangeSelector from './DateRangeSelector';
 import { SettingsIcon, SignInIcon } from './icons';
 import { useModal } from '../context/ModalContext';
@@ -12,6 +13,7 @@ import ApiKeyInput from './ApiKeyInput';
 import { Dialog, DialogPanel } from '@tremor/react';
 import { Sparkles } from 'lucide-react';
 import SignInModal from './SignInModal';
+import { generateUserHash } from '@/lib/user-hash';
 
 interface Selection {
   dimension: string;
@@ -33,6 +35,24 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const { openaiKey } = useApiKeyStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
+  const [userHash, setUserHash] = useState<string>('');
+  const [isUserFilterActive, setIsUserFilterActive] = useState(false);
+
+  // Generate user hash when API key changes
+  useEffect(() => {
+    if (openaiKey) {
+      const hash = generateUserHash(openaiKey);
+      setUserHash(hash);
+    } else {
+      setUserHash('');
+    }
+  }, [openaiKey]);
+
+  // Check if user filter is active
+  useEffect(() => {
+    const userFilter = searchParams.get('user');
+    setIsUserFilterActive(!!userFilter);
+  }, [searchParams]);
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -187,7 +207,11 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       </div>
 
       <div className="px-4 pb-5 flex flex-wrap gap-2 p-2">
-        {selections.map((selection) => (
+        {userHash && (
+          <UserFilterChip userHash={userHash} />
+        )}
+        
+        {!isUserFilterActive && selections.map((selection) => (
           selection.values.map((value) => (
             <FilterChips
               key={`${selection.dimension}-${value}`}

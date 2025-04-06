@@ -43,6 +43,16 @@ function DashboardContent() {
       column_name: 'model'
     };
 
+    // Check for user filter first
+    const userFilter = params.get('user');
+    if (userFilter) {
+      // If user filter is active, clear all other filters
+      newFilters.user = userFilter;
+      setSelections([]);
+      setFilters(newFilters);
+      return;
+    }
+
     // Check each possible dimension from tabs
     tabs.forEach(tab => {
       const values = params.get(tab.key)?.split(',') || [];
