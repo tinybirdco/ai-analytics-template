@@ -211,7 +211,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <UserFilterChip userHash={userHash} />
         )}
         
-        {!isUserFilterActive && selections.map((selection) => (
+        {selections.map((selection) => (
           selection.values.map((value) => (
             <FilterChips
               key={`${selection.dimension}-${value}`}
