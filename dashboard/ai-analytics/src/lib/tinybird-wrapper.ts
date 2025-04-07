@@ -24,11 +24,122 @@ export function wrapModelWithTinybird(
     status: 'success' | 'error',
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     args: any[],
-    result?: { text?: string; usage?: { promptTokens?: number; completionTokens?: number } },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    result?: any,
     error?: Error
   ) => {
     const endTime = new Date();
     const duration = (endTime.getTime() - startTime.getTime()) / 1000;
+
+    // Debug log to help troubleshoot
+    console.log('Tinybird wrapper args:', JSON.stringify(args[0], null, 2));
+    console.log('Tinybird wrapper result:', JSON.stringify(result, null, 2));
+
+    // Extract messages from args
+    let messages = [];
+    
+    // Check if args[0] has messages property (Vercel AI SDK format)
+    if (args[0]?.messages && Array.isArray(args[0].messages)) {
+      // Use the messages directly from the Vercel AI SDK
+      messages = args[0].messages.map((m: { role: string; content: string | any[] | { text: string } }) => {
+        // Handle content that might be an array of objects with type and text
+        let content = m.content;
+        if (Array.isArray(content)) {
+          // Extract text from content array
+          content = content
+            .filter((item: any) => item.type === 'text')
+            .map((item: any) => item.text)
+            .join(' ');
+        } else if (typeof content === 'object' && content !== null && 'text' in content) {
+          // Handle content that is an object with a text property
+          content = content.text;
+        }
+        return {
+          role: String(m.role),
+          content: String(content)
+        };
+      });
+    } 
+    // Check if args[0] has prompt property (legacy format)
+    else if (args[0]?.prompt) {
+      // Handle prompt that might be an array of objects with type and text
+      let promptContent = args[0].prompt;
+      if (Array.isArray(promptContent)) {
+        // Extract text from prompt array
+        promptContent = promptContent
+          .filter((item: any) => item.type === 'text')
+          .map((item: any) => item.text)
+          .join(' ');
+      } else if (typeof promptContent === 'object' && promptContent !== null && 'text' in promptContent) {
+        // Handle prompt that is an object with a text property
+        promptContent = promptContent.text;
+      }
+      messages = [{ role: 'user', content: String(promptContent) }];
+    }
+    
+    // Check if args[0] has systemPrompt property (Vercel AI SDK format with generateObject)
+    if (args[0]?.systemPrompt && !messages.some((m: { role: string; content: string }) => m.role === 'system')) {
+      messages.unshift({
+        role: 'system',
+        content: String(args[0].systemPrompt)
+      });
+    }
+    
+    // Check if args[0] has a direct prompt property (Vercel AI SDK format with generateObject)
+    if (args[0]?.prompt && !messages.some((m: { role: string; content: string }) => m.role === 'user')) {
+      // Handle prompt that might be an array of objects with type and text
+      let promptContent = args[0].prompt;
+      if (Array.isArray(promptContent)) {
+        // Extract text from prompt array
+        promptContent = promptContent
+          .filter((item: any) => item.type === 'text')
+          .map((item: any) => item.text)
+          .join(' ');
+      } else if (typeof promptContent === 'object' && promptContent !== null && 'text' in promptContent) {
+        // Handle prompt that is an object with a text property
+        promptContent = promptContent.text;
+      }
+      messages.push({
+        role: 'user',
+        content: String(promptContent)
+      });
+    }
+    
+    // Add the assistant's response if available
+    if (status === 'success' && result?.text) {
+      messages.push({
+        role: 'assistant',
+        content: String(result.text)
+      });
+    }
+    
+    // Check if result has rawCall property with rawPrompt (Vercel AI SDK format)
+    if (status === 'success' && result?.rawCall?.rawPrompt && Array.isArray(result.rawCall.rawPrompt)) {
+      // Use the rawPrompt from the result
+      messages = result.rawCall.rawPrompt.map((m: { role: string; content: string }) => ({
+        role: String(m.role),
+        content: String(m.content)
+      }));
+      
+      // Add the assistant's response if available
+      if (result.toolCalls && result.toolCalls.length > 0) {
+        const toolCall = result.toolCalls[0];
+        if (toolCall.toolName === 'json' && toolCall.args) {
+          messages.push({
+            role: 'assistant',
+            content: `Tool call: ${toolCall.toolName} with args: ${toolCall.args}`
+          });
+        }
+      }
+    }
+
+    // Ensure we have at least one message
+    if (messages.length === 0) {
+      messages = [{ role: 'user', content: 'No message content available' }];
+    }
+
+    // Debug log the final messages array
+    console.log('Tinybird wrapper final messages:', JSON.stringify(messages, null, 2));
 
     const event = {
       start_time: startTime.toISOString(),
@@ -49,10 +160,7 @@ export function wrapModelWithTinybird(
         },
         choices: [{ message: { content: result?.text ?? '' } }],
       } : undefined,
-      messages: args[0]?.prompt ? [{ role: 'user', content: args[0].prompt }].map(m => ({
-        role: String(m.role),
-        content: String(m.content)
-      })) : [],
+      messages: messages,
       proxy_metadata: {
         organization: config.organization || '',
         project: config.project || '',
@@ -103,7 +211,17 @@ export function wrapModelWithTinybird(
     
     try {
       const result = await originalDoStream.apply(this, args);
-      await logToTinybird(messageId, startTime, 'success', args, { text: '', usage: { promptTokens: 0, completionTokens: 0 } });
+      
+      // For streaming, we need to handle the messages differently
+      // We'll log the initial request, but won't have the complete response
+      await logToTinybird(
+        messageId, 
+        startTime, 
+        'success', 
+        args, 
+        { text: '', usage: { promptTokens: 0, completionTokens: 0 } }
+      );
+      
       return result;
     } catch (error) {
       await logToTinybird(messageId, startTime, 'error', args, undefined, error as Error);

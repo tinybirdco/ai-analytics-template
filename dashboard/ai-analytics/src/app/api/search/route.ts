@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         event: 'search_filter',
         environment: process.env.NODE_ENV,
         project: 'llm-tracker',
-        organization: 'llm-tracker',
+        organization: 'tinybird',
         chatId: generateRandomChatId(),
         user: hashApiKeyUser(apiKey),
       }

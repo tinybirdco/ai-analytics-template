@@ -90,14 +90,14 @@ export async function POST(req: Request) {
         event: 'ai_cost_calculator',
         environment: process.env.NODE_ENV,
         project: 'llm-tracker',
-        organization: 'llm-tracker',
+        organization: 'tinybird',
         chatId: generateRandomChatId(),
         user: hashApiKeyUser(apiKey),
       }
     );
 
     const result = await generateObject({
-      model: openai('gpt-3.5-turbo'),
+      model: wrappedOpenAI,
       schema: costParametersSchema,
       prompt: query,
       systemPrompt: systemPromptText,
