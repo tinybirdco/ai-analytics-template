@@ -49,7 +49,7 @@ export function wrapModelWithTinybird(
     
     // Check if args[0] has messages property (ChatCompletion format)
     if (args[0]?.messages) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       messages = args[0].messages.map((msg: any) => ({
         role: msg.role,
         content: String(msg.content)
