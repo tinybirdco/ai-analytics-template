@@ -1,5 +1,3 @@
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
-
 export const fetchAvailableDimensions = async (token: string, apiUrl: string) => {
   if (!token) {
     console.error('No Tinybird token available');

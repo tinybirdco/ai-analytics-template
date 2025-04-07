@@ -1,5 +1,3 @@
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
-
 export interface TinybirdParams {
   start_date?: string;
   end_date?: string;
