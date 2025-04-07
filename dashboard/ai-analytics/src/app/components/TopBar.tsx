@@ -36,7 +36,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [userHash, setUserHash] = useState<string>('');
-  const [isUserFilterActive, setIsUserFilterActive] = useState(false);
+
 
   // Generate user hash when API key changes
   useEffect(() => {
@@ -47,12 +47,6 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       setUserHash('');
     }
   }, [openaiKey]);
-
-  // Check if user filter is active
-  useEffect(() => {
-    const userFilter = searchParams.get('user');
-    setIsUserFilterActive(!!userFilter);
-  }, [searchParams]);
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
