@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Check } from 'lucide-react';
 
 interface UserFilterChipProps {
   userHash: string;
