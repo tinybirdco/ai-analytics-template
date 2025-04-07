@@ -79,7 +79,7 @@ export default function DataTableContainer({ isLoading, filters }: DataTableCont
   
   return (
     <div className="w-full h-full flex flex-col">
-      <div className="p-4">
+      <div className="p-4 bg-[#0A0A0A]">
         <form onSubmit={handleSearch} className="flex gap-2">
           <div className="relative flex-grow" data-table-search>
             <button

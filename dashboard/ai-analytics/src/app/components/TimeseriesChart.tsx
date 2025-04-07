@@ -19,7 +19,7 @@ function classNames(...classes: (string | undefined | null | false)[]) {
 }
 
 const valueFormatter = (number: number) => 
-  Intl.NumberFormat('us').format(number).toString();
+  Intl.NumberFormat('us', { minimumFractionDigits: 6, maximumFractionDigits: 6 }).format(number).toString();
 
 interface TimeseriesData {
   date: string;
@@ -48,6 +48,9 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
   const searchParams = useSearchParams();
   const { orgName } = useTinybirdToken();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  
+  // Check if user filter is active
+  const isUserFilterActive = searchParams.has('user');
 
   // Default colors for unknown models
   const defaultColors = [
@@ -156,13 +159,34 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
 
   const handleTabChange = (index: number) => {
     const tab = tabs[index];
+    
+    // Create new filters object with the updated column_name
+    const newFilters = { ...filters, column_name: tab.key } as Record<string, string>;
+    
+    // Preserve the user filter in the filters object if it's active
+    if (isUserFilterActive) {
+      // Get the actual user hash value from the URL
+      const userHash = searchParams.get('user');
+      if (userHash) {
+        newFilters.user = userHash;
+      }
+    }
+    
     // Update URL without causing a page reload
     const params = new URLSearchParams(searchParams);
     params.set('column_name', tab.key);
+    
+    // Preserve the user filter if it's active
+    if (isUserFilterActive) {
+      // Get the actual user hash value from the URL
+      const userHash = searchParams.get('user');
+      if (userHash) {
+        params.set('user', userHash);
+      }
+    }
+    
     router.replace(`?${params.toString()}`, { scroll: false });
     
-    // Create new filters object
-    const newFilters = { ...filters, column_name: tab.key };
     // Pass the new filters up to parent component
     onFiltersChange?.(newFilters);
   };
@@ -177,8 +201,15 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
   };
   
   // Add $ sign to the value formatter for costs
-  const costValueFormatter = (number: number) => 
-    `$${valueFormatter(number)}`;
+  const costValueFormatter = (number: number) => {
+    if (isUserFilterActive) {
+      // Don't round decimals when user filter is active
+      return `$${number.toFixed(6)}`;
+    } else {
+      // Use the standard formatter for other cases
+      return `$${valueFormatter(number)}`;
+    }
+  };
   
   return (
     <Card 
@@ -231,9 +262,9 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
                   )}
                   {!isLoading && data?.data && (
                     <>
-                      <ul className="flex-none flex flex-wrap gap-8">
+                      <ul className="flex-none flex overflow-x-auto gap-8 pb-2">
                         {tab.summary.map((item) => (
-                          <li key={item.name}>
+                          <li key={item.name} className="flex-shrink-0">
                             <div className="flex items-center gap-2">
                               <span
                                 className={classNames(

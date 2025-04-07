@@ -176,6 +176,16 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
               {format(new Date(message.timestamp), 'MMM d, yyyy HH:mm:ss')}
             </div>
             
+            <div className=" text-left truncate">Prompt Tokens</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.prompt_tokens.toLocaleString()}
+            </div>
+            
+            <div className=" text-left truncate">Completion Tokens</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.completion_tokens.toLocaleString()}
+            </div>
+            
             <div className=" text-left truncate">Total Tokens</div>
             <div className=" text-right truncate font-['Roboto_Mono']">
               {message.total_tokens.toLocaleString()}
@@ -183,12 +193,12 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
             
             <div className=" text-left truncate">Duration</div>
             <div className=" text-right truncate font-['Roboto_Mono']">
-              {message.duration.toFixed(2)}s
+              {message.duration.toFixed(4)}s
             </div>
             
             <div className=" text-left truncate">Cost</div>
             <div className=" text-right truncate font-['Roboto_Mono']">
-              ${message.cost.toFixed(4)}
+              ${message.cost.toFixed(6)}
             </div>
             
             <div className=" text-left truncate">Status</div>
@@ -315,7 +325,7 @@ export default function DataTable({
   return (
     <div className="flex flex-col h-full relative">
       {/* Content container without blur */}
-      <div className="flex-1 overflow-auto min-h-0">
+      <div className="flex-1 overflow-auto min-h-0 bg-[#0A0A0A]">
         <div className="min-w-[1024px]">
           <Table className="font-['Roboto'] text-[#F4F4F4]">
             <TableHead className="sticky top-0 z-10">
@@ -352,8 +362,8 @@ export default function DataTable({
                     <TableCell>{item.prompt_tokens.toLocaleString()}</TableCell>
                     <TableCell>{item.completion_tokens.toLocaleString()}</TableCell>
                     <TableCell>{item.total_tokens.toLocaleString()}</TableCell>
-                    <TableCell>{item.duration.toFixed(2)}</TableCell>
-                    <TableCell>${item.cost.toFixed(4)}</TableCell>
+                    <TableCell>{item.duration.toFixed(4)}</TableCell>
+                    <TableCell>${item.cost.toFixed(6)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs ${
                         item.response_status === 'success' 

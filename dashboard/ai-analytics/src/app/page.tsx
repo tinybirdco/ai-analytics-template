@@ -43,6 +43,25 @@ function DashboardContent() {
       column_name: 'model'
     };
 
+    // Check for user filter first
+    const userFilter = params.get('user');
+    if (userFilter) {
+      // If user filter is active, set the user filter with the actual hash value
+      newFilters.user = userFilter;
+    }
+    
+    // Get column_name from URL if present (override default)
+    const columnName = params.get('column_name');
+    if (columnName) {
+      newFilters.column_name = columnName;
+    }
+    
+    // Add date range parameters to filters
+    const startDate = params.get('start_date');
+    const endDate = params.get('end_date');
+    if (startDate) newFilters.start_date = startDate;
+    if (endDate) newFilters.end_date = endDate;
+    
     // Check each possible dimension from tabs
     tabs.forEach(tab => {
       const values = params.get(tab.key)?.split(',') || [];
@@ -55,18 +74,6 @@ function DashboardContent() {
         newFilters[tab.key] = values.join(',');
       }
     });
-
-    // Get column_name from URL if present (override default)
-    const columnName = params.get('column_name');
-    if (columnName) {
-      newFilters.column_name = columnName;
-    }
-
-    // Add date range parameters to filters
-    const startDate = params.get('start_date');
-    const endDate = params.get('end_date');
-    if (startDate) newFilters.start_date = startDate;
-    if (endDate) newFilters.end_date = endDate;
 
     setSelections(newSelections);
     setFilters(newFilters);
@@ -118,6 +125,11 @@ function DashboardContent() {
   };
 
   const handleTimeseriesFilterChange = (newFilters: Record<string, string | undefined>) => {
+    // Preserve the user filter if it exists in the current filters
+    if (filters.user) {
+      newFilters.user = filters.user;
+    }
+    
     setFilters(newFilters);
   };
 
