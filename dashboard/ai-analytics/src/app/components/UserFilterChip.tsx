@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useApiKeyStore } from '@/stores/apiKeyStore';
 
 interface UserFilterChipProps {
   userHash: string;
@@ -11,6 +12,7 @@ export default function UserFilterChip({ userHash }: UserFilterChipProps) {
   const [isActive, setIsActive] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { openaiKey } = useApiKeyStore();
 
   // Check if user filter is active based on URL parameters
   useEffect(() => {
@@ -19,6 +21,8 @@ export default function UserFilterChip({ userHash }: UserFilterChipProps) {
   }, [searchParams, userHash]);
 
   const handleToggle = () => {
+    if (!openaiKey) return;
+    
     const newParams = new URLSearchParams(searchParams.toString());
     
     if (isActive) {

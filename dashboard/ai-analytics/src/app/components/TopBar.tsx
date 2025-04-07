@@ -37,7 +37,6 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [userHash, setUserHash] = useState<string>('');
 
-
   // Generate user hash when API key changes
   useEffect(() => {
     if (openaiKey) {
@@ -47,6 +46,13 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       setUserHash('');
     }
   }, [openaiKey]);
+
+  const handleUserFilterClick = () => {
+    if (!openaiKey) {
+      setIsSettingsOpen(true);
+      return;
+    }
+  };
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
@@ -201,9 +207,9 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       </div>
 
       <div className="px-4 pb-5 flex flex-wrap gap-2 p-2">
-        {userHash && (
+        <div onClick={handleUserFilterClick}>
           <UserFilterChip userHash={userHash} />
-        )}
+        </div>
         
         {selections.map((selection) => (
           selection.values.map((value) => (
