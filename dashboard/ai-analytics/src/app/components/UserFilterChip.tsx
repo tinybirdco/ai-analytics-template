@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Check } from 'lucide-react';
 
 interface UserFilterChipProps {
   userHash: string;
@@ -36,15 +35,21 @@ export default function UserFilterChip({ userHash }: UserFilterChipProps) {
 
   return (
     <div 
-      className={`inline-flex items-center gap-2 px-[10px] py-1.5 rounded-full font-['Roboto'] text-xs cursor-pointer transition-colors ${
+      className={`inline-flex items-center gap-2 px-[10px] py-1.5 rounded-full font-['Roboto'] text-xs cursor-pointer transition-colors group ${
         isActive 
           ? 'bg-[var(--accent)] text-[rgb(10,10,10)]' 
           : 'bg-[#393939] text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)]'
       }`}
       onClick={handleToggle}
     >
-      <span>See your LLM calls</span>
-      {isActive && <Check className="h-4 w-4" />}
+      <div className={`flex items-center justify-center w-3 h-3 rounded-full border ${
+        isActive 
+          ? 'border-[rgb(10,10,10)] bg-[rgb(10,10,10)]' 
+          : 'border-[#C6C6C6] group-hover:border-[var(--accent)]'
+      }`}>
+        {isActive && <div className="w-2 h-2 rounded-full bg-[var(--accent)]" />}
+      </div>
+      <span>{isActive ? 'All LLM calls' : 'Your LLM calls'}</span>
     </div>
   );
 } 
