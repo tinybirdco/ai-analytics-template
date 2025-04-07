@@ -14,6 +14,11 @@ Types of changes:
 ==========
 
 - Added: Live demo mode. When setting your OpenAI key you can filter your own LLM calls from the application. Use the AI cost calculator or the "Ask AI..." filter and click `Your LLM calls` (no personal data is saved).
+
+<video width="864" height="540" controls>
+  <source src="dashboard/ai-analytics/public/onboarding/llmcalls.mp4" type="video/mp4">
+</video>
+
 - Added: Support multiple selections to compare
 - Added: Add loading states
 - Added: Added a component to resize the results table
