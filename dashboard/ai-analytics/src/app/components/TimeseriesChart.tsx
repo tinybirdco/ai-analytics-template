@@ -159,13 +159,34 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
 
   const handleTabChange = (index: number) => {
     const tab = tabs[index];
+    
+    // Create new filters object with the updated column_name
+    const newFilters = { ...filters, column_name: tab.key } as Record<string, string>;
+    
+    // Preserve the user filter in the filters object if it's active
+    if (isUserFilterActive) {
+      // Get the actual user hash value from the URL
+      const userHash = searchParams.get('user');
+      if (userHash) {
+        newFilters.user = userHash;
+      }
+    }
+    
     // Update URL without causing a page reload
     const params = new URLSearchParams(searchParams);
     params.set('column_name', tab.key);
+    
+    // Preserve the user filter if it's active
+    if (isUserFilterActive) {
+      // Get the actual user hash value from the URL
+      const userHash = searchParams.get('user');
+      if (userHash) {
+        params.set('user', userHash);
+      }
+    }
+    
     router.replace(`?${params.toString()}`, { scroll: false });
     
-    // Create new filters object
-    const newFilters = { ...filters, column_name: tab.key };
     // Pass the new filters up to parent component
     onFiltersChange?.(newFilters);
   };
