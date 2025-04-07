@@ -168,3 +168,28 @@ function calculateCost(
   
   return Number((promptCost + completionCost).toFixed(6));
 } 
+
+// Function to generate a random chatId
+export function generateRandomChatId(): string {
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substring(2, 8);
+  return `search_${timestamp}_${randomPart}`;
+}
+
+// Function to hash the last 10 characters of the API key for user identification
+export function hashApiKeyUser(apiKey: string): string {
+  // Get the last 10 characters of the API key
+  const lastTenChars = apiKey.slice(-10);
+  
+  // Simple hash function (not cryptographically secure, but sufficient for this purpose)
+  let hash = 0;
+  for (let i = 0; i < lastTenChars.length; i++) {
+    const char = lastTenChars.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32bit integer
+  }
+  
+  // Convert to a positive hex string and take first 8 characters
+  const positiveHash = Math.abs(hash).toString(16);
+  return `user_${positiveHash.substring(0, 8)}`;
+}

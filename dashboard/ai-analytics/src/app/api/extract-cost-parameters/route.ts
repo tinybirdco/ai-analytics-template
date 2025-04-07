@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { fetchAvailableDimensions } from '@/lib/dimensions';
 import { extractDatesFromQuery } from '@/lib/dateUtils';
+import { generateRandomChatId, hashApiKeyUser, wrapModelWithTinybird } from '@/lib/tinybird-wrapper';
 
 // Update the POST function to properly map meta with data
 export async function POST(req: Request) {
@@ -81,6 +82,19 @@ export async function POST(req: Request) {
     type CostParameters = z.infer<typeof costParametersSchema>;
 
     const openai = createOpenAI({ apiKey: apiKey })
+    const wrappedOpenAI = wrapModelWithTinybird(
+      openai('gpt-3.5-turbo'),
+      process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
+      process.env.TINYBIRD_JWT_SECRET!,
+      {
+        event: 'ai_cost_calculator',
+        environment: process.env.NODE_ENV,
+        project: 'llm-tracker',
+        organization: 'llm-tracker',
+        chatId: generateRandomChatId(),
+        user: hashApiKeyUser(apiKey),
+      }
+    );
 
     const result = await generateObject({
       model: openai('gpt-3.5-turbo'),
