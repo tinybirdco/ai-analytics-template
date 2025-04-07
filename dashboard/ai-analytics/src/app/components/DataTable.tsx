@@ -176,6 +176,16 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
               {format(new Date(message.timestamp), 'MMM d, yyyy HH:mm:ss')}
             </div>
             
+            <div className=" text-left truncate">Prompt Tokens</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.prompt_tokens.toLocaleString()}
+            </div>
+            
+            <div className=" text-left truncate">Completion Tokens</div>
+            <div className=" text-right truncate font-['Roboto_Mono']">
+              {message.completion_tokens.toLocaleString()}
+            </div>
+            
             <div className=" text-left truncate">Total Tokens</div>
             <div className=" text-right truncate font-['Roboto_Mono']">
               {message.total_tokens.toLocaleString()}
