@@ -48,6 +48,9 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
   const searchParams = useSearchParams();
   const { orgName } = useTinybirdToken();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  
+  // Check if user filter is active
+  const isUserFilterActive = searchParams.has('user');
 
   // Default colors for unknown models
   const defaultColors = [
@@ -177,8 +180,15 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
   };
   
   // Add $ sign to the value formatter for costs
-  const costValueFormatter = (number: number) => 
-    `$${valueFormatter(number)}`;
+  const costValueFormatter = (number: number) => {
+    if (isUserFilterActive) {
+      // Don't round decimals when user filter is active
+      return `$${number.toFixed(6)}`;
+    } else {
+      // Use the standard formatter for other cases
+      return `$${valueFormatter(number)}`;
+    }
+  };
   
   return (
     <Card 

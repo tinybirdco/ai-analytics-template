@@ -38,7 +38,7 @@ export default function UserFilterChip({ userHash }: UserFilterChipProps) {
     <div 
       className={`inline-flex items-center gap-2 px-[10px] py-1.5 rounded-full font-['Roboto'] text-xs cursor-pointer transition-colors ${
         isActive 
-          ? 'bg-[var(--accent)] text-white' 
+          ? 'bg-[var(--accent)] text-[rgb(10,10,10)]' 
           : 'bg-[#393939] text-[#C6C6C6] hover:text-[var(--accent)] border border-transparent hover:bg-transparent hover:border hover:border-[var(--accent)]'
       }`}
       onClick={handleToggle}
