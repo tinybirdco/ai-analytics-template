@@ -10,7 +10,7 @@ import {
   TableRow,
 } from '@tremor/react';
 import { format } from 'date-fns';
-import { X, User, Cloud, Settings, ChevronDown, ChevronUp, Check } from 'lucide-react';
+import { X, User, Cloud, Settings, Check } from 'lucide-react';
 import { useLLMMessages } from '@/hooks/useTinybirdData';
 import { Dialog, DialogPanel } from '@tremor/react';
 
