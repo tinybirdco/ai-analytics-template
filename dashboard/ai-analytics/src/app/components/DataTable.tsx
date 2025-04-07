@@ -315,7 +315,7 @@ export default function DataTable({
   return (
     <div className="flex flex-col h-full relative">
       {/* Content container without blur */}
-      <div className="flex-1 overflow-auto min-h-0">
+      <div className="flex-1 overflow-auto min-h-0 bg-[#0A0A0A]">
         <div className="min-w-[1024px]">
           <Table className="font-['Roboto'] text-[#F4F4F4]">
             <TableHead className="sticky top-0 z-10">
