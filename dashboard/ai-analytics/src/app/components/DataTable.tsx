@@ -10,8 +10,9 @@ import {
   TableRow,
 } from '@tremor/react';
 import { format } from 'date-fns';
-import { X, User, Cloud } from 'lucide-react';
+import { X, User, Cloud, Settings, ChevronDown, ChevronUp, Check } from 'lucide-react';
 import { useLLMMessages } from '@/hooks/useTinybirdData';
+import { Dialog, DialogPanel } from '@tremor/react';
 
 // Define the shape of the LLM message data
 interface LLMMessage {
@@ -41,6 +42,30 @@ interface DataTableProps {
   isLoading?: boolean;
   searchHighlight?: string | null;
 }
+
+// Define column configuration
+interface ColumnConfig {
+  id: string;
+  label: string;
+  visible: boolean;
+  width?: string;
+}
+
+// Default column configuration
+const defaultColumns: ColumnConfig[] = [
+  { id: 'timestamp', label: 'Timestamp', visible: true, width: '160px' },
+  { id: 'model', label: 'Model', visible: true, width: '120px' },
+  { id: 'cost', label: 'Cost', visible: true, width: '100px' },
+  { id: 'response_status', label: 'Status', visible: true, width: '100px' },
+  { id: 'provider', label: 'Provider', visible: true, width: '120px' },
+  { id: 'duration', label: 'Duration', visible: true, width: '100px' },
+  { id: 'total_tokens', label: 'Total Tokens', visible: true, width: '120px' },
+  { id: 'user', label: 'User', visible: false, width: '150px' },
+  { id: 'organization', label: 'Organization', visible: false, width: '150px' },
+  { id: 'project', label: 'Project', visible: false, width: '150px' },
+  { id: 'prompt_tokens', label: 'Prompt Tokens', visible: false, width: '120px' },
+  { id: 'completion_tokens', label: 'Completion Tokens', visible: false, width: '140px' },
+];
 
 // Mock data for development and testing
 const MOCK_DATA = {
@@ -305,6 +330,22 @@ export default function DataTable({
   searchHighlight = null 
 }: DataTableProps) {
   const [selectedMessage, setSelectedMessage] = useState<LLMMessage | null>(null);
+  const [columns, setColumns] = useState<ColumnConfig[]>(defaultColumns);
+  const [isColumnSettingsOpen, setIsColumnSettingsOpen] = useState(false);
+
+  // Toggle column visibility
+  const toggleColumnVisibility = (columnId: string) => {
+    setColumns(prevColumns => 
+      prevColumns.map(col => 
+        col.id === columnId ? { ...col, visible: !col.visible } : col
+      )
+    );
+  };
+
+  // Reset columns to default
+  const resetColumns = () => {
+    setColumns(defaultColumns);
+  };
 
   if (isLoading) {
     return (
@@ -322,27 +363,31 @@ export default function DataTable({
     setSelectedMessage(null);
   };
 
+  // Get visible columns
+  const visibleColumns = columns.filter(col => col.visible);
+  
+  // Add relevance column if searchHighlight is present
+  const allVisibleColumns = searchHighlight 
+    ? [...visibleColumns, { id: 'similarity', label: 'Relevance', visible: true, width: '100px' }]
+    : visibleColumns;
+
   return (
     <div className="flex flex-col h-full relative">
       {/* Content container without blur */}
-      <div className="flex-1 overflow-auto min-h-0 bg-[#0A0A0A]">
-        <div className="min-w-[1024px]">
+      <div className="flex-1 overflow-auto min-h-0 bg-[#0A0A0A] group">
+        <div className="min-w-[800px]">
           <Table className="font-['Roboto'] text-[#F4F4F4]">
             <TableHead className="sticky top-0 z-10">
               <TableRow>
-                <TableHeaderCell className="text-[#F4F4F4]">Timestamp</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Model</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Provider</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Organization</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Project</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">User</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Prompt Tokens</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Completion Tokens</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Total Tokens</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Duration (s)</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Cost</TableHeaderCell>
-                <TableHeaderCell className="text-[#F4F4F4]">Status</TableHeaderCell>
-                {searchHighlight && <TableHeaderCell className="text-[#F4F4F4]">Relevance</TableHeaderCell>}
+                {allVisibleColumns.map(column => (
+                  <TableHeaderCell 
+                    key={column.id} 
+                    className="text-[#F4F4F4]"
+                    style={{ width: column.width }}
+                  >
+                    {column.label}
+                  </TableHeaderCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -353,46 +398,87 @@ export default function DataTable({
                     onClick={() => handleRowClick(item)}
                     className="cursor-pointer hover:bg-tremor-brand-emphasis dark:hover:bg-dark-tremor-brand-emphasis text-[#F4F4F4] transition-colors"
                   >
-                    <TableCell>{format(new Date(item.timestamp), 'MMM d, yyyy HH:mm:ss')}</TableCell>
-                    <TableCell>{item.model}</TableCell>
-                    <TableCell>{item.provider}</TableCell>
-                    <TableCell>{item.organization}</TableCell>
-                    <TableCell>{item.project}</TableCell>
-                    <TableCell>{item.user}</TableCell>
-                    <TableCell>{item.prompt_tokens.toLocaleString()}</TableCell>
-                    <TableCell>{item.completion_tokens.toLocaleString()}</TableCell>
-                    <TableCell>{item.total_tokens.toLocaleString()}</TableCell>
-                    <TableCell>{item.duration.toFixed(4)}</TableCell>
-                    <TableCell>${item.cost.toFixed(6)}</TableCell>
-                    <TableCell>
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        item.response_status === 'success' 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {item.response_status}
-                      </span>
-                    </TableCell>
-                    {searchHighlight && (
-                      <TableCell>
-                        {item.similarity ? (
-                          <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
-                            {(item.similarity * 100).toFixed(0)}%
-                          </span>
-                        ) : '-'}
-                      </TableCell>
-                    )}
+                    {allVisibleColumns.map(column => {
+                      // Render cell based on column type
+                      switch (column.id) {
+                        case 'timestamp':
+                          return (
+                            <TableCell key={column.id}>
+                              {format(new Date(item.timestamp), 'MMM d, yyyy HH:mm:ss')}
+                            </TableCell>
+                          );
+                        case 'cost':
+                          return (
+                            <TableCell key={column.id}>
+                              ${item.cost.toFixed(6)}
+                            </TableCell>
+                          );
+                        case 'duration':
+                          return (
+                            <TableCell key={column.id}>
+                              {item.duration.toFixed(4)}
+                            </TableCell>
+                          );
+                        case 'response_status':
+                          return (
+                            <TableCell key={column.id}>
+                              <span className={`px-2 py-1 rounded-full text-xs ${
+                                item.response_status === 'success' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-red-100 text-red-800'
+                              }`}>
+                                {item.response_status}
+                              </span>
+                            </TableCell>
+                          );
+                        case 'similarity':
+                          return (
+                            <TableCell key={column.id}>
+                              {item.similarity ? (
+                                <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">
+                                  {(item.similarity * 100).toFixed(0)}%
+                                </span>
+                              ) : '-'}
+                            </TableCell>
+                          );
+                        case 'prompt_tokens':
+                        case 'completion_tokens':
+                        case 'total_tokens':
+                          return (
+                            <TableCell key={column.id}>
+                              {item[column.id].toLocaleString()}
+                            </TableCell>
+                          );
+                        default:
+                          return (
+                            <TableCell key={column.id}>
+                              {item[column.id as keyof LLMMessage]?.toString() || '-'}
+                            </TableCell>
+                          );
+                      }
+                    })}
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={searchHighlight ? 13 : 12} className="text-center">
+                  <TableCell colSpan={allVisibleColumns.length} className="text-center">
                     No messages found.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+        </div>
+        
+        {/* Settings button in the bottom-right corner, only visible on hover */}
+        <div className="absolute bottom-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <button
+            onClick={() => setIsColumnSettingsOpen(true)}
+            className="settings-button"
+            aria-label="Column settings"
+          >
+            <Settings className="h-4 w-4" />
+          </button>
         </div>
       </div>
       
@@ -411,6 +497,57 @@ export default function DataTable({
           onClose={handleCloseDetail} 
         />
       )}
+
+      {/* Column Settings Dialog */}
+      <Dialog
+        open={isColumnSettingsOpen}
+        onClose={() => setIsColumnSettingsOpen(false)}
+        static={true}
+        className="z-[100]"
+      >
+        <div className="fixed inset-0 bg-[#0A0A0A] bg-opacity-80" />
+        <DialogPanel className="!bg-[#262626] flex flex-col relative z-10 rounded-none p-0 font-['Roboto']" style={{ width: '400px', minWidth: '400px' }}>
+          <div className="flex items-center justify-between p-4 pb-0">
+            <h2 className="title-font">Column Settings</h2>
+            <button 
+              onClick={() => setIsColumnSettingsOpen(false)}
+              className="settings-button"
+            >
+              <X className="h-4 w-4 text-white" />
+            </button>
+          </div>
+          
+          <div className="p-4 pt-8">
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-sm text-[#C6C6C6]">Select columns to display</span>
+              <button
+                onClick={resetColumns}
+                className="text-sm text-[var(--accent)] hover:underline"
+              >
+                Reset to default
+              </button>
+            </div>
+            
+            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+              {columns.map(column => (
+                <div key={column.id} className="flex items-center justify-between py-2">
+                  <span className="text-[#F4F4F4]">{column.label}</span>
+                  <button
+                    onClick={() => toggleColumnVisibility(column.id)}
+                    className={`w-5 h-5 rounded border flex items-center justify-center ${
+                      column.visible 
+                        ? 'border-[var(--accent)] bg-[var(--accent)]' 
+                        : 'border-[#C6C6C6]'
+                    }`}
+                  >
+                    {column.visible && <Check className="h-3 w-3 text-[rgb(10,10,10)]" />}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogPanel>
+      </Dialog>
     </div>
   );
 }
