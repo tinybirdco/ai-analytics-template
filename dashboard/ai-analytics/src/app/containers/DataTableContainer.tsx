@@ -80,47 +80,37 @@ export default function DataTableContainer({ isLoading, filters }: DataTableCont
   return (
     <div className="w-full h-full flex flex-col">
       <div className="p-4 bg-[#0A0A0A]">
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <div className="relative flex-grow" data-table-search>
-            <button
-              type="submit"
-              className="absolute inset-y-0 left-0 flex items-center px-4 text-white hover:text-white"
-            >
-              <Search className="w-4 h-4" />
-            </button>
-            <input
-              type="text"
-              placeholder="Search conversations semantically..."
-              className="w-full h-[48px] px-4 pl-10 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D] placeholder:focus:opacity-0"
-              value={searchInput}
-              onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleSearch(e);
-                }
-              }}
-            />
-            <button
-              type="submit"
-              className="absolute inset-y-0 right-0 flex items-center px-4 text-white hover:text-white"
-            >
-              <Sparkles className={`w-4 h-4 search-input-right-icon ${isGeneratingEmbedding ? 'animate' : ''}`} />
-            </button>
-          </div>
-          {/* {searchText && (
-            <button
-              type="button"
-              className="px-3 py-2 text-sm text-gray-300 bg-gray-700 rounded-lg hover:bg-gray-600"
-              onClick={() => {
-                setSearchText(null);
-                setSearchInput('');
-              }}
-            >
-              Clear
-            </button>
-          )} */}
-        </form>
+        {!filters.user && (
+          <form onSubmit={handleSearch} className="flex gap-2">
+            <div className="relative flex-grow" data-table-search>
+              <button
+                type="submit"
+                className="absolute inset-y-0 left-0 flex items-center px-4 text-white hover:text-white"
+              >
+                <Search className="w-4 h-4" />
+              </button>
+              <input
+                type="text"
+                placeholder="Search conversations semantically..."
+                className="w-full h-[48px] px-4 pl-10 pr-12 py-2 bg-tremor-background-subtle dark:bg-dark-tremor-background-subtle focus:outline-none focus:ring-1 focus:ring-white placeholder:text-tremor-content dark:placeholder:text-dark-tremor-content placeholder:text-sm font-['Roboto'] dark:placeholder:text-[#8D8D8D] placeholder:focus:opacity-0"
+                value={searchInput}
+                onChange={handleInputChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    handleSearch(e);
+                  }
+                }}
+              />
+              <button
+                type="submit"
+                className="absolute inset-y-0 right-0 flex items-center px-4 text-white hover:text-white"
+              >
+                <Sparkles className={`w-4 h-4 search-input-right-icon ${isGeneratingEmbedding ? 'animate' : ''}`} />
+              </button>
+            </div>
+          </form>
+        )}
       </div>
       
       {/* Table container - make it fill the available space */}
