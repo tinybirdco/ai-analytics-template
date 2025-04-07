@@ -183,12 +183,12 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
             
             <div className=" text-left truncate">Duration</div>
             <div className=" text-right truncate font-['Roboto_Mono']">
-              {message.duration.toFixed(2)}s
+              {message.duration.toFixed(4)}s
             </div>
             
             <div className=" text-left truncate">Cost</div>
             <div className=" text-right truncate font-['Roboto_Mono']">
-              ${message.cost.toFixed(4)}
+              ${message.cost.toFixed(6)}
             </div>
             
             <div className=" text-left truncate">Status</div>
@@ -352,8 +352,8 @@ export default function DataTable({
                     <TableCell>{item.prompt_tokens.toLocaleString()}</TableCell>
                     <TableCell>{item.completion_tokens.toLocaleString()}</TableCell>
                     <TableCell>{item.total_tokens.toLocaleString()}</TableCell>
-                    <TableCell>{item.duration.toFixed(2)}</TableCell>
-                    <TableCell>${item.cost.toFixed(4)}</TableCell>
+                    <TableCell>{item.duration.toFixed(4)}</TableCell>
+                    <TableCell>${item.cost.toFixed(6)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs ${
                         item.response_status === 'success' 

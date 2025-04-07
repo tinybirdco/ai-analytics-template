@@ -19,7 +19,7 @@ function classNames(...classes: (string | undefined | null | false)[]) {
 }
 
 const valueFormatter = (number: number) => 
-  Intl.NumberFormat('us').format(number).toString();
+  Intl.NumberFormat('us', { minimumFractionDigits: 6, maximumFractionDigits: 6 }).format(number).toString();
 
 interface TimeseriesData {
   date: string;

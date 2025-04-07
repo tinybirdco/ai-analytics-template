@@ -912,7 +912,7 @@ export default function CostPredictionModal({
                           {dailyCosts.length > 0 && (
                             <div className="mt-4">
                               {/* Legend section */}
-                              <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(2)}` : 'N/A'}</h2>
+                              <h2 className="text-tremor-metric-xl">{summary ? `$${summary.actualTotal.toFixed(6)}` : 'N/A'}</h2>
                               <ul className="flex flex-wrap gap-8 mb-8 mt-6">
                                 {isPredictionQuery ? (
                                   // Legend for prediction query
@@ -921,7 +921,7 @@ export default function CostPredictionModal({
                                       <div className="flex items-center gap-2">
                                         <span className="w-4 h-4 bg-[#27F795] shrink-0" />
                                         <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                          ${summary?.actualTotal.toFixed(2)}
+                                          ${summary?.actualTotal.toFixed(6)}
                                         </p>
                                       </div>
                                       <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
@@ -932,7 +932,7 @@ export default function CostPredictionModal({
                                       <div className="flex items-center gap-2">
                                         <span className="w-4 h-4 bg-[#3CCC70] shrink-0" />
                                         <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                          ${summary?.predictedTotal.toFixed(2)}
+                                          ${summary?.predictedTotal.toFixed(6)}
                                         </p>
                                       </div>
                                       <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
@@ -954,7 +954,7 @@ export default function CostPredictionModal({
                                             style={{ backgroundColor: defaultColors[index % defaultColors.length] }}
                                           />
                                           <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                            ${total.toFixed(2)}
+                                            ${total.toFixed(6)}
                                           </p>
                                         </div>
                                         <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
@@ -969,7 +969,7 @@ export default function CostPredictionModal({
                                     <div className="flex items-center gap-2">
                                       <span className="w-4 h-4 bg-[#27F795] shrink-0" />
                                       <p className="text-tremor-metric text-tremor-content-strong dark:text-dark-tremor-content-strong font-['Roboto Mono']">
-                                        ${summary?.actualTotal.toFixed(2)}
+                                        ${summary?.actualTotal.toFixed(6)}
                                       </p>
                                     </div>
                                     <p className="text-xs text-[#C6C6C6] whitespace-nowrap mt-2 ml-6">
@@ -987,7 +987,7 @@ export default function CostPredictionModal({
                                   index="date"
                                   categories={['actualCost', 'predictedCost']}
                                   colors={defaultColors}
-                                  valueFormatter={(value) => `$${value.toFixed(2)}`}
+                                  valueFormatter={(value) => `$${value.toFixed(6)}`}
                                   showLegend={false}
                                   showGridLines={false}
                                   showAnimation={true}
@@ -1012,7 +1012,7 @@ export default function CostPredictionModal({
                                   index="date"
                                   categories={chartCategories}
                                   colors={defaultColors}
-                                  valueFormatter={(value) => `$${value.toFixed(2)}`}
+                                  valueFormatter={(value) => `$${value.toFixed(6)}`}
                                   stack={true}
                                   showLegend={false}
                                   showGridLines={false}
@@ -1037,7 +1037,7 @@ export default function CostPredictionModal({
                                   index="date"
                                   categories={['actualCost']}
                                   colors={[defaultColors[0]]}
-                                  valueFormatter={(value) => `$${value.toFixed(2)}`}
+                                  valueFormatter={(value) => `$${value.toFixed(6)}`}
                                   showLegend={false}
                                   showGridLines={false}
                                   showAnimation={true}
@@ -1084,12 +1084,12 @@ export default function CostPredictionModal({
                     {/* Summary cards */}
                     {/* <div className="bg-gray-800 rounded-lg p-4">
                       <div className="text-sm text-gray-400 mb-1">Current Cost</div>
-                      <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(2)}</div>
+                      <div className="text-xl font-semibold text-white">${summary.actualTotal.toFixed(6)}</div>
                     </div> */}
                     
                     {/* <div className="bg-gray-800 rounded-lg p-4">
                       <div className="text-sm text-gray-400 mb-1">Predicted Cost</div>
-                      <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(2)}</div>
+                      <div className="text-xl font-semibold text-white">${summary.predictedTotal.toFixed(6)}</div>
                     </div> */}
                     
                     {/* <div className={`rounded-lg p-4 ${
@@ -1097,7 +1097,7 @@ export default function CostPredictionModal({
                     }`}>
                       <div className="text-sm text-gray-300 mb-1">Difference</div>
                       <div className="text-xl font-semibold text-white">
-                        {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(2)}
+                        {summary.difference > 0 ? '+' : ''}${summary.difference.toFixed(6)}
                       </div>
                       <div className="text-sm text-gray-300">
                         {summary.difference > 0 ? '+' : ''}
