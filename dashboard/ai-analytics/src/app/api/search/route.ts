@@ -12,21 +12,6 @@ export async function POST(req: Request) {
   }
 
   try {
-    const openai = createOpenAI({ apiKey: apiKey });
-    const wrappedOpenAI = wrapModelWithTinybird(
-      openai('gpt-3.5-turbo'),
-      process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
-      process.env.TINYBIRD_JWT_SECRET!,
-      {
-        event: 'search_filter',
-        environment: process.env.NODE_ENV,
-        project: 'llm-tracker',
-        organization: 'tinybird',
-        chatId: generateRandomChatId(),
-        user: hashApiKeyUser(apiKey),
-      }
-    );
-
     // Fetch available dimensions
     const availableDimensions = await fetchAvailableDimensions();
     
@@ -46,6 +31,21 @@ export async function POST(req: Request) {
     Return only valid values from the provided dimensions, fix typos when necessary.`;
     console.log(systemPromptText);
     
+    const openai = createOpenAI({ apiKey: apiKey });
+    const wrappedOpenAI = wrapModelWithTinybird(
+      openai('gpt-3.5-turbo'),
+      process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
+      process.env.TINYBIRD_JWT_SECRET!,
+      {
+        event: 'search_filter',
+        environment: process.env.NODE_ENV,
+        project: 'llm-tracker',
+        organization: 'tinybird',
+        chatId: generateRandomChatId(),
+        user: hashApiKeyUser(apiKey),
+        systemPrompt: systemPromptText,
+      }
+    );
 
     const result = await generateObject({
       model: wrappedOpenAI,

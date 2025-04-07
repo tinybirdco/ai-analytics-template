@@ -7,6 +7,7 @@ type TinybirdConfig = {
   environment?: string;
   user?: string;
   chatId?: string;
+  systemPrompt?: string;
 };
 
 export function wrapModelWithTinybird(
@@ -38,10 +39,18 @@ export function wrapModelWithTinybird(
     // Extract messages from args
     let messages = [];
     
+    // First, check if config has systemPrompt property and add it to messages
+    if (config.systemPrompt) {
+      messages.push({
+        role: 'system',
+        content: String(config.systemPrompt)
+      });
+    }
+    
     // Check if args[0] has messages property (Vercel AI SDK format)
     if (args[0]?.messages && Array.isArray(args[0].messages)) {
       // Use the messages directly from the Vercel AI SDK
-      messages = args[0].messages.map((m: { role: string; content: string | any[] | { text: string } }) => {
+      const userMessages = args[0].messages.map((m: { role: string; content: string | any[] | { text: string } }) => {
         // Handle content that might be an array of objects with type and text
         let content = m.content;
         if (Array.isArray(content)) {
@@ -59,6 +68,13 @@ export function wrapModelWithTinybird(
           content: String(content)
         };
       });
+      
+      // Add user messages, skipping system messages if we already have one from config
+      userMessages.forEach((m: { role: string; content: string }) => {
+        if (m.role !== 'system' || messages.length === 0) {
+          messages.push(m);
+        }
+      });
     } 
     // Check if args[0] has prompt property (legacy format)
     else if (args[0]?.prompt) {
@@ -74,14 +90,30 @@ export function wrapModelWithTinybird(
         // Handle prompt that is an object with a text property
         promptContent = promptContent.text;
       }
-      messages = [{ role: 'user', content: String(promptContent) }];
+      messages.push({
+        role: 'user',
+        content: String(promptContent)
+      });
     }
     
     // Check if args[0] has systemPrompt property (Vercel AI SDK format with generateObject)
+    // Only add if we don't already have a system message
     if (args[0]?.systemPrompt && !messages.some((m: { role: string; content: string }) => m.role === 'system')) {
+      // Handle systemPrompt that might be an array of objects with type and text
+      let systemPromptContent = args[0].systemPrompt;
+      if (Array.isArray(systemPromptContent)) {
+        // Extract text from systemPrompt array
+        systemPromptContent = systemPromptContent
+          .filter((item: any) => item.type === 'text')
+          .map((item: any) => item.text)
+          .join(' ');
+      } else if (typeof systemPromptContent === 'object' && systemPromptContent !== null && 'text' in systemPromptContent) {
+        // Handle systemPrompt that is an object with a text property
+        systemPromptContent = systemPromptContent.text;
+      }
       messages.unshift({
         role: 'system',
-        content: String(args[0].systemPrompt)
+        content: String(systemPromptContent)
       });
     }
     
@@ -115,11 +147,17 @@ export function wrapModelWithTinybird(
     
     // Check if result has rawCall property with rawPrompt (Vercel AI SDK format)
     if (status === 'success' && result?.rawCall?.rawPrompt && Array.isArray(result.rawCall.rawPrompt)) {
-      // Use the rawPrompt from the result
+      // Use the rawPrompt from the result, but preserve our system message if we have one
+      const systemMessage = messages.find((m: { role: string; content: string }) => m.role === 'system');
       messages = result.rawCall.rawPrompt.map((m: { role: string; content: string }) => ({
         role: String(m.role),
         content: String(m.content)
       }));
+      
+      // If we had a system message from config, add it back
+      if (systemMessage && !messages.some((m: { role: string; content: string }) => m.role === 'system')) {
+        messages.unshift(systemMessage);
+      }
       
       // Add the assistant's response if available
       if (result.toolCalls && result.toolCalls.length > 0) {

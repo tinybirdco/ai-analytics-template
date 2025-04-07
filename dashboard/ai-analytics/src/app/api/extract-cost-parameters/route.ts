@@ -93,6 +93,7 @@ export async function POST(req: Request) {
         organization: 'tinybird',
         chatId: generateRandomChatId(),
         user: hashApiKeyUser(apiKey),
+        systemPrompt: systemPromptText,
       }
     );
 
