@@ -50,13 +50,16 @@ export function wrapModelWithTinybird(
     // Check if args[0] has messages property (Vercel AI SDK format)
     if (args[0]?.messages && Array.isArray(args[0].messages)) {
       // Use the messages directly from the Vercel AI SDK
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const userMessages = args[0].messages.map((m: { role: string; content: string | any[] | { text: string } }) => {
         // Handle content that might be an array of objects with type and text
         let content = m.content;
         if (Array.isArray(content)) {
           // Extract text from content array
           content = content
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .filter((item: any) => item.type === 'text')
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             .map((item: any) => item.text)
             .join(' ');
         } else if (typeof content === 'object' && content !== null && 'text' in content) {
@@ -83,7 +86,9 @@ export function wrapModelWithTinybird(
       if (Array.isArray(promptContent)) {
         // Extract text from prompt array
         promptContent = promptContent
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .filter((item: any) => item.type === 'text')
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((item: any) => item.text)
           .join(' ');
       } else if (typeof promptContent === 'object' && promptContent !== null && 'text' in promptContent) {
