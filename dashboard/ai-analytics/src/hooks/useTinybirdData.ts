@@ -4,35 +4,32 @@ import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { useState, useEffect } from 'react';
 
 export function useLLMUsage(filters: Record<string, string | undefined> = {}) {
-  const { token } = useTinybirdToken();
+  const { token, apiUrl } = useTinybirdToken();
 
   return useQuery({
     queryKey: ['llm-usage', filters],
-    queryFn: () => fetchLLMUsage(token!, filters),
-    enabled: !!token
+    queryFn: () => fetchLLMUsage(token!, apiUrl!, filters),
+    enabled: !!token && !!apiUrl
   });
 }
 
-export function useGenericCounter(dimension: string, filters: Record<string, string>) {
-  const { token } = useTinybirdToken();
-  const allFilters = {
-    ...filters,
-    dimension
-  };
+export function useGenericCounter(params: Record<string, string | undefined> = {}) {
+  const { token, apiUrl } = useTinybirdToken();
 
   return useQuery({
-    queryKey: ['generic-counter', dimension, filters],
-    queryFn: () => fetchGenericCounter(token!, allFilters)
+    queryKey: ['generic-counter', params],
+    queryFn: () => fetchGenericCounter(token!, apiUrl!, params),
+    enabled: !!token && !!apiUrl
   });
 }
 
 export function useLLMMessages(filters: Record<string, string | number[] | string | number | undefined>) {
-  const { token } = useTinybirdToken();
+  const { token, apiUrl } = useTinybirdToken();
 
   return useQuery({
     queryKey: ['llm-messages', filters],
-    queryFn: () => fetchLLMMessages(token!, filters),
-    enabled: !!token
+    queryFn: () => fetchLLMMessages(token!, apiUrl!, filters),
+    enabled: !!token && !!apiUrl
   });
 }
 
@@ -42,7 +39,7 @@ export function useLLMVectorSearch(
   searchText: string | null,
   filters: Record<string, string>
 ) {
-  const { token } = useTinybirdToken();
+  const { token, apiUrl } = useTinybirdToken();
   const [embedding, setEmbedding] = useState<number[] | null>(null);
   // const [isGeneratingEmbedding, setIsGeneratingEmbedding] = useState(false);
 
@@ -84,11 +81,11 @@ export function useLLMVectorSearch(
 
   return useQuery({
     queryKey: ['llm-vector-search', searchText, embedding, filters],
-    queryFn: () => searchLLMMessagesByVector(token!, { 
+    queryFn: () => searchLLMMessagesByVector(token!, apiUrl!, { 
       ...filters, 
       embedding: embedding || undefined,
       similarity_threshold: 0.6, // Adjust as needed
     }),
-    enabled: !!token && !!embedding,
+    enabled: !!token && !!apiUrl && !!embedding,
   });
 }

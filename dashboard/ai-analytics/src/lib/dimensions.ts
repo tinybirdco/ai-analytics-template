@@ -1,17 +1,16 @@
-export const fetchAvailableDimensions = async () => {
-  const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL || 'http://localhost:7181';
-  const TINYBIRD_API_KEY = process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
-  
-  if (!TINYBIRD_API_KEY) {
-    console.error('No Tinybird API key available');
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
+
+export const fetchAvailableDimensions = async (token: string, apiUrl: string) => {
+  if (!token) {
+    console.error('No Tinybird token available');
     return null;
   }
   
   try {
-    const url = `${TINYBIRD_API_URL}/v0/pipes/llm_dimensions.json`;
+    const url = `${apiUrl}/v0/pipes/llm_dimensions.json`;
     const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${TINYBIRD_API_KEY}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     

@@ -6,8 +6,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 interface TinybirdContextType {
   token: string | null;
   orgName: string | null;
+  apiUrl: string | null;
   setToken: (token: string) => void;
   setOrgName: (orgName: string) => void;
+  setApiUrl: (apiUrl: string) => void;
 }
 
 const TinybirdContext = createContext<TinybirdContextType | null>(null);
@@ -20,6 +22,7 @@ export function TinybirdProvider({
 }) {
   const [token, setTokenState] = useState<string | null>(null);
   const [orgName, setOrgNameState] = useState<string | null>(null);
+  const [apiUrl, setApiUrlState] = useState<string | null>(null);
 
   const setToken = useCallback((newToken: string) => {
     setTokenState(newToken);
@@ -29,12 +32,18 @@ export function TinybirdProvider({
     setOrgNameState(newOrgName);
   }, []);
 
+  const setApiUrl = useCallback((newApiUrl: string) => {
+    setApiUrlState(newApiUrl);
+  }, []);
+
   const contextValue = useMemo(() => ({
     token,
     orgName,
+    apiUrl,
     setToken,
-    setOrgName
-  }), [token, orgName, setToken, setOrgName]);
+    setOrgName,
+    setApiUrl
+  }), [token, orgName, apiUrl, setToken, setOrgName, setApiUrl]);
 
   return (
     <TinybirdContext.Provider value={contextValue}>

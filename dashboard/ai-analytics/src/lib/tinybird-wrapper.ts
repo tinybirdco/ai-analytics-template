@@ -12,7 +12,7 @@ type TinybirdConfig = {
 
 export function wrapModelWithTinybird(
   model: LanguageModelV1,
-  tinybirdHost: string,
+  tinybirdApiUrl: string,
   tinybirdToken: string,
   config: TinybirdConfig = {}
 ) {
@@ -47,38 +47,13 @@ export function wrapModelWithTinybird(
       });
     }
     
-    // Check if args[0] has messages property (Vercel AI SDK format)
-    if (args[0]?.messages && Array.isArray(args[0].messages)) {
-      // Use the messages directly from the Vercel AI SDK
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const userMessages = args[0].messages.map((m: { role: string; content: string | any[] | { text: string } }) => {
-        // Handle content that might be an array of objects with type and text
-        let content = m.content;
-        if (Array.isArray(content)) {
-          // Extract text from content array
-          content = content
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .filter((item: any) => item.type === 'text')
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            .map((item: any) => item.text)
-            .join(' ');
-        } else if (typeof content === 'object' && content !== null && 'text' in content) {
-          // Handle content that is an object with a text property
-          content = content.text;
-        }
-        return {
-          role: String(m.role),
-          content: String(content)
-        };
-      });
-      
-      // Add user messages, skipping system messages if we already have one from config
-      userMessages.forEach((m: { role: string; content: string }) => {
-        if (m.role !== 'system' || messages.length === 0) {
-          messages.push(m);
-        }
-      });
-    } 
+    // Check if args[0] has messages property (ChatCompletion format)
+    if (args[0]?.messages) {
+      messages = args[0].messages.map((msg: any) => ({
+        role: msg.role,
+        content: String(msg.content)
+      }));
+    }
     // Check if args[0] has prompt property (legacy format)
     else if (args[0]?.prompt) {
       // Handle prompt that might be an array of objects with type and text
@@ -108,40 +83,6 @@ export function wrapModelWithTinybird(
         content: String(result.text)
       });
     }
-    
-    // Check if result has rawCall property with rawPrompt (Vercel AI SDK format)
-    if (status === 'success' && result?.rawCall?.rawPrompt && Array.isArray(result.rawCall.rawPrompt)) {
-      // Use the rawPrompt from the result, but preserve our system message if we have one
-      const systemMessage = messages.find((m: { role: string; content: string }) => m.role === 'system');
-      messages = result.rawCall.rawPrompt.map((m: { role: string; content: string }) => ({
-        role: String(m.role),
-        content: String(m.content)
-      }));
-      
-      // If we had a system message from config, add it back
-      if (systemMessage && !messages.some((m: { role: string; content: string }) => m.role === 'system')) {
-        messages.unshift(systemMessage);
-      }
-      
-      // Add the assistant's response if available
-      if (result.toolCalls && result.toolCalls.length > 0) {
-        const toolCall = result.toolCalls[0];
-        if (toolCall.toolName === 'json' && toolCall.args) {
-          messages.push({
-            role: 'assistant',
-            content: `Tool call: ${toolCall.toolName} with args: ${toolCall.args}`
-          });
-        }
-      }
-    }
-
-    // Ensure we have at least one message
-    if (messages.length === 0) {
-      messages = [{ role: 'user', content: 'No message content available' }];
-    }
-
-    // Debug log the final messages array
-    console.log('Tinybird wrapper final messages:', JSON.stringify(messages, null, 2));
 
     const event = {
       start_time: startTime.toISOString(),
@@ -183,7 +124,7 @@ export function wrapModelWithTinybird(
     };
 
     // Send to Tinybird
-    fetch(`${tinybirdHost}/v0/events?name=llm_events`, {
+    fetch(`${tinybirdApiUrl}/v0/events?name=llm_events`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

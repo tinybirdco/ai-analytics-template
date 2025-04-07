@@ -26,7 +26,7 @@ export async function POST(req: Request) {
     // Fetch pipe definition and available dimensions in parallel
     const [pipeDefinition, availableDimensions] = await Promise.all([
       fetchPipeDefinition(),
-      fetchAvailableDimensions()
+      fetchAvailableDimensions(process.env.TINYBIRD_JWT_SECRET!, process.env.NEXT_PUBLIC_TINYBIRD_API_URL!)
     ]);
     
     // Extract dimension values for the system prompt
@@ -136,14 +136,8 @@ export async function POST(req: Request) {
     
     return NextResponse.json(processedResult);
   } catch (error) {
-    console.error('Error extracting parameters:', error);
-    
-    // Check if it's an API key error
-    if (error instanceof Error && error.message.includes('API key')) {
-      return NextResponse.json({ error: 'Invalid OpenAI API key' }, { status: 401 });
-    }
-    
-    return NextResponse.json({ error: 'Failed to extract parameters' }, { status: 500 });
+    console.error('Error processing cost parameters:', error);
+    return NextResponse.json({ error: 'Failed to process cost parameters' }, { status: 500 });
   }
 }
 
