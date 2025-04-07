@@ -96,47 +96,6 @@ export function wrapModelWithTinybird(
       });
     }
     
-    // Check if args[0] has systemPrompt property (Vercel AI SDK format with generateObject)
-    // Only add if we don't already have a system message
-    if (args[0]?.systemPrompt && !messages.some((m: { role: string; content: string }) => m.role === 'system')) {
-      // Handle systemPrompt that might be an array of objects with type and text
-      let systemPromptContent = args[0].systemPrompt;
-      if (Array.isArray(systemPromptContent)) {
-        // Extract text from systemPrompt array
-        systemPromptContent = systemPromptContent
-          .filter((item: any) => item.type === 'text')
-          .map((item: any) => item.text)
-          .join(' ');
-      } else if (typeof systemPromptContent === 'object' && systemPromptContent !== null && 'text' in systemPromptContent) {
-        // Handle systemPrompt that is an object with a text property
-        systemPromptContent = systemPromptContent.text;
-      }
-      messages.unshift({
-        role: 'system',
-        content: String(systemPromptContent)
-      });
-    }
-    
-    // Check if args[0] has a direct prompt property (Vercel AI SDK format with generateObject)
-    if (args[0]?.prompt && !messages.some((m: { role: string; content: string }) => m.role === 'user')) {
-      // Handle prompt that might be an array of objects with type and text
-      let promptContent = args[0].prompt;
-      if (Array.isArray(promptContent)) {
-        // Extract text from prompt array
-        promptContent = promptContent
-          .filter((item: any) => item.type === 'text')
-          .map((item: any) => item.text)
-          .join(' ');
-      } else if (typeof promptContent === 'object' && promptContent !== null && 'text' in promptContent) {
-        // Handle prompt that is an object with a text property
-        promptContent = promptContent.text;
-      }
-      messages.push({
-        role: 'user',
-        content: String(promptContent)
-      });
-    }
-    
     // Add the assistant's response if available
     if (status === 'success' && result?.text) {
       messages.push({
