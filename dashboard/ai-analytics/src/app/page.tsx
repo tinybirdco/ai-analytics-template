@@ -159,7 +159,7 @@ function DashboardContent() {
                   filters={filters} 
                 />
               }
-              initialTopHeight="60vh"
+              initialTopHeight="40vh"
               minTopHeight="30vh"
               minBottomHeight="20vh"
             />

@@ -14,12 +14,14 @@ interface FloatingNotificationProps {
     tinybird?: string
     close?: () => void
   }
+  hideSignIn?: boolean
 }
 
 export function FloatingNotification({
   className,
   title = 'Fork and deploy your own LLM tracker',
   links = {},
+  hideSignIn = false,
 }: FloatingNotificationProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const [position, setPosition] = useState({ x: 16, y: 0 })
@@ -47,8 +49,10 @@ export function FloatingNotification({
 
   // Show onboarding modal on page load
   useEffect(() => {
-    setShowOnboarding(true)
-  }, [])
+    if (!hideSignIn) {
+      setShowOnboarding(true)
+    }
+  }, [hideSignIn])
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (containerRef.current) {
@@ -85,6 +89,8 @@ export function FloatingNotification({
       document.removeEventListener('mouseup', handleMouseUp)
     }
   }, [isDragging, dragOffset])
+
+  if (hideSignIn) return null;
 
   return (
     <>

@@ -10,6 +10,21 @@ Types of changes:
 - `Security` in case of vulnerabilities.
 - `Fixed` Improve error feedback when Explain feature fails
 
+2025-04-08
+==========
+
+- Added: Support a `token` parameter so you can use the hosted application at `llm-tracker.tinybird.live` with your own Tinybird workspace:
+
+```
+curl https://tinybird.co | sh
+tb login
+tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
+TOKEN=$(tb auth info | grep "^token: " | awk '{print $2}')
+open https://llm-tracker.tinybird.live\?token\=$TOKEN
+```
+
+See [how to instrument your LLM calls](https://github.com/tinybirdco/llm-performance-tracker?tab=readme-ov-file#instrumentation) and you are done!
+
 2025-04-07
 ==========
 

@@ -15,6 +15,7 @@ import { Sparkles } from 'lucide-react';
 import SignInModal from './SignInModal';
 import { generateUserHash } from '@/lib/user-hash';
 import { useTrackEvent } from '@/hooks/useTrackEvent';
+import { useTinybirdToken } from '@/providers/TinybirdProvider';
 
 interface Selection {
   dimension: string;
@@ -38,6 +39,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
   const [userHash, setUserHash] = useState<string>('');
+  const { token, apiUrl } = useTinybirdToken();
 
   // Generate user hash when API key changes
   useEffect(() => {
@@ -78,12 +80,15 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'x-custom-tinybird-token': token || '',
+              'x-custom-tinybird-api-url': apiUrl || '',
             },
             body: JSON.stringify({ prompt: input, apiKey: openaiKey }),
           });
           
           if (!response.ok) {
-            throw new Error(`API error: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `API error: ${response.status}`);
           }
           
           const filters = await response.json();
@@ -117,6 +122,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           }
         } catch (error) {
           console.error('Search error:', error);
+          alert('Failed to process your search. Please try again.');
         } finally {
           setIsLoading(false);
         }

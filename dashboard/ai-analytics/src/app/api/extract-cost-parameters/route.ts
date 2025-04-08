@@ -11,6 +11,8 @@ import { generateRandomChatId, hashApiKeyUser, wrapModelWithTinybird } from '@/l
 export async function POST(req: Request) {
   try {
     const { query, apiKey } = await req.json();
+    const token = req.headers.get('x-custom-tinybird-token');
+    const apiUrl = req.headers.get('x-custom-tinybird-api-url');
     
     if (!query) {
       return NextResponse.json({ error: 'Query is required' }, { status: 400 });
@@ -25,8 +27,8 @@ export async function POST(req: Request) {
     
     // Fetch pipe definition and available dimensions in parallel
     const [pipeDefinition, availableDimensions] = await Promise.all([
-      fetchPipeDefinition(),
-      fetchAvailableDimensions()
+      fetchPipeDefinition(token, apiUrl),
+      fetchAvailableDimensions(token, apiUrl)
     ]);
     
     // Extract dimension values for the system prompt
@@ -136,21 +138,15 @@ export async function POST(req: Request) {
     
     return NextResponse.json(processedResult);
   } catch (error) {
-    console.error('Error extracting parameters:', error);
-    
-    // Check if it's an API key error
-    if (error instanceof Error && error.message.includes('API key')) {
-      return NextResponse.json({ error: 'Invalid OpenAI API key' }, { status: 401 });
-    }
-    
-    return NextResponse.json({ error: 'Failed to extract parameters' }, { status: 500 });
+    console.error('Error processing cost parameters:', error);
+    return NextResponse.json({ error: 'Failed to process cost parameters' }, { status: 500 });
   }
 }
 
 // Fetch the llm_usage pipe definition
-const fetchPipeDefinition = async () => {
-  const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL || 'http://localhost:7181';
-  const TINYBIRD_API_KEY = process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
+const fetchPipeDefinition = async (token: string | null, apiUrl: string | null) => {
+  const TINYBIRD_API_URL = apiUrl || 'http://localhost:7181';
+  const TINYBIRD_API_KEY = token || process.env.NEXT_PUBLIC_TINYBIRD_API_KEY;
   
   if (!TINYBIRD_API_KEY) {
     console.error('No Tinybird API key available');

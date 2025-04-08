@@ -1,15 +1,36 @@
 import { clerkMiddleware } from "@clerk/nextjs/server"
 import { NextResponse } from "next/server"
 import * as jose from 'jose'
+import { getApiUrlFromHost, extractHostFromToken } from './lib/tinybird-utils'
 
 console.log('MIDDLEWARE FILE LOADED!!!')
 
-export default clerkMiddleware(async (auth) => {
+export default clerkMiddleware(async (auth, request) => {
   debugger;
   console.log('🔥🔥🔥 MIDDLEWARE EXECUTING 🔥🔥🔥')
   const authentication = await auth()
   const { userId, sessionId, sessionClaims, orgId, orgRole, orgPermissions } = authentication
   console.log('Auth details:', { userId, sessionId, sessionClaims, orgId, orgRole, orgPermissions })
+
+  // Get the token from the URL if present
+  const url = new URL(request.url);
+  const tokenParam = url.searchParams.get('token');
+
+  // If token param is present, use it directly
+  if (tokenParam) {
+    console.log('Using token from URL parameter');
+    const response = NextResponse.next();
+    response.headers.set('x-tinybird-token', tokenParam);
+    
+    // Extract host from token and convert to API URL
+    const host = extractHostFromToken(tokenParam);
+    if (host) {
+      const apiUrl = getApiUrlFromHost(host);
+      response.headers.set('x-org-name', apiUrl);
+    }
+    
+    return response;
+  }
 
   // If user is not authenticated, continue without modification
   if (!userId || !sessionId) {
@@ -21,9 +42,6 @@ export default clerkMiddleware(async (auth) => {
   }
 
   try {
-    // const sessionToken = await authentication.getToken({
-    //   template: "tinybird-logs-explorer"  // This is key for getting org data
-    // })
     const orgName = orgPermissions?.[0]?.split(':').pop() || ''
 
     // Create Tinybird JWT

@@ -152,17 +152,29 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
     
     if (typeof msg.response_choices === 'string') {
       try {
+        // Try to parse as a single JSON object
         return JSON.parse(msg.response_choices);
-      } catch {
-        try {
-          // Handle case where response_choices is an array of JSON strings
-          return (msg.response_choices as unknown as string[]).map(choice => JSON.parse(choice));
-        } catch (e2) {
-          console.error('Failed to parse response choices:', e2);
-          return [];
-        }
+      } catch (e) {
+        console.error('Failed to parse response choices:', e);
+        return [];
       }
     }
+    
+    // Handle case where response_choices is an array of JSON strings
+    if (Array.isArray(msg.response_choices)) {
+      try {
+        return msg.response_choices.map(choice => {
+          if (typeof choice === 'string') {
+            return JSON.parse(choice);
+          }
+          return choice;
+        });
+      } catch (e) {
+        console.error('Failed to parse response choices array:', e);
+        return [];
+      }
+    }
+    
     return msg.response_choices;
   };
 
@@ -283,20 +295,28 @@ function DetailView({ message, onClose }: { message: LLMMessage, onClose: () => 
                           </div>
                         ))}
                         
-                        {msg.response_status === 'success' && parseResponseChoices(msg).length > 1 && (
-                          <div className="mt-4 space-y-3">
-                            <div className="text-sm ">Alternative Responses:</div>
-                            <div className="space-y-3">
-                              {parseResponseChoices(msg).slice(1).map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
-                                <div key={`choice-${choiceIdx}`} className="bg-gray-700 rounded-lg p-3">
-                                  <div className="text-xs  mb-1.5">Alternative {choiceIdx + 1}</div>
-                                  <div className=" whitespace-pre-wrap">
-                                    {choice.message?.content || choice.content || JSON.stringify(choice)}
-                                  </div>
+                        {msg.response_status === 'success' && (
+                          (() => {
+                            const choices = parseResponseChoices(msg);
+                            if (choices.length >= 1) {
+                              return (
+                                <div className="space-y-6">
+                                  {choices.map((choice: { message?: { content: string }; content?: string }, choiceIdx: number) => (
+                                    <div key={`choice-${choiceIdx}`} className="pl-6">
+                                      <div className="flex items-center gap-2 mb-2">
+                                        {getProviderIcon(msg.provider)}
+                                        <span className="text-xs text-[#C6C6C6] capitalize">assistant (alternative {choiceIdx + 1})</span>
+                                      </div>
+                                      <div className="ml-6 text-[#F4F4F4] whitespace-pre-wrap">
+                                        {choice.message?.content || choice.content || JSON.stringify(choice)}
+                                      </div>
+                                    </div>
+                                  ))}
                                 </div>
-                              ))}
-                            </div>
-                          </div>
+                              );
+                            }
+                            return null;
+                          })()
                         )}
                       </div>
                     );

@@ -88,7 +88,7 @@ export default function CostPredictionModal({
   const [isPredictionQuery, setIsPredictionQuery] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
   
-  const { token } = useTinybirdToken();
+  const { token, apiUrl } = useTinybirdToken();
   const inputRef = useRef<HTMLInputElement>(null);
   
   // Get the API key from the store
@@ -203,11 +203,12 @@ export default function CostPredictionModal({
         
         console.log("Fetching with filters:", filters);
         console.log("Token available for fetch:", !!token);
+        console.log("API URL available for fetch:", !!apiUrl);
         console.log("Grouping by:", columnName);
         
         // Directly call the fetch function
         console.log("About to call fetchLLMUsage");
-        const response = await fetchLLMUsage(token, filters);
+        const response = await fetchLLMUsage(token, apiUrl!, filters);
         console.log("Fetch completed, response:", response);
         
         if (response && response.data && response.data.length > 0) {
@@ -238,7 +239,7 @@ export default function CostPredictionModal({
     }
     
     fetchUsageData();
-  }, [parameters, token, currentFilters]);
+  }, [parameters, token, apiUrl, currentFilters]);
 
   // Focus input when modal opens
   useEffect(() => {
@@ -309,6 +310,8 @@ export default function CostPredictionModal({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-custom-tinybird-token': token || '',
+          'x-custom-tinybird-api-url': apiUrl || '',
         },
         body: JSON.stringify({ query, apiKey: openaiKey }),
       });

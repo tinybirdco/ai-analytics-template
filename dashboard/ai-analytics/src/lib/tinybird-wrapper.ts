@@ -12,7 +12,7 @@ type TinybirdConfig = {
 
 export function wrapModelWithTinybird(
   model: LanguageModelV1,
-  tinybirdHost: string,
+  tinybirdApiUrl: string,
   tinybirdToken: string,
   config: TinybirdConfig = {}
 ) {
@@ -183,7 +183,7 @@ export function wrapModelWithTinybird(
     };
 
     // Send to Tinybird
-    fetch(`${tinybirdHost}/v0/events?name=llm_events`, {
+    fetch(`${tinybirdApiUrl}/v0/events?name=llm_events`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
