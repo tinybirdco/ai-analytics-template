@@ -9,6 +9,7 @@ import { CalendarIcon } from './icons';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
+import { useTrackEvent } from '@/hooks/useTrackEvent';
 
 interface DateRangeOption {
   label: string;
@@ -20,6 +21,7 @@ interface DateRangeSelectorProps {
 }
 
 export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelectorProps) {
+  const track = useTrackEvent();
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -231,6 +233,11 @@ export default function DateRangeSelector({ onDateRangeChange }: DateRangeSelect
     
     updateUrlParams(start, end);
     setIsOpen(false);
+
+    track("set_date_range", {
+      from: start.toISOString(),
+      to: end.toISOString(),
+    });
   }, [updateUrlParams]);
 
   // Handle calendar date selection - memoize to prevent recreation
