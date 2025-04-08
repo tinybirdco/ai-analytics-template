@@ -8,6 +8,7 @@ import { ModalProvider } from "./context/ModalContext";
 import { OnboardingProvider } from "./context/OnboardingContext";
 import { RootLayoutContent } from "./components/RootLayoutContent";
 import RibbonsWrapper from "@/components/RibbonsWrapper";
+import { PostHogProvider } from "@/providers/PostHogProvider";
 
 const roboto = Roboto({
   weight: ["400"],
@@ -44,20 +45,22 @@ export default async function RootLayout({
         />
       </head>
       <body className={`${roboto.className} ${robotoMono.className}`}>
-        <ClerkProvider>
-          <TinybirdProvider>
-            <ModalProvider>
-              <OnboardingProvider>
-                <RootLayoutContent
-                  initialToken={token}
-                  initialOrgName={orgName}
-                >
-                  {children}
-                </RootLayoutContent>
-              </OnboardingProvider>
-            </ModalProvider>
-          </TinybirdProvider>
-        </ClerkProvider>
+        <PostHogProvider>
+          <ClerkProvider>
+            <TinybirdProvider>
+              <ModalProvider>
+                <OnboardingProvider>
+                  <RootLayoutContent
+                    initialToken={token}
+                    initialOrgName={orgName}
+                  >
+                    {children}
+                  </RootLayoutContent>
+                </OnboardingProvider>
+              </ModalProvider>
+            </TinybirdProvider>
+          </ClerkProvider>
+        </PostHogProvider>
         <RibbonsWrapper />
       </body>
     </html>
