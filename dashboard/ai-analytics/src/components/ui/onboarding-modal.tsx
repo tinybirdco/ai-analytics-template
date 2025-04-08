@@ -11,6 +11,12 @@ interface OnboardingModalProps {
 
 const ONBOARDING_STEPS = [
   {
+    title: 'Your LLM calls',
+    description: 'Live Demo: Use the AI features to see how your LLM calls are instrumented',
+    component: 'LLMCalls',
+    targetSelector: '[data-llm-calls-button]'
+  },
+  {
     title: 'AI Cost Calculator',
     description: 'Visualize your AI costs using natural language and AI',
     component: 'CostCalculator',
@@ -126,7 +132,9 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <h2 className="title-font">
               {ONBOARDING_STEPS[currentStep].title}
             </h2>
-            <Sparkles className="h-4 w-4 text-white" />
+            {ONBOARDING_STEPS[currentStep].title !== 'Your LLM calls' && (
+              <Sparkles className="h-4 w-4 text-white" />
+            )}
           </div>
           <button 
             onClick={handleSkip}
@@ -145,9 +153,13 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
         {/* Rest of modal content */}
         <div className="flex flex-col h-[calc(540px-88px)] pt-8">
-          <div className="flex-1 bg-black/50 mb-8">
+          <div className="flex-1 bg-black/50 mb-8 flex items-center justify-center overflow-hidden">
             <video
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${
+                ONBOARDING_STEPS[currentStep].component === 'LLMCalls' 
+                  ? 'object-contain' 
+                  : 'object-cover'
+              }`}
               autoPlay
               muted
               loop
