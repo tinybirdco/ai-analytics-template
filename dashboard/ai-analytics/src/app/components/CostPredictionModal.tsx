@@ -302,6 +302,8 @@ export default function CostPredictionModal({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'x-custom-tinybird-token': token || '',
+          'x-custom-tinybird-api-url': apiUrl || '',
         },
         body: JSON.stringify({ query, apiKey: openaiKey }),
       });
