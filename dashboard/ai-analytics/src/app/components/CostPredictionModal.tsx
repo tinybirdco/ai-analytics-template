@@ -8,6 +8,7 @@ import { useTinybirdToken } from '@/providers/TinybirdProvider';
 import { fetchLLMUsage } from '@/services/tinybird';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import CustomTooltip from './CustomTooltip';
+import { useTrackEvent } from '@/hooks/useTrackEvent';
 
 interface CostPredictionModalProps {
   isOpen: boolean;
@@ -67,6 +68,8 @@ export default function CostPredictionModal({
   onClose,
   currentFilters
 }: CostPredictionModalProps) {
+  const track = useTrackEvent();
+
   const [query, setQuery] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [parameters, setParameters] = useState<CostParameters | null>(null);
@@ -283,6 +286,11 @@ export default function CostPredictionModal({
     }
 
     setIsLoading(true);
+
+    track("submit_cost_prediction_query", {
+      query: query,
+    });
+
     try {
       console.log("Submitting query:", query);
       

@@ -14,6 +14,7 @@ import { Dialog, DialogPanel } from '@tremor/react';
 import { Sparkles } from 'lucide-react';
 import SignInModal from './SignInModal';
 import { generateUserHash } from '@/lib/user-hash';
+import { useTrackEvent } from '@/hooks/useTrackEvent';
 
 interface Selection {
   dimension: string;
@@ -27,6 +28,7 @@ interface TopBarProps {
 }
 
 export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
+  const track = useTrackEvent();
   const router = useRouter();
   const searchParams = useSearchParams();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -55,6 +57,10 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   };
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    track("submit_search_query", {
+      query: e.currentTarget.value,
+    });
+
     if (e.key === 'Enter') {
       const input = e.currentTarget.value;
       if (input.trim()) {

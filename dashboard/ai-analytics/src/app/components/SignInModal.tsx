@@ -1,3 +1,4 @@
+import { useTrackEvent } from "@/hooks/useTrackEvent";
 import { useSignIn } from "@clerk/nextjs";
 import { X } from "lucide-react";
 
@@ -7,12 +8,17 @@ interface SignInModalProps {
 }
 
 export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
+  const track = useTrackEvent();
   const { signIn } = useSignIn();
 
   if (!isOpen) return null;
   if (!signIn) return null;
 
   const handleGoogleSignIn = async () => {
+    track("click_sign_in", {
+      provider: "google",
+    });
+
     try {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_google",
@@ -25,6 +31,10 @@ export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   };
 
   const handleGithubSignIn = async () => {
+    track("click_sign_in", {
+      provider: "github",
+    });
+
     try {
       await signIn.authenticateWithRedirect({
         strategy: "oauth_github",

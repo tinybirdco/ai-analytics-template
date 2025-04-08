@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useApiKeyStore } from '@/stores/apiKeyStore';
 import { X, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { useTrackEvent } from '@/hooks/useTrackEvent';
 
 interface ApiKeyInputProps {
   isOpen: boolean;
@@ -10,6 +11,8 @@ interface ApiKeyInputProps {
 }
 
 export default function ApiKeyInput({ isOpen, onClose }: ApiKeyInputProps) {
+  const track = useTrackEvent();
+
   const { openaiKey, setOpenaiKey, clearOpenaiKey } = useApiKeyStore();
   const [inputKey, setInputKey] = useState('');
   const [isVisible, setIsVisible] = useState(false);
@@ -21,6 +24,10 @@ export default function ApiKeyInput({ isOpen, onClose }: ApiKeyInputProps) {
       setOpenaiKey(inputKey.trim());
       setInputKey('');
       setIsVisible(false);
+
+      track("set_openai_key", {
+        key: inputKey.trim(),
+      });
     }
   };
 

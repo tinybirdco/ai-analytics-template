@@ -8,7 +8,11 @@ type ExtendedWindow = Window &
 export function useTrackEvent() {
   function track(event: string, payload: Record<string, unknown>) {
     if (typeof window !== "undefined" && "Tinybird" in window) {
-      (window as ExtendedWindow).Tinybird.trackEvent(event, payload);
+      try {
+        (window as ExtendedWindow).Tinybird.trackEvent(event, payload);
+      } catch (error) {
+        console.error("Error tracking event:", error);
+      }
     }
   }
 
