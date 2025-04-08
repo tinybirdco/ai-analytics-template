@@ -1,4 +1,4 @@
-export const fetchAvailableDimensions = async (token: string, apiUrl: string) => {
+export const fetchAvailableDimensions = async (token: string | null, apiUrl: string | null) => {
   if (!token) {
     console.error('No Tinybird token available');
     return null;
