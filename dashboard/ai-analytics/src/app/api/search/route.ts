@@ -4,8 +4,11 @@ import { z } from 'zod';
 import { generateRandomChatId, hashApiKeyUser, wrapModelWithTinybird } from '@/lib/tinybird-wrapper';
 import { fetchAvailableDimensions } from '@/lib/dimensions';
 
+
 export async function POST(req: Request) {
   const { prompt, apiKey } = await req.json();
+  const token = req.headers.get('x-custom-tinybird-token');
+  const apiUrl = req.headers.get('x-custom-tinybird-api-url');
   
   if (!apiKey) {
     return Response.json({ error: 'OpenAI API key is required' }, { status: 400 });
@@ -13,7 +16,8 @@ export async function POST(req: Request) {
 
   try {
     // Fetch available dimensions
-    const availableDimensions = await fetchAvailableDimensions();
+    const availableDimensions = await fetchAvailableDimensions(token, apiUrl);
+    console.log(availableDimensions);
     
     // Create the schema outside the function call
     const filterSchema = z.object({

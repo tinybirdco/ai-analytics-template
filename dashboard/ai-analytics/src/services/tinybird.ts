@@ -1,5 +1,3 @@
-const TINYBIRD_API_URL = process.env.NEXT_PUBLIC_TINYBIRD_API_URL;
-
 export interface TinybirdParams {
   start_date?: string;
   end_date?: string;
@@ -10,21 +8,32 @@ export interface TinybirdParams {
 }
 
 export interface LLMMessagesParams {
-  organization?: string;
-  project?: string;
-  environment?: string;
-  user?: string;
-  model?: string;
-  provider?: string;
-  chat_id?: string;
   start_date?: string;
   end_date?: string;
-  embedding?: number[] | undefined;
-  similarity_threshold?: number | undefined;
+  organization?: string;
+  project?: string;
+  model?: string;
+  provider?: string;
+  environment?: string;
+  user?: string;
+  embedding?: number[];
+  similarity_threshold?: number;
 }
 
-export async function fetchLLMUsage(token: string, filters: Record<string, string | undefined> = {}) {
+export interface LLMVectorSearchParams {
+  embedding?: number[];
+  similarity_threshold?: number;
+  organization?: string;
+  project?: string;
+  model?: string;
+  provider?: string;
+  environment?: string;
+  user?: string;
+}
+
+export async function fetchLLMUsage(token: string, apiUrl: string, filters: Record<string, string | undefined> = {}) {
   console.log('Tinybird token in service:', token);
+  console.log('Tinybird API URL in service:', apiUrl);
   
   if (!token) throw new Error('No Tinybird token available');
   
@@ -48,7 +57,7 @@ export async function fetchLLMUsage(token: string, filters: Record<string, strin
   if (filters.start_date) searchParams.set('start_date', filters.start_date);
   if (filters.end_date) searchParams.set('end_date', filters.end_date);
 
-  const url = `${TINYBIRD_API_URL}/v0/pipes/llm_usage.json?${searchParams.toString()}`;
+  const url = `${apiUrl}/v0/pipes/llm_usage.json?${searchParams.toString()}`;
   console.log('Tinybird request URL:', url);
   
   const response = await fetch(url, {
@@ -68,7 +77,7 @@ export async function fetchLLMUsage(token: string, filters: Record<string, strin
   return response.json();
 }
 
-export async function fetchGenericCounter(token: string, params: TinybirdParams) {
+export async function fetchGenericCounter(token: string, apiUrl: string, params: TinybirdParams) {
   if (!token) throw new Error('No Tinybird token available');
   
   const searchParams = new URLSearchParams();
@@ -82,7 +91,7 @@ export async function fetchGenericCounter(token: string, params: TinybirdParams)
   });
 
   const response = await fetch(
-    `${TINYBIRD_API_URL}/v0/pipes/generic_counter.json?${searchParams.toString()}`,
+    `${apiUrl}/v0/pipes/generic_counter.json?${searchParams.toString()}`,
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -97,7 +106,7 @@ export async function fetchGenericCounter(token: string, params: TinybirdParams)
   return response.json();
 }
 
-export async function fetchLLMMessages(token: string, params: LLMMessagesParams = {}) {
+export async function fetchLLMMessages(token: string, apiUrl: string, params: LLMMessagesParams = {}) {
   if (!token) throw new Error('No Tinybird token available');
   
   // Determine if we should use POST (for embeddings) or GET (for regular queries)
@@ -105,7 +114,7 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
   
   // Use vector search pipe if embedding is provided, otherwise use regular pipe
   const pipeName = 'llm_messages';
-  const baseUrl = `${TINYBIRD_API_URL}/v0/pipes/${pipeName}.json`;
+  const baseUrl = `${apiUrl}/v0/pipes/${pipeName}.json`;
   
   let response;
   
@@ -169,17 +178,9 @@ export async function fetchLLMMessages(token: string, params: LLMMessagesParams 
   return response.json();
 }
 
-// dashboard/ai-analytics/src/services/tinybird.ts
-// Add this new interface and function
-
-export interface LLMVectorSearchParams extends LLMMessagesParams {
-  embedding?: number[];
-  limit?: number;
-  similarity_threshold?: number;
-}
-
 export async function searchLLMMessagesByVector(
   token: string, 
+  apiUrl: string,
   params: LLMVectorSearchParams = {}
 ) {
   if (!token) throw new Error('No Tinybird token available');
@@ -204,7 +205,7 @@ export async function searchLLMMessagesByVector(
     }
   });
 
-  const url = `${TINYBIRD_API_URL}/v0/pipes/llm_messages_vector_search.json?${searchParams.toString()}`;
+  const url = `${apiUrl}/v0/pipes/llm_messages_vector_search.json?${searchParams.toString()}`;
   console.log('Tinybird Vector Search request URL:', url);
   
   const response = await fetch(url, {

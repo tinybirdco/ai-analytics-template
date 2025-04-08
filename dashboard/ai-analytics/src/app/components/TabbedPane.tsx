@@ -115,7 +115,10 @@ export default function TabbedPane({ filters, onFilterUpdate }: TabbedPaneProps)
   delete queryFilters[selectedTab];
 
   // Pass all filters to the query, but exclude the current dimension
-  const { data, isLoading, error } = useGenericCounter(selectedTab, queryFilters as Record<string, string>);
+  const { data, isLoading, error } = useGenericCounter({
+    dimension: selectedTab,
+    ...queryFilters
+  });
 
   // Add effect to sync with URL params
   useEffect(() => {
