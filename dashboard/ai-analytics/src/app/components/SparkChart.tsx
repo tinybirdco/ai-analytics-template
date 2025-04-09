@@ -103,6 +103,7 @@ import { useState } from 'react';
                 showAnimation={false}
                 curveType="monotone"
                 stack={isStacked}
+                yAxisWidth={60}
                 customTooltip={(props) => (
                   <div style={{ 
                     position: 'fixed', 
