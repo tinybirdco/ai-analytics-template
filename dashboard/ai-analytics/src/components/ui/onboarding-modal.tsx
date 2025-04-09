@@ -213,12 +213,6 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     }
   }
 
-  const handlePrevious = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1)
-    }
-  }
-
   const handleSkip = () => {
     onClose()
     setCurrentStep(0)
@@ -290,10 +284,6 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const isInitialStep = ONBOARDING_STEPS[currentStep].isInitialStep
   const modalWidth = isInitialStep ? 800 : 573
   const modalHeight = isInitialStep ? 700 : 540
-
-  // Get the current tab's learn more URL
-  const currentTabData = TABS.find(tab => tab.id === activeTab)
-  const learnMoreUrl = currentTabData?.learnMoreUrl || 'https://www.tinybird.co/docs/guides/llm-performance-tracker'
 
   return (
     <div className="fixed inset-0 z-50 font-['Roboto']">
