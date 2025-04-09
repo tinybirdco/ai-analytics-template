@@ -14,7 +14,7 @@ interface OnboardingModalProps {
 const ONBOARDING_STEPS = [
   {
     title: 'Get started',
-    description: 'Deploy this template to your Tinybird workspace in just a few steps',
+    description: 'Deploy this template to your Tinybird workspace, instrument your LLM calls and use the hosted dashboard',
     component: 'GetStarted',
     targetSelector: '[data-onboarding-modal]',
     isInitialStep: true
