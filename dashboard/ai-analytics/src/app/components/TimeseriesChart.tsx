@@ -291,7 +291,7 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
                           colors={tab.colors}
                           stack={true}
                           showLegend={false}
-                          yAxisWidth={45}
+                          yAxisWidth={60}
                           valueFormatter={costValueFormatter}
                           className="h-[calc(100%-24px)] mt-10 hidden md:block"
                           showTooltip={true}

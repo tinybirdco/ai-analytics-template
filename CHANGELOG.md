@@ -19,7 +19,7 @@ Types of changes:
 curl https://tinybird.co | sh
 tb login
 tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
-TOKEN=$(tb auth info | grep "^token: " | awk '{print $2}')
+tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 open https://llm-tracker.tinybird.live\?token\=$TOKEN
 ```
 

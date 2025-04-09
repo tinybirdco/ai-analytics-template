@@ -62,4 +62,4 @@ open https://llm-tracker.tinybird.live\?token\=$TINYBIRD_TOKEN
 
 ## Build and deploy your own LLM tracker
 
-See [README.md](https://github.com/tinybirdco/llm-performance-tracker)
+See [README.md](https://github.com/tinybirdco/llm-performance-tracker?tab=readme-ov-file#build-and-deploy-your-own-llm-tracker)
