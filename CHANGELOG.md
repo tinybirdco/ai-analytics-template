@@ -10,6 +10,11 @@ Types of changes:
 - `Security` in case of vulnerabilities.
 - `Fixed` Improve error feedback when Explain feature fails
 
+2025-04-09
+==========
+
+- Added: Add `Quick start` to the onboarding modal. Learn how to instrument, deploy and use the hosted LLM tracker.
+
 2025-04-08
 ==========
 
@@ -19,7 +24,7 @@ Types of changes:
 curl https://tinybird.co | sh
 tb login
 tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
-tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
+tb --cloud token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 open https://llm-tracker.tinybird.live\?token\=$TOKEN
 ```
 
