@@ -372,26 +372,36 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <div className="flex">
               {currentStep === 0 ? (
                 <a
-                  href={learnMoreUrl}
+                  href={activeTab === 'deploy' 
+                    ? 'https://github.com/tinybirdco/llm-performance-tracker?tab=readme-ov-file#build-and-deploy-your-own-llm-tracker'
+                    : activeTab === 'litellm'
+                    ? 'https://www.tinybird.co/docs/forward/get-data-in/guides/ingest-litellm'
+                    : 'https://www.tinybird.co/docs/forward/get-data-in/guides/ingest-vercel-ai-sdk'
+                  }
                   target="_blank"
                   rel="noopener noreferrer"
                   className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors flex items-center"
                 >
-                  Learn more
+                  {activeTab === 'deploy' 
+                    ? 'Fork and build your own'
+                    : activeTab === 'litellm'
+                    ? 'Learn about LiteLLM'
+                    : 'Learn about Vercel AI SDK'
+                  }
                 </a>
               ) : (
                 <button
-                  onClick={handlePrevious}
+                  onClick={() => setCurrentStep(0)}
                   className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors"
                 >
-                  Previous
+                  Getting Started
                 </button>
               )}
               <button
                 onClick={handleNext}
                 className="h-[48px] px-12 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
               >
-                Next
+                {currentStep === 0 ? 'Tour' : 'Next'}
               </button>
             </div>
           </div>
