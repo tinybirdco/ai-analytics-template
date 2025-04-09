@@ -94,7 +94,7 @@ export function FloatingNotification({
 
   return (
     <>
-      <div className="fixed flex" style={{ left: `${position.x}px`, top: `${position.y}px` }}>
+      <div className="fixed flex" style={{ left: `${position.x}px`, top: `${position.y}px`, zIndex: 50 }}>
         <div
           ref={containerRef}
           className={cn(
