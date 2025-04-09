@@ -28,93 +28,38 @@ Tech stack:
 
 ## Quick Start
 
-Get started by forking the [GitHub repository](https://github.com/tinybirdco/llm-performance-tracker) and then customizing it to your needs.
+Deploy the template, instrument and use the hosted version to track.
 
-Start Tinybird locally:
+1. Deploy:
 
-```
+```bash
+# install the tinybird CLI
 curl https://tinybird.co | sh
-cd tinybird
-tb local start
+
+# select or create a new workspace
 tb login
-tb dev
-token ls  # copy the read_pipes token
+
+# deploy the template
+tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
 ```
 
-Configure the Next.js application:
+2. Instrumentation:
 
-```
-cd dashboard/ai-analytics
-cp .env.example .env
-Edit the .env file with your Tinybird API key and other configuration.
-```
+Send your data to Tinybird using the [Events API](https://www.tinybird.co/docs/get-data-in/ingest-apis/events-api). Some examples:
 
-```
-NEXT_PUBLIC_TINYBIRD_API_URL=http://localhost:7181
-# read_pipes token
-NEXT_PUBLIC_TINYBIRD_API_KEY=
-```
+- [LiteLLM (Python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
+- [Vercel AI SDK (TypeScript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
 
-Start the Next.js application:
+3. Use the hosted tracker:
 
-```
-cd dashboard/ai-analytics
-npm install
-npm run dev
+```bash
+# copy the token to the clipboard
+tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
+
+# use the hosted dashboard with your data
+open https://llm-tracker.tinybird.live\?token\=$TINYBIRD_TOKEN
 ```
 
-Open the application in your browser:
+## Build and deploy your own LLM tracker
 
-```
-http://localhost:3000
-```
-
-## Instrumentation
-
-Instrument your LLM calls and send events to Tinybird. Some examples:
-
-- [LiteLLM (python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
-- [Vercel AI SDK (typescript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
-
-## Deployment
-
-- Fork and connect this repository to Vercel.
-- Set the environment variables in Vercel.
-- Configure your `TINYBIRD_HOST` and `TINYBIRD_TOKEN` in the [CI/CD GitHub actions](https://github.com/tinybirdco/llm-performance-tracker/tree/main/.github/workflows) to deploy to Tinybird.
-
-## Multi-tenancy
-
-Create a Clerk project and set up these environment variables in your Next.js application:
-
-```
-# workspace ID for multi-tenant JWT tokens
-TINYBIRD_WORKSPACE_ID=
-# workspace admin token for multi-tenant JWT tokens
-TINYBIRD_JWT_SECRET=
-
-# Clerk publishable key
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
-# Clerk secret key
-CLERK_SECRET_KEY=
-# Clerk sign in URL
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
-```
-
-The [middleware](https://github.com/tinybirdco/llm-performance-tracker/blob/main/dashboard/ai-analytics/src/middleware.ts) will get the `org:name` permission from the Clerk user and use it to create a Tinybird JWT token with the `organization` dimension fixed to that value. Read more about Tinybird JWT tokens [here](https://www.tinybird.co/docs/forward/get-started/authentication#json-web-tokens-jwts).
-
-[Watch a video of the Clerk + Tinybird JWT token flow](./assets/clerk-tinybird-jwt.mp4)
-
-## Mock Data
-
-For local testing, generate mock data with the following commands:
-
-```sh
-cd tinybird/mock
-npm install
-npm run generate -- --start-date 2025-02-01 --end-date 2025-03-31 --events-per-day 100 --output ../fixtures/llm_events.ndjson
-```
-
-The [generate-llm-events.js](https://github.com/tinybirdco/llm-performance-tracker/blob/main/tinybird/mock/generate-llm-events.js) script generates the embeddings.
+See [README.md](https://github.com/tinybirdco/llm-performance-tracker)
