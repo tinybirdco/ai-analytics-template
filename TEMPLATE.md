@@ -30,7 +30,7 @@ Tech stack:
 
 Deploy the template, instrument and use the hosted version to track.
 
-1. Deploy:
+### Deploy
 
 ```bash
 # install the tinybird CLI
@@ -43,18 +43,18 @@ tb login
 tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
 ```
 
-2. Instrumentation:
+### Instrumentation
 
 Send your data to Tinybird using the [Events API](https://www.tinybird.co/docs/get-data-in/ingest-apis/events-api). Some examples:
 
 - [LiteLLM (Python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
 - [Vercel AI SDK (TypeScript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
 
-3. Use the hosted tracker:
+### Use the hosted app
 
 ```bash
 # copy the token to the clipboard
-tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
+tb --cloud token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 
 # use the hosted dashboard with your data
 open https://llm-tracker.tinybird.live\?token\=$TINYBIRD_TOKEN

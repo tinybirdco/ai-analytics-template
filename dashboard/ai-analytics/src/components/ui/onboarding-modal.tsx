@@ -61,7 +61,7 @@ tb login
 tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
 
 # copy the token to the clipboard
-tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
+tb --cloud token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 
 # use the hosted dashboard with your data
 open https://llm-tracker.tinybird.live\\?token\\=$TINYBIRD_TOKEN`,
