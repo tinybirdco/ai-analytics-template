@@ -1,4 +1,4 @@
-import { X } from 'lucide-react'
+import { X, Copy, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useOnboarding } from '@/app/context/OnboardingContext'
 import { useEffect, useState } from 'react'
@@ -10,6 +10,13 @@ interface OnboardingModalProps {
 }
 
 const ONBOARDING_STEPS = [
+  {
+    title: 'Get started',
+    description: 'Deploy this template to your Tinybird workspace in just a few steps',
+    component: 'GetStarted',
+    targetSelector: '[data-onboarding-modal]',
+    isInitialStep: true
+  },
   {
     title: 'Your LLM calls',
     description: 'Live Demo: Use the AI features to see how your LLM calls are instrumented',
@@ -36,15 +43,54 @@ const ONBOARDING_STEPS = [
   }
 ]
 
+// Tab configuration for the first step
+const TABS = [
+  {
+    id: 'deploy',
+    label: 'Deploy',
+    learnMoreUrl: 'https://www.tinybird.co/docs/guides/llm-performance-tracker',
+    snippet: `# install the tinybird CLI
+curl https://tinybird.co | sh
+
+# select or create a new workspace
+tb login
+
+# deploy the template
+tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
+
+# copy the token to the clipboard
+tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
+
+# use the hosted dashboard with your data
+open https://llm-tracker.tinybird.live\\?token\\=$TINYBIRD_TOKEN`
+  },
+  {
+    id: 'litellm',
+    label: 'LiteLLM',
+    learnMoreUrl: 'https://docs.litellm.ai/docs/providers/tinybird',
+    snippet: `# Your snippet for LiteLLM will be added here`
+  },
+  {
+    id: 'vercel',
+    label: 'Vercel AI SDK',
+    learnMoreUrl: 'https://sdk.vercel.ai/docs/providers/tinybird',
+    snippet: `# Your snippet for Vercel AI SDK will be added here`
+  }
+]
+
 export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
   const { currentStep, setCurrentStep } = useOnboarding()
   const [position, setPosition] = useState({ top: 0, left: 0 })
   const [isReady, setIsReady] = useState(false)
+  const [activeTab, setActiveTab] = useState('deploy')
+  const [copied, setCopied] = useState(false)
 
   useEffect(() => {
     // Check if all target elements are available
     const checkTargets = () => {
       const allTargetsAvailable = ONBOARDING_STEPS.every(step => {
+        // Skip the initial step as it doesn't need a target element
+        if (step.isInitialStep) return true
         const element = document.querySelector(step.targetSelector)
         return element !== null
       })
@@ -62,6 +108,17 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
   useEffect(() => {
     if (!isOpen || !isReady) return
+
+    // Skip positioning for the initial step
+    if (ONBOARDING_STEPS[currentStep].isInitialStep) {
+      // Center the modal in the viewport
+      const modalWidth = 800 // Larger width for initial step
+      const modalHeight = 700 // Larger height for initial step
+      const top = (window.innerHeight - modalHeight) / 2
+      const left = (window.innerWidth - modalWidth) / 2
+      setPosition({ top, left })
+      return
+    }
 
     const targetElement = document.querySelector(ONBOARDING_STEPS[currentStep].targetSelector)
     if (!targetElement) return
@@ -109,20 +166,85 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     }
   }
 
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1)
+    }
+  }
+
   const handleSkip = () => {
     onClose()
     setCurrentStep(0)
   }
+
+  const handleCopySnippet = () => {
+    const activeTabData = TABS.find(tab => tab.id === activeTab)
+    if (activeTabData) {
+      navigator.clipboard.writeText(activeTabData.snippet)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    }
+  }
+
+  const renderGetStartedStep = () => {
+    const activeTabData = TABS.find(tab => tab.id === activeTab)
+    
+    return (
+      <div className="flex flex-col h-full p-6">
+        {/* Tabs */}
+        <div className="flex border-b border-[#333333] mb-4">
+          {TABS.map(tab => (
+            <button
+              key={tab.id}
+              className={cn(
+                'px-4 py-2 text-sm font-medium transition-colors',
+                activeTab === tab.id 
+                  ? 'text-[#27F795] border-b-2 border-[#27F795]' 
+                  : 'text-[#8D8D8D] hover:text-white'
+              )}
+              onClick={() => setActiveTab(tab.id)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Code snippet with copy button */}
+        <div className="relative bg-[#2A2A2A] p-6 rounded-md mb-6 overflow-auto max-h-[400px]">
+          <button
+            onClick={handleCopySnippet}
+            className="absolute top-2 right-2 p-2 rounded-md bg-[#1C1C1C] text-[#8D8D8D] hover:text-white transition-colors"
+            aria-label="Copy code"
+          >
+            {copied ? <Check className="h-4 w-4 text-[#27F795]" /> : <Copy className="h-4 w-4" />}
+          </button>
+          <pre className="text-sm text-[#E0E0E0] whitespace-pre-wrap">
+            {activeTabData?.snippet}
+          </pre>
+        </div>
+      </div>
+    )
+  }
+
+  const isInitialStep = ONBOARDING_STEPS[currentStep].isInitialStep
+  const modalWidth = isInitialStep ? 800 : 573
+  const modalHeight = isInitialStep ? 700 : 540
+
+  // Get the current tab's learn more URL
+  const currentTabData = TABS.find(tab => tab.id === activeTab)
+  const learnMoreUrl = currentTabData?.learnMoreUrl || 'https://www.tinybird.co/docs/guides/llm-performance-tracker'
 
   return (
     <div className="fixed inset-0 z-50 font-['Roboto']">
       <div className="fixed inset-0 bg-black/75" onClick={handleSkip} />
       <div
         data-onboarding-modal
-        className="fixed bg-[#1C1C1C] w-[573px] h-[540px] overflow-hidden transition-all duration-300 ease-in-out"
+        className="fixed bg-[#1C1C1C] overflow-hidden transition-all duration-300 ease-in-out"
         style={{
           top: `${position.top}px`,
           left: `${position.left}px`,
+          width: `${modalWidth}px`,
+          height: `${modalHeight}px`,
           transform: 'translate(0, 0)',
         }}
       >
@@ -132,7 +254,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <h2 className="title-font">
               {ONBOARDING_STEPS[currentStep].title}
             </h2>
-            {ONBOARDING_STEPS[currentStep].title !== 'Your LLM calls' && (
+            {ONBOARDING_STEPS[currentStep].title !== 'Your LLM calls' && ONBOARDING_STEPS[currentStep].title !== 'Get started' && (
               <Sparkles className="h-4 w-4 text-white" />
             )}
           </div>
@@ -152,22 +274,27 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         </div>
 
         {/* Rest of modal content */}
-        <div className="flex flex-col h-[calc(540px-88px)] pt-8">
-          <div className="flex-1 bg-black/50 mb-8 flex items-center justify-center overflow-hidden">
-            <video
-              className={`w-full h-full ${
-                ONBOARDING_STEPS[currentStep].component === 'LLMCalls' 
-                  ? 'object-contain' 
-                  : 'object-cover'
-              }`}
-              autoPlay
-              muted
-              loop
-              playsInline
-              src={`/onboarding/${ONBOARDING_STEPS[currentStep].component.toLowerCase()}.mp4`}
-            />
-          </div>
+        <div className="flex flex-col h-[calc(100%-88px)] pt-8">
+          {isInitialStep ? (
+            renderGetStartedStep()
+          ) : (
+            <div className="flex-1 bg-black/50 mb-8 flex items-center justify-center overflow-hidden">
+              <video
+                className={`w-full h-full ${
+                  ONBOARDING_STEPS[currentStep].component === 'LLMCalls' 
+                    ? 'object-contain' 
+                    : 'object-cover'
+                }`}
+                autoPlay
+                muted
+                loop
+                playsInline
+                src={`/onboarding/${ONBOARDING_STEPS[currentStep].component.toLowerCase()}.mp4`}
+              />
+            </div>
+          )}
 
+          {/* Navigation controls - always visible */}
           <div className="flex items-center justify-between bg-[#1C1C1C]">
             <div className="flex gap-2 pl-4">
               {ONBOARDING_STEPS.map((_, index) => (
@@ -182,12 +309,23 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             </div>
 
             <div className="flex">
-              <button
-                onClick={handleSkip}
-                className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors"
-              >
-                Skip tour
-              </button>
+              {currentStep === 0 ? (
+                <a
+                  href={learnMoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors flex items-center"
+                >
+                  Learn More
+                </a>
+              ) : (
+                <button
+                  onClick={handlePrevious}
+                  className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors"
+                >
+                  Previous
+                </button>
+              )}
               <button
                 onClick={handleNext}
                 className="h-[48px] px-12 bg-[#27F795] text-black hover:bg-[#20C77A] transition-colors"
