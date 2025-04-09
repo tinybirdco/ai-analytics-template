@@ -210,12 +210,6 @@ export default function TimeseriesChart({ data, filters, onFiltersChange, isLoad
       return `$${valueFormatter(number)}`;
     }
   };
-
-  // Add a separate formatter for the y-axis with fewer decimal places
-  const yAxisValueFormatter = (number: number) => {
-    // Use fewer decimal places for the y-axis to prevent cutting off
-    return `$${number.toFixed(2)}`;
-  };
   
   return (
     <Card 
