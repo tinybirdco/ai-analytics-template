@@ -3,6 +3,8 @@ import { cn } from '@/lib/utils'
 import { useOnboarding } from '@/app/context/OnboardingContext'
 import { useEffect, useState } from 'react'
 import { Sparkles } from 'lucide-react'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 interface OnboardingModalProps {
   isOpen: boolean
@@ -48,7 +50,7 @@ const TABS = [
   {
     id: 'deploy',
     label: 'Deploy',
-    learnMoreUrl: 'https://www.tinybird.co/docs/guides/llm-performance-tracker',
+    learnMoreUrl: 'https://github.com/tinybirdco/llm-performance-tracker?tab=readme-ov-file#build-and-deploy-your-own-llm-tracker',
     snippet: `# install the tinybird CLI
 curl https://tinybird.co | sh
 
@@ -62,19 +64,64 @@ tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-track
 tb token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 
 # use the hosted dashboard with your data
-open https://llm-tracker.tinybird.live\\?token\\=$TINYBIRD_TOKEN`
+open https://llm-tracker.tinybird.live\\?token\\=$TINYBIRD_TOKEN`,
+    language: 'bash'
   },
   {
     id: 'litellm',
     label: 'LiteLLM',
-    learnMoreUrl: 'https://docs.litellm.ai/docs/providers/tinybird',
-    snippet: `# Your snippet for LiteLLM will be added here`
+    learnMoreUrl: 'https://www.tinybird.co/docs/forward/get-data-in/guides/ingest-litellm',
+    snippet: `import litellm
+from litellm import acompletion
+from tb.litellm.handler import TinybirdLitellmAsyncHandler
+
+customHandler = TinybirdLitellmAsyncHandler(
+    api_url="https://api.us-east.aws.tinybird.co", 
+    tinybird_token=os.getenv("TINYBIRD_TOKEN"), 
+    datasource_name="litellm"
+)
+
+litellm.callbacks = [customHandler]
+
+response = await acompletion(
+    model="gpt-3.5-turbo", 
+    messages=[{"role": "user", "content": "Hi 👋 - i'm openai"}],
+    user=<your_user_id>,
+    metadata={
+        "organization": <organization_id>,
+        "environment": <environment>,
+        "project": <project>,
+    },
+)
+`,
+    language: 'python'
   },
   {
     id: 'vercel',
     label: 'Vercel AI SDK',
-    learnMoreUrl: 'https://sdk.vercel.ai/docs/providers/tinybird',
-    snippet: `# Your snippet for Vercel AI SDK will be added here`
+    learnMoreUrl: 'https://www.tinybird.co/docs/forward/get-data-in/guides/ingest-vercel-ai-sdk',
+    snippet: `const wrappedOpenAI = wrapModelWithTinybird(
+  openai('gpt-3.5-turbo'),
+  process.env.NEXT_PUBLIC_TINYBIRD_API_URL!,
+  process.env.TINYBIRD_JWT_SECRET!,
+  {
+    event: 'search_filter',
+    environment: process.env.NODE_ENV,
+    project: <project>,
+    organization: <organization>,
+    chatId: generateRandomChatId(),
+    user: hashApiKeyUser(apiKey),
+    systemPrompt: <systemPromptText>,
+  }
+);
+
+const result = await generateObject({
+  model: wrappedOpenAI,
+  schema: filterSchema,
+  prompt,
+  systemPrompt: systemPromptText,
+} as any);`,
+    language: 'typescript'
   }
 ]
 
@@ -197,7 +244,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             <button
               key={tab.id}
               className={cn(
-                'px-4 py-2 text-sm font-medium transition-colors',
+                'px-4 py-2 text-sm font-normal transition-colors',
                 activeTab === tab.id 
                   ? 'text-[#27F795] border-b-2 border-[#27F795]' 
                   : 'text-[#8D8D8D] hover:text-white'
@@ -210,17 +257,30 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         </div>
         
         {/* Code snippet with copy button */}
-        <div className="relative bg-[#2A2A2A] p-6 rounded-md mb-6 overflow-auto max-h-[400px]">
+        <div className="relative bg-[#2A2A2A] rounded-md mb-6 overflow-auto max-h-[400px]">
           <button
             onClick={handleCopySnippet}
-            className="absolute top-2 right-2 p-2 rounded-md bg-[#1C1C1C] text-[#8D8D8D] hover:text-white transition-colors"
+            className="absolute top-2 right-2 p-2 rounded-md bg-[#1C1C1C] text-[#8D8D8D] hover:text-white transition-colors z-10"
             aria-label="Copy code"
           >
             {copied ? <Check className="h-4 w-4 text-[#27F795]" /> : <Copy className="h-4 w-4" />}
           </button>
-          <pre className="text-sm text-[#E0E0E0] whitespace-pre-wrap">
-            {activeTabData?.snippet}
-          </pre>
+          <SyntaxHighlighter
+            language={activeTabData?.language || 'bash'}
+            style={vscDarkPlus}
+            customStyle={{
+              margin: 0,
+              padding: '1.5rem',
+              background: '#2A2A2A',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem',
+              lineHeight: '1.5',
+              overflow: 'auto'
+            }}
+            showLineNumbers={false}
+          >
+            {activeTabData?.snippet || ''}
+          </SyntaxHighlighter>
         </div>
       </div>
     )
@@ -316,7 +376,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                   rel="noopener noreferrer"
                   className="h-[48px] px-12 text-[#F4F4F4] hover:text-white transition-colors flex items-center"
                 >
-                  Learn More
+                  Learn more
                 </a>
               ) : (
                 <button
