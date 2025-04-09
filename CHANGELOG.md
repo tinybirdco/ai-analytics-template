@@ -10,6 +10,11 @@ Types of changes:
 - `Security` in case of vulnerabilities.
 - `Fixed` Improve error feedback when Explain feature fails
 
+2025-04-09
+==========
+
+- Added: Add `Quick start` to the onboarding modal. Learn how to instrument, deploy and use the hosted LLM tracker.
+
 2025-04-08
 ==========
 
