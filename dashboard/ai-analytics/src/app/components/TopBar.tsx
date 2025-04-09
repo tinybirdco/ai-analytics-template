@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useSearchParams, useRouter } from "next/navigation";
 import { UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import FilterChips from './FilterChips';
-import UserFilterChip from './UserFilterChip';
-import { useRef, useState, useEffect } from 'react';
-import DateRangeSelector from './DateRangeSelector';
-import { SettingsIcon, SignInIcon } from './icons';
-import { useModal } from '../context/ModalContext';
-import { useApiKeyStore } from '@/stores/apiKeyStore';
-import ApiKeyInput from './ApiKeyInput';
-import { Dialog, DialogPanel } from '@tremor/react';
-import { Sparkles } from 'lucide-react';
-import SignInModal from './SignInModal';
-import { generateUserHash } from '@/lib/user-hash';
-import { useTinybirdToken } from '@/providers/TinybirdProvider';
-import { useTrackEvent } from '@/hooks/useTrackEvent';
+import FilterChips from "./FilterChips";
+import UserFilterChip from "./UserFilterChip";
+import { useRef, useState, useEffect } from "react";
+import DateRangeSelector from "./DateRangeSelector";
+import { SettingsIcon, SignInIcon } from "./icons";
+import { useModal } from "../context/ModalContext";
+import { useApiKeyStore } from "@/stores/apiKeyStore";
+import ApiKeyInput from "./ApiKeyInput";
+import { Dialog, DialogPanel } from "@tremor/react";
+import { Sparkles } from "lucide-react";
+import SignInModal from "./SignInModal";
+import { generateUserHash } from "@/lib/user-hash";
+import { useTinybirdToken } from "@/providers/TinybirdProvider";
+import { useTrackEvent } from "@/hooks/useTrackEvent";
 
 interface Selection {
   dimension: string;
@@ -38,7 +38,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const { openaiKey } = useApiKeyStore();
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [userHash, setUserHash] = useState<string>('');
+  const [userHash, setUserHash] = useState<string>("");
   const { token, apiUrl } = useTinybirdToken();
 
   // Generate user hash when API key changes
@@ -47,7 +47,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
       const hash = generateUserHash(openaiKey);
       setUserHash(hash);
     } else {
-      setUserHash('');
+      setUserHash("");
     }
   }, [openaiKey]);
 
@@ -59,70 +59,75 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   };
 
   const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
-    track("submit_search_query", {
-      query: e.currentTarget.value,
-    });
-
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       const input = e.currentTarget.value;
+
       if (input.trim()) {
         // Check if API key is available
         if (!openaiKey) {
-          alert('Please provide your OpenAI API key in settings to use this feature.');
+          alert(
+            "Please provide your OpenAI API key in settings to use this feature."
+          );
           return;
         }
-        
+
         setIsLoading(true);
-        console.log('Searching for:', input);
-        
+        console.log("Searching for:", input);
+
         try {
-          const response = await fetch('/api/search', {
-            method: 'POST',
+          track("submit_search_query", {
+            query: e.currentTarget.value,
+          });
+
+          const response = await fetch("/api/search", {
+            method: "POST",
             headers: {
-              'Content-Type': 'application/json',
-              'x-custom-tinybird-token': token || '',
-              'x-custom-tinybird-api-url': apiUrl || '',
+              "Content-Type": "application/json",
+              "x-custom-tinybird-token": token || "",
+              "x-custom-tinybird-api-url": apiUrl || "",
             },
             body: JSON.stringify({ prompt: input, apiKey: openaiKey }),
           });
-          
+
           if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.message || `API error: ${response.status}`);
+            throw new Error(
+              errorData.message || `API error: ${response.status}`
+            );
           }
-          
+
           const filters = await response.json();
-          console.log('AI response:', filters);
-          
+          console.log("AI response:", filters);
+
           // Apply filters to URL
           const params = new URLSearchParams(searchParams.toString());
-          
+
           // Process each filter from the AI response
           Object.entries(filters).forEach(([key, value]) => {
             if (!value) return; // Skip empty values
-            
+
             // For date_range, handle special case
-            if (key === 'date_range') {
+            if (key === "date_range") {
               // TODO: Handle date range logic here if needed
               return;
             }
-            
+
             // For regular dimensions, add to URL params
             params.set(key, value as string);
           });
-          
+
           // Update the URL with new filters
           const newUrl = `?${params.toString()}`;
-          console.log('Updating URL to:', newUrl);
+          console.log("Updating URL to:", newUrl);
           router.push(newUrl);
-          
+
           // Clear input
           if (inputRef.current) {
-            inputRef.current.value = '';
+            inputRef.current.value = "";
           }
         } catch (error) {
-          console.error('Search error:', error);
-          alert('Failed to process your search. Please try again.');
+          console.error("Search error:", error);
+          alert("Failed to process your search. Please try again.");
         } finally {
           setIsLoading(false);
         }
@@ -133,21 +138,21 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
   const handleRemoveFilter = (dimension: string, value: string) => {
     // Get current params
     const params = new URLSearchParams(searchParams.toString());
-    const currentValues = params.get(dimension)?.split(',') || [];
-    
+    const currentValues = params.get(dimension)?.split(",") || [];
+
     // Remove the value
-    const newValues = currentValues.filter(v => v !== value);
-    
+    const newValues = currentValues.filter((v) => v !== value);
+
     // Update or remove the param
     if (newValues.length > 0) {
-      params.set(dimension, newValues.join(','));
+      params.set(dimension, newValues.join(","));
     } else {
       params.delete(dimension);
     }
-    
+
     // Update URL
     router.push(`?${params.toString()}`);
-    
+
     // Notify parent
     onRemoveFilter(dimension, value);
   };
@@ -186,7 +191,10 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
                 <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
               ) : (
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                <button type="submit" onClick={() => handleSearch({ key: 'Enter' } as any)}>
+                <button
+                  type="submit"
+                  onClick={() => handleSearch({ key: "Enter" } as any)}
+                >
                   <Sparkles className="h-4 w-4" />
                 </button>
               )}
@@ -194,7 +202,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           </div>
           <DateRangeSelector />
         </div>
-        
+
         <div className="flex items-center gap-4">
           <button
             onClick={() => setIsSettingsOpen(true)}
@@ -205,7 +213,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           </button>
 
           <SignedOut>
-            <button 
+            <button
               onClick={() => setIsSignInOpen(true)}
               className="settings-button"
             >
@@ -222,8 +230,8 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         <div onClick={handleUserFilterClick}>
           <UserFilterChip userHash={userHash} />
         </div>
-        
-        {selections.map((selection) => (
+
+        {selections.map((selection) =>
           selection.values.map((value) => (
             <FilterChips
               key={`${selection.dimension}-${value}`}
@@ -232,7 +240,7 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               onRemove={() => handleRemoveFilter(selection.dimension, value)}
             />
           ))
-        ))}
+        )}
       </div>
 
       {/* Settings Modal */}
@@ -246,18 +254,30 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
           <div className="p-6">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-lg font-semibold">Settings</h3>
-              <button 
+              <button
                 onClick={() => setIsSettingsOpen(false)}
                 className="text-gray-500 hover:text-gray-700"
                 id="key-settings"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </button>
             </div>
-            
-            <ApiKeyInput isOpen={true} onClose={() => setIsSettingsOpen(false)} />
+
+            <ApiKeyInput
+              isOpen={true}
+              onClose={() => setIsSettingsOpen(false)}
+            />
           </div>
         </DialogPanel>
       </Dialog>
@@ -268,11 +288,11 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
         onClose={() => setIsSignInOpen(false)}
         static={true}
       >
-        <SignInModal 
+        <SignInModal
           isOpen={isSignInOpen}
           onClose={() => setIsSignInOpen(false)}
         />
       </Dialog>
     </div>
   );
-} 
+}
