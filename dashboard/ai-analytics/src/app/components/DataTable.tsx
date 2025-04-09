@@ -548,7 +548,7 @@ export default function DataTable({
               </button>
             </div>
             
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
+            <div className="space-y-2 max-h-[400px] overflow-y-auto pr-4">
               {columns.map(column => (
                 <div key={column.id} className="flex items-center justify-between py-2">
                   <span className="text-[#F4F4F4]">{column.label}</span>
