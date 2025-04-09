@@ -237,9 +237,9 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
     const activeTabData = TABS.find(tab => tab.id === activeTab)
     
     return (
-      <div className="flex flex-col h-full p-6">
+      <div className="flex flex-col h-full">
         {/* Tabs */}
-        <div className="flex border-b border-[#333333] mb-4">
+        <div className="flex mb-4">
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -257,7 +257,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
         </div>
         
         {/* Code snippet with copy button */}
-        <div className="relative bg-[#2A2A2A] rounded-md mb-6 overflow-auto max-h-[400px]">
+        <div className="relative bg-[#2A2A2A] rounded-md mb-6 overflow-auto h-[400px]">
           <button
             onClick={handleCopySnippet}
             className="absolute top-2 right-2 p-2 rounded-md bg-[#1C1C1C] text-[#8D8D8D] hover:text-white transition-colors z-10"
@@ -270,12 +270,13 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             style={vscDarkPlus}
             customStyle={{
               margin: 0,
-              padding: '1.5rem',
+              padding: '24px',
               background: '#2A2A2A',
               borderRadius: '0.375rem',
               fontSize: '0.875rem',
               lineHeight: '1.5',
-              overflow: 'auto'
+              overflow: 'auto',
+              height: '100%'
             }}
             showLineNumbers={false}
           >
