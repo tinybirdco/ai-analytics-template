@@ -12,25 +12,9 @@ Features:
 
 Fork it and make it your own! You can track your own metrics and dimensions.
 
-Tech stack:
+## Set up the project
 
-- [Next.js](https://nextjs.org/) - Application
-- [Tinybird](https://tinybird.co) - Analytics
-- [OpenAI](https://openai.com/) - AI features
-- [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction) - AI features
-- [Vercel](https://sdk.vercel.ai/docs/introduction) - Application deployment
-- [Clerk](https://clerk.com/) - User management and auth
-- [Tremor](https://tremor.so/) - Charts
-
-## Live Demo
-
-- https://llm-tracker.tinybird.live
-
-## Quick Start
-
-Deploy the template, instrument and use the hosted version to track.
-
-### Deploy
+Fork the GitHub repository and deploy the data project to Tinybird.
 
 ```bash
 # install the tinybird CLI
@@ -43,14 +27,14 @@ tb login
 tb --cloud deploy --template https://github.com/tinybirdco/llm-performance-tracker/tree/main/tinybird
 ```
 
-### Instrumentation
+## Instrumentation
 
 Send your data to Tinybird using the [Events API](https://www.tinybird.co/docs/get-data-in/ingest-apis/events-api). Some examples:
 
 - [LiteLLM (Python)](https://www.tinybird.co/docs/get-data-in/guides/ingest-litellm)
 - [Vercel AI SDK (TypeScript)](https://www.tinybird.co/docs/get-data-in/guides/ingest-vercel-ai-sdk)
 
-### Use the hosted app
+## Use the hosted app
 
 ```bash
 # copy the token to the clipboard
@@ -60,6 +44,16 @@ tb --cloud token copy read_pipes && TINYBIRD_TOKEN=$(pbpaste)
 open https://llm-tracker.tinybird.live\?token\=$TINYBIRD_TOKEN
 ```
 
-## Build and deploy your own LLM tracker
+## Local development, multi-tenancy, customization and more 
 
 See [README.md](https://github.com/tinybirdco/llm-performance-tracker?tab=readme-ov-file#build-and-deploy-your-own-llm-tracker)
+
+## Tech stack
+
+- [Next.js](https://nextjs.org/) - Application
+- [Tinybird](https://tinybird.co) - Analytics
+- [OpenAI](https://openai.com/) - AI features
+- [Vercel AI SDK](https://sdk.vercel.ai/docs/introduction) - AI features
+- [Vercel](https://sdk.vercel.ai/docs/introduction) - Application deployment
+- [Clerk](https://clerk.com/) - User management and auth
+- [Tremor](https://tremor.so/) - Charts
