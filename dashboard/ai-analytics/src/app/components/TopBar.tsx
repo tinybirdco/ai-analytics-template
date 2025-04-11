@@ -190,9 +190,9 @@ export default function TopBar({ selections, onRemoveFilter }: TopBarProps) {
               {isLoading ? (
                 <div className="animate-spin h-4 w-4 border-2 border-white rounded-full border-t-transparent" />
               ) : (
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 <button
                   type="submit"
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onClick={() => handleSearch({ key: "Enter" } as any)}
                 >
                   <Sparkles className="h-4 w-4" />
