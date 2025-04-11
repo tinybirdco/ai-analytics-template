@@ -13,6 +13,7 @@ export function getApiUrlFromHost(host: string): string {
     'gcp-europe-west2': 'https://api.europe-west2.gcp.tinybird.co',
     'gcp-europe-west3': 'https://api.tinybird.co',
     'gcp-us-east4': 'https://api.us-east.tinybird.co',
+    'us_east': 'https://api.us-east.tinybird.co',
     'gcp-northamerica-northeast2': 'https://api.northamerica-northeast2.gcp.tinybird.co',
     'aws-eu-central-1': 'https://api.eu-central-1.aws.tinybird.co',
     'aws-eu-west-1': 'https://api.eu-west-1.aws.tinybird.co',
